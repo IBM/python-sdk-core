@@ -16,6 +16,7 @@
 
 import requests
 import time
+from .api_exception import ApiException
 
 class IAMTokenManager(object):
     DEFAULT_IAM_URL = 'https://iam.bluemix.net/identity/token'
@@ -44,9 +45,7 @@ class IAMTokenManager(object):
         if 200 <= response.status_code <= 299:
             return response.json()
         else:
-            from .service import ApiException, get_error_message
-            error_message = get_error_message(response)
-            raise ApiException(response.status_code, message=error_message, httpResponse=response)
+            raise ApiException(response.status_code, httpResponse=response)
 
     def get_token(self):
         """

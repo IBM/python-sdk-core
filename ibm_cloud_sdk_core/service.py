@@ -21,7 +21,6 @@ import platform
 import json as json_import
 import sys
 import requests
-import warnings
 from requests.structures import CaseInsensitiveDict
 from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
@@ -348,54 +347,7 @@ class Service(object):
             if response.status_code == 401:
                 error_message = 'Unauthorized: Access is denied due to ' \
                                 'invalid credentials '
-            else:
-                error_message = self._get_error_message(response)
-            error_info = self._get_error_info(response)
-            raise ApiException(response.status_code, error_message,
-                               info=error_info, httpResponse=response)
-
-    def _get_error_info(self, response):
-        """
-        Gets the error info (if any) from a JSON response.
-        :return: A `dict` containing additional information about the error.
-        :rtype: dict
-        """
-        info_keys = ['code_description', 'description', 'errors', 'help',
-                     'sub_code', 'warnings']
-        error_info = {}
-        try:
-            error_json = response.json()
-            error_info = {k:v for k, v in error_json.items() if k in info_keys}
-        except:
-            pass
-        return error_info if any(error_info) else None
-
-    def _get_error_message(self, response):
-        """
-        Gets the error message from a JSON response.
-        :return: the error message
-        :rtype: string
-        """
-        error_message = 'Unknown error'
-        try:
-            error_json = response.json()
-            if 'error' in error_json:
-                if isinstance(error_json['error'], dict) and 'description' in \
-                        error_json['error']:
-                    error_message = error_json['error']['description']
-                else:
-                    error_message = error_json['error']
-            elif 'error_message' in error_json:
-                error_message = error_json['error_message']
-            elif 'errorMessage' in error_json:
-                error_message = error_json['errorMessage']
-            elif 'msg' in error_json:
-                error_message = error_json['msg']
-            elif 'statusInfo' in error_json:
-                error_message = error_json['statusInfo']
-            return error_message
-        except:
-            return response.text or error_message
+            raise ApiException(response.status_code, error_message, httpResponse=response)
 
     @staticmethod
     def _convert_model(val, classname=None):
