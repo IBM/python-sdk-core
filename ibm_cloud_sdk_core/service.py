@@ -44,8 +44,6 @@ except ImportError:
 
 class Service(object):
     BEARER = 'Bearer'
-    X_WATSON_AUTHORIZATION_TOKEN = 'X-Watson-Authorization-Token'
-    AUTH_HEADER_DEPRECATION_MESSAGE = 'Authenticating with the X-Watson-Authorization-Token header is deprecated. The token continues to work with Cloud Foundry services, but is not supported for services that use Identity and Access Management (IAM) authentication.'
     ICP_PREFIX = 'icp-'
     APIKEY = 'apikey'
     IAM_ACCESS_TOKEN = 'iam_access_token'
@@ -288,9 +286,6 @@ class Service(object):
         if accept_json:
             headers['accept'] = 'application/json'
         headers.update(input_headers)
-
-        if self.X_WATSON_AUTHORIZATION_TOKEN in headers:
-            warnings.warn(self.AUTH_HEADER_DEPRECATION_MESSAGE)
 
         # Remove keys with None values
         params = remove_null_values(params)
