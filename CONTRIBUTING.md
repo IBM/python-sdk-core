@@ -33,7 +33,7 @@ You probably want to set up a [virtualenv].
 
 1. Clone this repository:
     ```sh
-    git clone https://github.com/watson-developer-cloud/python-sdk.git
+    git clone git@github.com:IBM/python-sdk-core.git
     ```
 1. Install the sdk as an editable package using the current source:
     ```sh
