@@ -303,7 +303,7 @@ def test_request_success_response():
                   content_type='application/json')
     service = AnyServiceV1('2018-11-20', username='username', password='password')
     detailed_response = service.request('GET', url='')
-    assert detailed_response.get_result().text == {'foo': 'bar'}
+    assert detailed_response.get_result().text == '{"foo": "bar"}'
 
 @responses.activate
 def test_request_fail_401():
