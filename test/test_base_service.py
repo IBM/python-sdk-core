@@ -4,9 +4,10 @@ import pytest
 import time
 import os
 import responses
-from ibm_cloud_sdk_core import Service
+from ibm_cloud_sdk_core import BaseService
+from ibm_cloud_sdk_core import ApiException
 
-class AnyServiceV1(Service):
+class AnyServiceV1(BaseService):
     default_url = 'https://gateway.watsonplatform.net/test/api'
 
     def __init__(self, version, url=default_url, username=None, password=None,
@@ -14,7 +15,7 @@ class AnyServiceV1(Service):
                  iam_apikey=None,
                  iam_access_token=None,
                  iam_url=None):
-        Service.__init__(
+        BaseService.__init__(
             self,
             vcap_services_name='test',
             url=url,
@@ -93,7 +94,6 @@ def test_http_config():
     assert response is not None
     assert len(responses.calls) == 1
 
-@responses.activate
 def test_fail_http_config():
     service = AnyServiceV1('2017-07-07', username='username', password='password')
     with pytest.raises(TypeError):
@@ -104,6 +104,9 @@ def test_iam():
     iam_url = "https://iam.bluemix.net/identity/token"
     service = AnyServiceV1('2017-07-07', iam_apikey="iam_apikey")
     assert service.token_manager is not None
+
+    service.set_iam_url('https://iam-test.bluemix.net/identity/token')
+    assert service.token_manager.iam_url == 'https://iam-test.bluemix.net/identity/token'
 
     iam_url = "https://iam.bluemix.net/identity/token"
     service = AnyServiceV1('2017-07-07', username='xxx', password='yyy')
@@ -133,37 +136,42 @@ def test_iam():
     service.any_service_call()
     assert "grant_type=refresh_token" in responses.calls[0].request.body
 
-@responses.activate
+def test_no_auth():
+    try:
+        service = AnyServiceV1('2017-07-07')
+        service.request('GET', url='')
+    except ValueError as err:
+        assert str(err) == 'You must specify your IAM api key or username and password service credentials (Note: these are different from your Bluemix id)'
+
 def test_when_apikey_is_username():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='xxxxx')
     assert service1.token_manager is not None
-    assert service1.iam_apikey is 'xxxxx'
+    assert service1.iam_apikey == 'xxxxx'
     assert service1.username is None
     assert service1.password is None
     assert service1.token_manager.iam_url == 'https://iam.bluemix.net/identity/token'
 
     service2 = AnyServiceV1('2017-07-07', username='apikey', password='xxxxx', iam_url='https://iam.stage1.bluemix.net/identity/token')
     assert service2.token_manager is not None
-    assert service2.iam_apikey is 'xxxxx'
+    assert service2.iam_apikey == 'xxxxx'
     assert service2.username is None
     assert service2.password is None
     assert service2.token_manager.iam_url == 'https://iam.stage1.bluemix.net/identity/token'
 
-@responses.activate
 def test_for_icp():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
     assert service1.token_manager is None
     assert service1.iam_apikey is None
     assert service1.username is not None
     assert service1.password is not None
-    assert service1.url is 'service_url'
+    assert service1.url == 'service_url'
 
     service2 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxx', url='service_url')
     assert service2.token_manager is None
     assert service2.iam_apikey is None
     assert service2.username is not None
     assert service2.password is not None
-    assert service2.url is 'service_url'
+    assert service2.url == 'service_url'
 
     service3 = AnyServiceV1('2017-07-07', iam_apikey='icp-xxx')
     assert service3.token_manager is None
@@ -176,7 +184,16 @@ def test_for_icp():
     assert service4.username is None
     assert service4.password is None
 
-@responses.activate
+    service5 = AnyServiceV1('2017-07-07', api_key='haha')
+    assert service5.token_manager is not None
+    assert service5.username is None
+    assert service5.password is None
+
+    service6 = AnyServiceV1('2017-07-07', api_key='icp-haha')
+    assert service6.token_manager is None
+    assert service6.username is not None
+    assert service6.password is not None
+
 def test_disable_SSL_verification():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
     assert service1.verify is None
@@ -226,8 +243,7 @@ def test_has_bad_first_or_last_char():
         AnyServiceV1('2018-11-20', iam_apikey='apikey', url='"url"')
     assert str(err.value) == 'The URL shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your URL'
 
-@responses.activate
-def test__set_credential_based_on_type():
+def test_set_credential_based_on_type():
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     service = AnyServiceV1('2018-11-20')
@@ -236,3 +252,111 @@ def test__set_credential_based_on_type():
 
     service = AnyServiceV1('2018-11-20', username='test', password='test')
     assert service.username == 'test'
+
+def test_vcap_credentials():
+    vcap_services = '{"test":[{"credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username", \
+        "password":"bogus password", \
+        "apikey":"bogus apikey",\
+        "iam_access_token":"bogus iam_access_token",\
+        "iam_apikey":"bogus iam_apikey"}}]}'
+    os.environ['VCAP_SERVICES'] = vcap_services
+    service = AnyServiceV1('2018-11-20')
+    assert service.url == 'https://gateway.watsonplatform.net/compare-comply/api'
+    assert service.username == 'bogus username'
+    assert service.password == 'bogus password'
+    assert service.iam_apikey == 'bogus iam_apikey'
+    assert service.iam_access_token == 'bogus iam_access_token'
+    del os.environ['VCAP_SERVICES']
+
+@responses.activate
+def test_request_server_error():
+    responses.add(responses.GET,
+                  'https://gateway.watsonplatform.net/test/api',
+                  status=500,
+                  body=json.dumps({'error': 'internal server error'}),
+                  content_type='application/json')
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    try:
+        service.request('GET', url='')
+    except ApiException as err:
+        assert err.message == 'internal server error'
+
+@responses.activate
+def test_request_success_json():
+    responses.add(responses.GET,
+                  'https://gateway.watsonplatform.net/test/api',
+                  status=200,
+                  body=json.dumps({'foo': 'bar'}),
+                  content_type='application/json')
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    detailed_response = service.request('GET', url='', accept_json=True)
+    assert detailed_response.get_result() == {'foo': 'bar'}
+
+@responses.activate
+def test_request_success_response():
+    responses.add(responses.GET,
+                  'https://gateway.watsonplatform.net/test/api',
+                  status=200,
+                  body=json.dumps({'foo': 'bar'}),
+                  content_type='application/json')
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    detailed_response = service.request('GET', url='')
+    assert detailed_response.get_result().text == {'foo': 'bar'}
+
+@responses.activate
+def test_request_fail_401():
+    responses.add(responses.GET,
+                  'https://gateway.watsonplatform.net/test/api',
+                  status=401,
+                  body=json.dumps({'foo': 'bar'}),
+                  content_type='application/json')
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    try:
+        service.request('GET', url='')
+    except ApiException as err:
+        assert err.message == 'Unauthorized: Access is denied due to invalid credentials'
+
+def test_misc_methods():
+    class MockModel(object):
+        def __init__(self, x=None):
+            self.x = x
+
+        def _to_dict(self):
+            _dict = {}
+            if hasattr(self, 'x') and self.x is not None:
+                _dict['x'] = self.x
+            return _dict
+
+        @classmethod
+        def _from_dict(cls, _dict):
+            args = {}
+            if 'x' in _dict:
+                args['x'] = _dict.get('x')
+            return cls(**args)
+
+    mock = MockModel('foo')
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    model1 = service._convert_model(mock)
+    assert model1 == {'x': 'foo'}
+
+    model2 = service._convert_model("{\"x\": \"foo\"}", MockModel)
+    assert model2 is not None
+    assert model2['x'] == 'foo'
+
+    temp = ['default', '123']
+    res_str = service._convert_list(temp)
+    assert res_str == 'default,123'
+
+    date = service._string_to_datetime('2017-03-06 16:00:04.159338')
+    assert date.day == 6
+    res = service._datetime_to_string(date)
+    assert res == '2017-03-06T16:00:04.159338'
+
+def test_default_headers():
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    service.set_default_headers({'xxx': 'yyy'})
+    assert service.default_headers == {'xxx': 'yyy'}
+    with pytest.raises(TypeError):
+        service.set_default_headers('xxx')

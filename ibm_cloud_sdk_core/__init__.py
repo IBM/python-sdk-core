@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .service import Service
+from .base_service import BaseService
 from .detailed_response import DetailedResponse
 from .iam_token_manager import IAMTokenManager
 from .api_exception import ApiException

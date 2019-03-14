@@ -41,7 +41,7 @@ except ImportError:
 #    import httplib as http_client
 # http_client.HTTPConnection.debuglevel = 1
 
-class Service(object):
+class BaseService(object):
     BEARER = 'Bearer'
     ICP_PREFIX = 'icp-'
     APIKEY = 'apikey'
@@ -87,9 +87,9 @@ class Service(object):
         # 1. Credentials are passed in constructor
         if api_key is not None:
             if api_key.startswith(self.ICP_PREFIX):
-                self.set_username_and_password(self.APIKEY, iam_apikey)
+                self.set_username_and_password(self.APIKEY, api_key)
             else:
-                self.set_token_manager(iam_apikey, iam_access_token, iam_url)
+                self.set_token_manager(api_key, iam_access_token, iam_url)
         elif username is not None and password is not None:
             if username is self.APIKEY and not password.startswith(self.ICP_PREFIX):
                 self.set_token_manager(password, iam_access_token, iam_url)
@@ -332,21 +332,13 @@ class Service(object):
                 except:
                     # deserialization fails because there is no text
                     return DetailedResponse(None, response.headers, response.status_code)
-                if 'status' in response_json and response_json['status'] == 'ERROR':
-                    status_code = 400
-                    error_message = 'Unknown error'
-
-                    if 'statusInfo' in response_json:
-                        error_message = response_json['statusInfo']
-                    if error_message == 'invalid-api-key':
-                        status_code = 401
-                    raise ApiException(status_code, error_message, httpResponse=response)
                 return DetailedResponse(response_json, response.headers, response.status_code)
             return DetailedResponse(response, response.headers, response.status_code)
         else:
+            error_message = None
             if response.status_code == 401:
                 error_message = 'Unauthorized: Access is denied due to ' \
-                                'invalid credentials '
+                                'invalid credentials'
             raise ApiException(response.status_code, error_message, httpResponse=response)
 
     @staticmethod
