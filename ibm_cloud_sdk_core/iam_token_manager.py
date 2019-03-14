@@ -45,7 +45,7 @@ class IAMTokenManager(object):
         if 200 <= response.status_code <= 299:
             return response.json()
         else:
-            raise ApiException(response.status_code, httpResponse=response)
+            raise ApiException(response.status_code, http_response=response)
 
     def get_token(self):
         """

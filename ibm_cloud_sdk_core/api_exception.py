@@ -21,27 +21,27 @@ class ApiException(Exception):
     :param int code: The HTTP status code returned.
     :param str message: A message describing the error.
     :param dict info: A dictionary of additional information about the error.
-    :param response httpResponse: response
+    :param response http_response: response
     """
-    def __init__(self, code, message=None, info=None, httpResponse=None):
+    def __init__(self, code, message=None, info=None, http_response=None):
         # Call the base class constructor with the parameters it needs
         super(ApiException, self).__init__(message)
         self.message = message
         self.code = code
         self.info = info
-        self.httpResponse = httpResponse
-        self.globalTransactionId = None
-        if httpResponse is not None:
-            self.globalTransactionId = httpResponse.headers.get('X-Global-Transaction-ID')
-            self.info = self.info if self.info else self._get_error_info(httpResponse)
-            self.message = self.message if self.message else self._get_error_message(httpResponse)
+        self.http_response = http_response
+        self.global_transaction_id = None
+        if http_response is not None:
+            self.global_transaction_id = http_response.headers.get('X-Global-Transaction-ID')
+            self.info = self.info if self.info else self._get_error_info(http_response)
+            self.message = self.message if self.message else self._get_error_message(http_response)
 
     def __str__(self):
         msg = 'Error: ' + str(self.message) + ', Code: ' + str(self.code)
         if self.info is not None:
             msg += ' , Information: ' + str(self.info)
-        if self.globalTransactionId is not None:
-            msg += ' , X-global-transaction-id: ' + str(self.globalTransactionId)
+        if self.global_transaction_id is not None:
+            msg += ' , X-global-transaction-id: ' + str(self.global_transaction_id)
         return  msg
 
     def _get_error_info(self, response):
