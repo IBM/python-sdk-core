@@ -28,37 +28,17 @@ class ApiException(Exception):
         super(ApiException, self).__init__(message)
         self.message = message
         self.code = code
-        self.info = info
         self.http_response = http_response
         self.global_transaction_id = None
         if http_response is not None:
             self.global_transaction_id = http_response.headers.get('X-Global-Transaction-ID')
-            self.info = self.info if self.info else self._get_error_info(http_response)
             self.message = self.message if self.message else self._get_error_message(http_response)
 
     def __str__(self):
         msg = 'Error: ' + str(self.message) + ', Code: ' + str(self.code)
-        if self.info is not None:
-            msg += ' , Information: ' + str(self.info)
         if self.global_transaction_id is not None:
             msg += ' , X-global-transaction-id: ' + str(self.global_transaction_id)
         return  msg
-
-    def _get_error_info(self, response):
-        """
-        Gets the error info (if any) from a JSON response.
-        :return: A `dict` containing additional information about the error.
-        :rtype: dict
-        """
-        info_keys = ['code_description', 'description', 'errors', 'help',
-                     'sub_code', 'warnings']
-        error_info = {}
-        try:
-            error_json = response.json()
-            error_info = {k:v for k, v in error_json.items() if k in info_keys}
-        except:
-            pass
-        return error_info if any(error_info) else None
 
     def _get_error_message(self, response):
         """
@@ -69,20 +49,14 @@ class ApiException(Exception):
         error_message = 'Unknown error'
         try:
             error_json = response.json()
-            if 'error' in error_json:
-                if isinstance(error_json['error'], dict) and 'description' in \
-                        error_json['error']:
-                    error_message = error_json['error']['description']
-                else:
-                    error_message = error_json['error']
-            elif 'error_message' in error_json:
-                error_message = error_json['error_message']
-            elif 'errorMessage' in error_json:
-                error_message = error_json['errorMessage']
-            elif 'msg' in error_json:
-                error_message = error_json['msg']
-            elif 'statusInfo' in error_json:
-                error_message = error_json['statusInfo']
+            if 'errors' in error_json:
+                if isinstance(error_json['errors'], list):
+                    err = error_json['errors'][0]
+                    error_message = err.get('message')
+            elif 'error' in error_json:
+                error_message = error_json['error']
+            elif 'message' in error_json:
+                error_message = error_json['message']
             return error_message
         except:
             return response.text or error_message

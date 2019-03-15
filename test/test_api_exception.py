@@ -20,7 +20,13 @@ def test_api_exception():
     responses.add(responses.GET,
                   'https://test-again.com',
                   status=500,
-                  body=json.dumps({'error_message': 'sorry again', 'msg': 'serious error'}),
+                  headers={'global_transaction_id': 'xx'},
+                  body=json.dumps({
+                      "errors": [
+                          {
+                              "message": "sorry again",
+                          }],
+                  }),
                   content_type='application/json')
     mock_response = requests.get('https://test-again.com')
     exception = ApiException(500, http_response=mock_response)
@@ -29,7 +35,7 @@ def test_api_exception():
     responses.add(responses.GET,
                   'https://test-once-more.com',
                   status=500,
-                  body=json.dumps({'errorMessage': 'sorry once more', 'msg': 'serious error'}),
+                  body=json.dumps({'message': 'sorry once more'}),
                   content_type='application/json')
     mock_response = requests.get('https://test-once-more.com')
     exception = ApiException(500, http_response=mock_response)
@@ -42,16 +48,7 @@ def test_api_exception():
                   content_type='application/json')
     mock_response = requests.get('https://test-msg.com')
     exception = ApiException(500, http_response=mock_response)
-    assert exception.message == 'serious error'
-
-    responses.add(responses.GET,
-                  'https://test-status.com',
-                  status=500,
-                  body=json.dumps({'statusInfo': 'not yet provisioned'}),
-                  content_type='application/json')
-    mock_response = requests.get('https://test-status.com')
-    exception = ApiException(500, http_response=mock_response)
-    assert exception.message == 'not yet provisioned'
+    assert exception.message == 'Unknown error'
 
     responses.add(responses.GET,
                   'https://test-for-text.com',
