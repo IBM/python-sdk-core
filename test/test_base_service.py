@@ -356,8 +356,20 @@ def test_default_headers():
     with pytest.raises(TypeError):
         service.set_default_headers('xxx')
 
+@responses.activate
 def test_user_agent_header():
     service = AnyServiceV1('2018-11-20', username='username', password='password')
     user_agent_header = service.get_user_agent_header()
     assert user_agent_header is not None
     assert user_agent_header['User-Agent'] is not None
+
+    responses.add(responses.GET,
+                  'https://gateway.watsonplatform.net/test/api',
+                  status=200,
+                  body=json.dumps({'foo': 'bar'}),
+                  content_type='application/json')
+    response = service.request('GET', url='', headers={'user-agent': 'my_user_agent'})
+    assert response.get_result().request.headers.__getitem__('user-agent') == 'my_user_agent'
+
+    response = service.request('GET', url='', headers=None)
+    assert response.get_result().request.headers.__getitem__('user-agent') == user_agent_header['User-Agent']

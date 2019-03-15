@@ -276,15 +276,18 @@ class BaseService(object):
     def request(self, method, url, accept_json=False, headers=None,
                 params=None, json=None, data=None, files=None, **kwargs):
         full_url = self.url + url
-        input_headers = remove_null_values(headers) if headers else {}
-        input_headers = cleanup_values(input_headers)
 
-        headers = CaseInsensitiveDict(self.user_agent_header)
+        headers = CaseInsensitiveDict(headers)
+        headers = remove_null_values(headers)
+        headers = cleanup_values(headers)
+
         if self.default_headers is not None:
             headers.update(self.default_headers)
         if accept_json:
             headers['accept'] = 'application/json'
-        headers.update(input_headers)
+
+        if not any(key in headers for key in ['user-agent', 'User-Agent']):
+            headers.update(self.user_agent_header)
 
         # Remove keys with None values
         params = remove_null_values(params)
