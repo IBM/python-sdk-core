@@ -21,3 +21,4 @@ def test_detailed_response():
 
     dict_repr = detailed_response._to_dict()
     assert dict_repr['result'] == {'foobar': 'baz'}
+    detailed_response.__str__()

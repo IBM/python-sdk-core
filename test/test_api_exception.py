@@ -20,7 +20,6 @@ def test_api_exception():
     responses.add(responses.GET,
                   'https://test-again.com',
                   status=500,
-                  headers={'global_transaction_id': 'xx'},
                   body=json.dumps({
                       "errors": [
                           {
@@ -53,8 +52,9 @@ def test_api_exception():
     responses.add(responses.GET,
                   'https://test-for-text.com',
                   status=500,
+                  headers={'X-Global-Transaction-ID': 'xx'},
                   body="plain text error")
     mock_response = requests.get('https://test-for-text.com')
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'plain text error'
-    assert exception.__str__() == 'Error: plain text error, Code: 500'
+    assert exception.__str__() == 'Error: plain text error, Code: 500 , X-global-transaction-id: xx'

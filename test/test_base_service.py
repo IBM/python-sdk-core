@@ -236,11 +236,25 @@ def test_has_bad_first_or_last_char():
     assert str(err.value) == 'The username shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your username'
 
     with pytest.raises(ValueError) as err:
+        AnyServiceV1('2018-11-20', username='username', password='{password}')
+    assert str(err.value) == 'The password shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your password'
+
+    with pytest.raises(ValueError) as err:
         AnyServiceV1('2018-11-20', iam_apikey='{apikey}')
     assert str(err.value) == 'The credentials shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your credentials'
 
     with pytest.raises(ValueError) as err:
         AnyServiceV1('2018-11-20', iam_apikey='apikey', url='"url"')
+    assert str(err.value) == 'The URL shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your URL'
+
+    with pytest.raises(ValueError) as err:
+        service = AnyServiceV1('2018-11-20', iam_apikey='apikey', url='url')
+        service.set_iam_apikey('"wrong"')
+    assert str(err.value) == 'The credentials shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your credentials'
+
+    with pytest.raises(ValueError) as err:
+        service = AnyServiceV1('2018-11-20', iam_apikey='apikey', url='url')
+        service.set_url('"wrong"')
     assert str(err.value) == 'The URL shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your URL'
 
 def test_set_credential_based_on_type():
