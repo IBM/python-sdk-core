@@ -349,14 +349,15 @@ def test_misc_methods():
     res_str = service._convert_list(temp)
     assert res_str == 'default,123'
 
-    date = service._string_to_datetime('2017-03-06 16:00:04.159338')
-    assert date.day == 6
-    res = service._datetime_to_string(date)
-    assert res == '2017-03-06T16:00:04.159338'
-
 def test_default_headers():
     service = AnyServiceV1('2018-11-20', username='username', password='password')
     service.set_default_headers({'xxx': 'yyy'})
     assert service.default_headers == {'xxx': 'yyy'}
     with pytest.raises(TypeError):
         service.set_default_headers('xxx')
+
+def test_user_agent_header():
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    user_agent_header = service.get_user_agent_header()
+    assert user_agent_header is not None
+    assert user_agent_header['User-Agent'] is not None

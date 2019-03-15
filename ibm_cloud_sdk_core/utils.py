@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import dateutil.parser as date_parser
+
 def has_bad_first_or_last_char(str):
     return str is not None and (str.startswith('{') or str.startswith('"') or str.endswith('}') or str.endswith('"'))
 
@@ -32,3 +34,19 @@ def cleanup_value(value):
     if isinstance(value, bool):
         return 'true' if value else 'false'
     return value
+
+def datetime_to_string(datetime):
+    """
+    Serializes a datetime to a string.
+    :param datetime: datetime value
+    :return: string. containing iso8601 format date string
+    """
+    return datetime.isoformat().replace('+00:00', 'Z')
+
+def string_to_datetime(string):
+    """
+    Deserializes string to datetime.
+    :param string: string containing datetime in iso8601 format
+    :return: datetime.
+    """
+    return date_parser.parse(string)

@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dateutil.parser as date_parser
 import os
 from os.path import dirname, isfile, join, expanduser, abspath
 import platform
@@ -53,6 +52,7 @@ class BaseService(object):
     IAM_URL = 'iam_url'
     APIKEY_DEPRECATION_MESSAGE = 'Authenticating with apikey is deprecated. Move to using Identity and Access Management (IAM) authentication.'
     DEFAULT_CREDENTIALS_FILE_NAME = 'ibm-credentials.env'
+    SDK_NAME = 'ibm-python-sdk-core'
 
     def __init__(self, vcap_services_name, url, username=None, password=None,
                  use_vcap_services=True, api_key=None,
@@ -81,8 +81,7 @@ class BaseService(object):
             raise ValueError('The URL shouldn\'t start or end with curly brackets or quotes. '
                              'Be sure to remove any {} and \" characters surrounding your URL')
 
-        user_agent_string = 'ibm-python-sdk-core-' + __version__ + self.get_os_info()
-        self.user_agent_header = self.set_user_agent_header(user_agent_string)
+        self.set_user_agent_header(self.build_user_agent())
 
         # 1. Credentials are passed in constructor
         if api_key is not None:
@@ -137,7 +136,7 @@ class BaseService(object):
         :param str separator: the separator for key value pair
         """
         # File path specified by an env variable
-        credential_file_path = os.getenv("IBM_CREDENTIALS_FILE")
+        credential_file_path = os.getenv('IBM_CREDENTIALS_FILE')
 
         # Home directory
         if credential_file_path is None:
@@ -174,11 +173,11 @@ class BaseService(object):
                 self.set_iam_url(value)
 
     def _load_from_vcap_services(self, service_name):
-        vcap_services = os.getenv("VCAP_SERVICES")
+        vcap_services = os.getenv('VCAP_SERVICES')
         if vcap_services is not None:
             services = json_import.loads(vcap_services)
             if service_name in services:
-                return services[service_name][0]["credentials"]
+                return services[service_name][0]['credentials']
         else:
             return None
 
@@ -251,18 +250,19 @@ class BaseService(object):
         else:
             raise TypeError("headers parameter must be a dictionary")
 
-    def get_os_info(self):
-        user_agent_string = ''
-        user_agent_string += ' ' + platform.system() # OS
-        user_agent_string += ' ' + platform.release() # OS version
-        user_agent_string += ' ' + platform.python_version() # Python version
-        return user_agent_string
+    def get_system_info(self):
+        return '{0} {1} {2}'.format(platform.system(), # OS
+                                    platform.release(), # OS version
+                                    platform.python_version()) # Python version
+
+    def build_user_agent(self):
+        return '{0}-{1} {2}'.format(self.SDK_NAME, __version__, self.get_system_info())
 
     def get_user_agent_header(self):
         return self.user_agent_header
 
     def set_user_agent_header(self, user_agent_string=None):
-        self.user_agent_header = {'user-agent': user_agent_string}
+        self.user_agent_header = {'User-Agent': user_agent_string}
 
     def set_http_config(self, http_config):
         """
@@ -360,21 +360,3 @@ class BaseService(object):
     @staticmethod
     def _encode_path_vars(*args):
         return (requests.utils.quote(x, safe='') for x in args)
-
-    @staticmethod
-    def _datetime_to_string(datetime):
-        """
-        Serializes a datetime to a string.
-        :param datetime: datetime value
-        :return: string. containing iso8601 format date string
-        """
-        return datetime.isoformat().replace('+00:00', 'Z')
-
-    @staticmethod
-    def _string_to_datetime(string):
-        """
-        Deserializes string to datetime.
-        :param string: string containing datetime in iso8601 format
-        :return: datetime.
-        """
-        return date_parser.parse(string)
