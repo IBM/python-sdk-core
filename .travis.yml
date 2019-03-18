@@ -1,0 +1,42 @@
+language: python
+matrix:
+  include:
+    - python: 2.7
+    - python: 3.4
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7
+      dist: xenial
+      sudo: true
+cache: pip
+before_install:
+- npm install npm@latest -g
+install:
+- pip install tox-travis
+- pip install bumpversion
+- npm install @semantic-release/exec
+script:
+- tox
+before_deploy:
+- sudo apt-get update
+- pip install -r requirements.txt
+- pip install -r requirements-dev.txt
+- pip install pypandoc
+- sudo apt-get install pandoc
+- pip install --editable .
+deploy:
+  - provider: script
+    script: npx semantic-release
+    skip_cleanup: true
+    on:
+      python: '3.5'
+      branch: master
+  - provider: pypi
+    user: ehdsouza
+    password:
+      secure: eqNea0s1XHWbluBZiRRShfhx1NeGdcGC05IB+fNf1M6FC3klwjxFOhdToYNPr2RhpKTDFt2DZHqZt9fHHN18/aAmMPIc4Nbe7FBtZAEfNe6VH9shWGJFm1fOhjzz8x/BD1dn0wj7XmJon0jT13RS5VxlIxgxOAAceK0mGuM9hi0vnb0e10CBZ4Gk3h8Ns7Zke4WBsjpSdalAzJmfH5Zl/ZbXZj4UDI0ZT6Noc4CbB0buVdRVg8ph1S0n7I5TCKg34ERbm5GShNv/y6K4fTXh72pLIOZZlzXk/IfHPHWx/MZ/BqjjYHZY7disSldRsvW/PqR2tpKY3U7xZgupOzjbIuDzcrERfXA4gy+t9htZOMSXfG5P5LVKIYU5lMI9FOZcKHoyIrOBwKdqFiLbja+X6/95jyjDWb/ukp4BUatD6ju75v+YutOkyPCmBQmadzXDMLSyLcHAAuaWtIV1ZPufaZRr0LJbgAHPa+LBGvSWZ4JvfwguLKt2dgvYF3ZxImM528tcXjPFLej75Md21xsks1rsTbWZO/Cut8BTjj/mn/B9c2sSdPNUZRdVhTpb3tcnwpkis9tqdnzRqxoNftmfEAPWkDx8Z6U9lWEm4f4frSwkLKmyAA5FtLPW6TSwV4N7p8v6VnEO2JHAtWBxPOc/zjd9O49H3Wk3QPZwPoLSHOw=
+    repository: https://upload.pypi.org/legacy
+    skip_cleanup: true
+    on:
+      python: '3.5'
+      tags: true
