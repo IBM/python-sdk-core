@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/IBM/python-sdk-core.svg?branch=master)](https://travis-ci.com/IBM/python-sdk-core)
-[![codecov](https://codecov.io/gh/python-sdk-core/branch/master/graph/badge.svg)](https://codecov.io/gh/IBM/python-sdk-core)
+[![codecov](https://codecov.io/gh/IBM/python-sdk-core/branch/master/graph/badge.svg)](https://codecov.io/gh/IBM/python-sdk-core)
 [![Latest Stable Version](https://img.shields.io/pypi/v/ibm-cloud-sdk-core.svg)](https://pypi.python.org/pypi/ibm-cloud-sdk-core)
 
 # python-sdk-core
