@@ -34,8 +34,7 @@ deploy:
       branch: master
   - provider: pypi
     user: ehdsouza
-    password:
-      secure: hcxQTb0wrMdRxrs6lUnCvFp1wHIYwDxHwxtUShJF176mWYKooDuDmHa43CxnnYKuOE20uVgcYWEB4fOaiZAsTDcvBdE+LKbdNtggt9QvqqOr2DZQZxAts8I/xRKeYkCsiyMSUmxcjIck/38dxyq+gpo/X0dgVESbEMQYpm/izwxS5q6WpXrcazl73yeaKy3vkMFcewDQ8fss8bx+xV6kTX1qL++Z1zwoA7ONEgbMflqkdD6Ziy12JliznD2o35YCj3rTyHMk4L9vyRqperLPbFUg1CrEo7lP9WMzfHATALrRLTRmFmsXTwhQZdBr9VF3P7RhXe5grpoltHZodyMFiASqZXUBC1fWes8lU1Pxu2UIyKivcTEZo6RWJe+XjmskSs4iwksZEmj2aGes+gYdAEHJ1IbBbmiqhG8adJS6pbxAK8U9w2VavfENpTFHOn0chKlMByvWkECJDJRRGblYZoIDiTmzL6BcVGhN42RqpBskLRQouJzX+VTHp4tB55xxl13HkYfhhL3ikL6uQ5nWm3p0kYCt9PHXeBgRciZcfP3EpYanUbhbxqMmUAE9QYmAp6ppej4AYNN1LGU1JRcNGtw2dVf1KbVMJb78eXe1ykMb+hwCW+3q5EwwX1dm1ylvkYZd6rgC0008+x0CtXsEwqTB3W1ZH5FOlr9vHr+tNFQ=
+    password: $PYPI_PASSWORD
     repository: https://upload.pypi.org/legacy
     skip_cleanup: true
     on:
