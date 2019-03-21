@@ -301,7 +301,7 @@ class BaseService(object):
 
         # Support versions of requests older than 2.4.2 without the json input
         if not data and json is not None:
-            data = json.dumps(json)
+            data = json_import.dumps(json)
             headers.update({'content-type': 'application/json'})
 
         auth = None
