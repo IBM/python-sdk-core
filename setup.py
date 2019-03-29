@@ -19,7 +19,7 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 if sys.argv[-1] == 'publish':
     # test server
