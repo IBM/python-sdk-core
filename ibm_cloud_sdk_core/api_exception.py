@@ -57,6 +57,8 @@ class ApiException(Exception):
                 error_message = error_json['error']
             elif 'message' in error_json:
                 error_message = error_json['message']
+            elif 'errorMessage' in error_json:
+                error_message = error_json['errorMessage']
             return error_message
         except:
             return response.text or error_message

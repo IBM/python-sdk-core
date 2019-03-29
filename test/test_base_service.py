@@ -387,3 +387,18 @@ def test_user_agent_header():
 
     response = service.request('GET', url='', headers=None)
     assert response.get_result().request.headers.__getitem__('user-agent') == user_agent_header['User-Agent']
+
+@responses.activate
+def test_files():
+    service = AnyServiceV1('2018-11-20', username='username', password='password')
+
+    responses.add(responses.GET,
+                  'https://gateway.watsonplatform.net/test/api',
+                  status=200,
+                  body=json.dumps({'foo': 'bar'}),
+                  content_type='application/json')
+    form_data = {}
+    file = open(os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env'), 'r')
+    form_data['file1'] = (None, file, 'application/octet-stream')
+    form_data['string1'] = (None, 'hello', 'text.plain')
+    service.request('GET', url='', headers={'X-opt-out': True}, files=form_data)
