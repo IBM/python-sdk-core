@@ -398,7 +398,7 @@ def test_files():
                   body=json.dumps({'foo': 'bar'}),
                   content_type='application/json')
     form_data = {}
-    file = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
+    file = open(os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env'), 'r')
     form_data['file1'] = (None, file, 'application/octet-stream')
     form_data['string1'] = (None, 'hello', 'text.plain')
     service.request('GET', url='', headers={'X-opt-out': True}, files=form_data)
