@@ -50,6 +50,15 @@ def test_api_exception():
     assert exception.message == 'Unknown error'
 
     responses.add(responses.GET,
+                  'https://test-errormessage.com',
+                  status=500,
+                  body=json.dumps({'errorMessage': 'IAM error message'}),
+                  content_type='application/json')
+    mock_response = requests.get('https://test-errormessage.com')
+    exception = ApiException(500, http_response=mock_response)
+    assert exception.message == 'IAM error message'
+
+    responses.add(responses.GET,
                   'https://test-for-text.com',
                   status=500,
                   headers={'X-Global-Transaction-ID': 'xx'},

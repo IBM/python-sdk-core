@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import os
-from os.path import dirname, isfile, join, expanduser, abspath
+from os.path import dirname, isfile, join, expanduser, abspath, basename
 import platform
 import json as json_import
 import sys
@@ -277,9 +277,9 @@ class BaseService(object):
                 params=None, json=None, data=None, files=None, **kwargs):
         full_url = self.url + url
 
-        headers = CaseInsensitiveDict(headers)
-        headers = remove_null_values(headers)
+        headers = remove_null_values(headers) if headers else {}
         headers = cleanup_values(headers)
+        headers = CaseInsensitiveDict(headers)
 
         if self.default_headers is not None:
             headers.update(self.default_headers)
@@ -318,6 +318,14 @@ class BaseService(object):
 
         if self.verify is not None:
             kwargs['verify'] = self.verify
+
+        if files is not None:
+            for k, file_tuple in files.items():
+                if file_tuple and len(file_tuple) == 3 and file_tuple[0] is None:
+                    file = file_tuple[1]
+                    if file and hasattr(file, 'name'):
+                        filename = basename(file.name)
+                        files[k] = (filename, file_tuple[1], file_tuple[2])
 
         response = requests.request(method=method, url=full_url,
                                     cookies=self.jar, auth=auth,
