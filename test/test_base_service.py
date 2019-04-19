@@ -101,14 +101,14 @@ def test_fail_http_config():
 
 @responses.activate
 def test_iam():
-    iam_url = "https://iam.bluemix.net/identity/token"
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
     service = AnyServiceV1('2017-07-07', iam_apikey="iam_apikey")
     assert service.token_manager is not None
 
-    service.set_iam_url('https://iam-test.bluemix.net/identity/token')
-    assert service.token_manager.iam_url == 'https://iam-test.bluemix.net/identity/token'
+    service.set_iam_url('https://iam-test.cloud.ibm.com/identity/token')
+    assert service.token_manager.iam_url == 'https://iam-test.cloud.ibm.com/identity/token'
 
-    iam_url = "https://iam.bluemix.net/identity/token"
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
     service = AnyServiceV1('2017-07-07', username='xxx', password='yyy')
     assert service.token_manager is None
     service.set_iam_apikey('yyy')
@@ -149,14 +149,14 @@ def test_when_apikey_is_username():
     assert service1.iam_apikey == 'xxxxx'
     assert service1.username is None
     assert service1.password is None
-    assert service1.token_manager.iam_url == 'https://iam.bluemix.net/identity/token'
+    assert service1.token_manager.iam_url == 'https://iam.cloud.ibm.com/identity/token'
 
-    service2 = AnyServiceV1('2017-07-07', username='apikey', password='xxxxx', iam_url='https://iam.stage1.bluemix.net/identity/token')
+    service2 = AnyServiceV1('2017-07-07', username='apikey', password='xxxxx', iam_url='https://iam.stage1.cloud.ibm.com/identity/token')
     assert service2.token_manager is not None
     assert service2.iam_apikey == 'xxxxx'
     assert service2.username is None
     assert service2.password is None
-    assert service2.token_manager.iam_url == 'https://iam.stage1.bluemix.net/identity/token'
+    assert service2.token_manager.iam_url == 'https://iam.stage1.cloud.ibm.com/identity/token'
 
 def test_for_icp():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')

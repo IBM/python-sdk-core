@@ -55,3 +55,6 @@ python3/
 
 .sfdx/tools/apex.db
 .pytest_cache/
+/.project
+/.pydevproject
+/.settings/

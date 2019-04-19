@@ -19,17 +19,18 @@ import time
 from .api_exception import ApiException
 
 class IAMTokenManager(object):
-    DEFAULT_IAM_URL = 'https://iam.bluemix.net/identity/token'
+    DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com/identity/token'
     CONTENT_TYPE = 'application/x-www-form-urlencoded'
-    DEFAULT_AUTHORIZATION = 'Basic Yng6Yng='
     REQUEST_TOKEN_GRANT_TYPE = 'urn:ibm:params:oauth:grant-type:apikey'
     REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
     REFRESH_TOKEN_GRANT_TYPE = 'refresh_token'
 
-    def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None):
+    def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None, iam_client_id=None, iam_secret=None):
         self.iam_apikey = iam_apikey
         self.user_access_token = iam_access_token
         self.iam_url = iam_url if iam_url else self.DEFAULT_IAM_URL
+        self.iam_client_id = iam_client_id
+        self.iam_secret = iam_secret
         self.token_info = {
             'access_token': None,
             'refresh_token': None,
@@ -39,9 +40,12 @@ class IAMTokenManager(object):
         }
 
     def request(self, method, url, headers=None, params=None, data=None, **kwargs):
+        auth_tuple = ('bx', 'bx')
+        if self.iam_client_id and self.iam_secret:
+            auth_tuple = (self.iam_client_id, self.iam_secret)
         response = requests.request(method=method, url=url,
                                     headers=headers, params=params,
-                                    data=data, **kwargs)
+                                    data=data, auth=auth_tuple, **kwargs)
         if 200 <= response.status_code <= 299:
             return response.json()
         else:
@@ -77,8 +81,7 @@ class IAMTokenManager(object):
         """
         headers = {
             'Content-type': self.CONTENT_TYPE,
-            'Authorization': self.DEFAULT_AUTHORIZATION,
-            'accept': 'application/json'
+            'Accept': 'application/json'
         }
         data = {
             'grant_type': self.REQUEST_TOKEN_GRANT_TYPE,
@@ -98,8 +101,7 @@ class IAMTokenManager(object):
         """
         headers = {
             'Content-type': self.CONTENT_TYPE,
-            'Authorization': self.DEFAULT_AUTHORIZATION,
-            'accept': 'application/json'
+            'Accept': 'application/json'
         }
         data = {
             'grant_type': self.REFRESH_TOKEN_GRANT_TYPE,
@@ -130,6 +132,18 @@ class IAMTokenManager(object):
         Set the IAM url
         """
         self.iam_url = iam_url
+
+    def set_iam_authorization_info(self, iam_client_id, iam_secret):
+        """
+        Set the IAM authorization information.
+        This consists of the client_id and secret.
+        These values are used to form the basic authorization header that
+        is used when interacting with the IAM token server.
+        If these values are not supplied, then a default Authorization header
+        is used.
+        """
+        self.iam_client_id = iam_client_id
+        self.iam_secret = iam_secret
 
     def _is_token_expired(self):
         """
@@ -166,3 +180,4 @@ class IAMTokenManager(object):
         Save the response from the IAM service request to the object's state.
         """
         self.token_info = token_info
+        
