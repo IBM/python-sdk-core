@@ -56,7 +56,7 @@ class BaseService(object):
 
     def __init__(self, vcap_services_name, url, username=None, password=None,
                  use_vcap_services=True, api_key=None,
-                 iam_apikey=None, iam_access_token=None, iam_url=None,
+                 iam_apikey=None, iam_access_token=None, iam_url=None, iam_client_id=None, iam_client_secret=None,
                  display_name=None):
         """
         It loads credentials with the following preference:
@@ -74,6 +74,8 @@ class BaseService(object):
         self.iam_apikey = None
         self.iam_access_token = None
         self.iam_url = None
+        self.iam_client_id = None
+        self.iam_client_secret = None
         self.token_manager = None
         self.verify = None # Indicates whether to ignore verifying the SSL certification
 
@@ -88,17 +90,17 @@ class BaseService(object):
             if api_key.startswith(self.ICP_PREFIX):
                 self.set_username_and_password(self.APIKEY, api_key)
             else:
-                self.set_token_manager(api_key, iam_access_token, iam_url)
+                self.set_token_manager(api_key, iam_access_token, iam_url, iam_client_id, iam_client_secret)
         elif username is not None and password is not None:
             if username is self.APIKEY and not password.startswith(self.ICP_PREFIX):
-                self.set_token_manager(password, iam_access_token, iam_url)
+                self.set_token_manager(password, iam_access_token, iam_url, iam_client_id, iam_client_secret)
             else:
                 self.set_username_and_password(username, password)
         elif iam_access_token is not None or iam_apikey is not None:
             if iam_apikey and iam_apikey.startswith(self.ICP_PREFIX):
                 self.set_username_and_password(self.APIKEY, iam_apikey)
             else:
-                self.set_token_manager(iam_apikey, iam_access_token, iam_url)
+                self.set_token_manager(iam_apikey, iam_access_token, iam_url, iam_client_id, iam_client_secret)
 
         # 2. Credentials from credential file
         if display_name and not self.username and not self.token_manager:
@@ -196,15 +198,18 @@ class BaseService(object):
         self.password = password
         self.jar = CookieJar()
 
-    def set_token_manager(self, iam_apikey=None, iam_access_token=None, iam_url=None):
+    def set_token_manager(self, iam_apikey=None, iam_access_token=None, iam_url=None, 
+                          iam_client_id=None, iam_client_secret=None):
         if has_bad_first_or_last_char(iam_apikey):
             raise ValueError('The credentials shouldn\'t start or end with curly brackets or quotes. '
                              'Be sure to remove any {} and \" characters surrounding your credentials')
 
-        self.token_manager = IAMTokenManager(iam_apikey, iam_access_token, iam_url)
+        self.token_manager = IAMTokenManager(iam_apikey, iam_access_token, iam_url, iam_client_id, iam_client_secret)
         self.iam_apikey = iam_apikey
         self.iam_access_token = iam_access_token
         self.iam_url = iam_url
+        self.iam_client_id = iam_client_id
+        self.iam_client_secret = iam_client_secret
         self.jar = CookieJar()
 
     def set_iam_access_token(self, iam_access_token):
