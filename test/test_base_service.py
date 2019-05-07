@@ -141,7 +141,7 @@ def test_no_auth():
         service = AnyServiceV1('2017-07-07')
         service.request('GET', url='')
     except ValueError as err:
-        assert str(err) == 'You must specify your IAM api key or username and password service credentials (Note: these are different from your Bluemix id)'
+        assert str(err) == 'You must specify your IAM api key or username and password service credentials (Note: these are different from your IBM Cloud id)'
 
 def test_when_apikey_is_username():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='xxxxx')

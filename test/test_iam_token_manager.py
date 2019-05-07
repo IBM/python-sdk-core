@@ -4,7 +4,7 @@ import time
 
 @responses.activate
 def test_request_token():
-    iam_url = "https://iam.bluemix.net/identity/token"
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
     response = """{
         "access_token": "oAeisG8yqPY7sFR_x66Z15",
         "token_type": "Bearer",
@@ -23,7 +23,7 @@ def test_request_token():
 
 @responses.activate
 def test_refresh_token():
-    iam_url = "https://iam.bluemix.net/identity/token"
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
     response = """{
         "access_token": "oAeisG8yqPY7sFR_x66Z15",
         "token_type": "Bearer",
@@ -70,7 +70,7 @@ def test_is_refresh_token_expired():
 
 @responses.activate
 def test_get_token():
-    iam_url = "https://iam.bluemix.net/identity/token"
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
     token_manager = IAMTokenManager("iam_apikey", iam_url=iam_url)
     token_manager.user_access_token = 'user_access_token'
 
@@ -154,7 +154,7 @@ def test_request_token_auth_in_ctor():
 
 @responses.activate
 def test_request_token_auth_in_ctor_client_id_only():
-    iam_url = "https://iam.bluemix.net/identity/token"
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
     response = """{
         "access_token": "oAeisG8yqPY7sFR_x66Z15",
         "token_type": "Bearer",
@@ -175,7 +175,7 @@ def test_request_token_auth_in_ctor_client_id_only():
 
 @responses.activate
 def test_request_token_auth_in_ctor_secret_only():
-    iam_url = "https://iam.bluemix.net/identity/token"
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
     response = """{
         "access_token": "oAeisG8yqPY7sFR_x66Z15",
         "token_type": "Bearer",
