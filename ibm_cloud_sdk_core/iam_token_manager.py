@@ -25,12 +25,13 @@ class IAMTokenManager(object):
     REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
     REFRESH_TOKEN_GRANT_TYPE = 'refresh_token'
 
-    def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None, iam_client_id=None, iam_secret=None):
+    def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None, 
+                 iam_client_id=None, iam_client_secret=None):
         self.iam_apikey = iam_apikey
         self.user_access_token = iam_access_token
         self.iam_url = iam_url if iam_url else self.DEFAULT_IAM_URL
         self.iam_client_id = iam_client_id
-        self.iam_secret = iam_secret
+        self.iam_client_secret = iam_client_secret
         self.token_info = {
             'access_token': None,
             'refresh_token': None,
@@ -41,8 +42,8 @@ class IAMTokenManager(object):
 
     def request(self, method, url, headers=None, params=None, data=None, **kwargs):
         auth_tuple = ('bx', 'bx')
-        if self.iam_client_id and self.iam_secret:
-            auth_tuple = (self.iam_client_id, self.iam_secret)
+        if self.iam_client_id and self.iam_client_secret:
+            auth_tuple = (self.iam_client_id, self.iam_client_secret)
         response = requests.request(method=method, url=url,
                                     headers=headers, params=params,
                                     data=data, auth=auth_tuple, **kwargs)
@@ -133,7 +134,7 @@ class IAMTokenManager(object):
         """
         self.iam_url = iam_url
 
-    def set_iam_authorization_info(self, iam_client_id, iam_secret):
+    def set_iam_authorization_info(self, iam_client_id, iam_client_secret):
         """
         Set the IAM authorization information.
         This consists of the client_id and secret.
@@ -143,7 +144,7 @@ class IAMTokenManager(object):
         is used.
         """
         self.iam_client_id = iam_client_id
-        self.iam_secret = iam_secret
+        self.iam_client_secret = iam_client_secret
 
     def _is_token_expired(self):
         """
