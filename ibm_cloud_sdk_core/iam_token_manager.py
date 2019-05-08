@@ -25,7 +25,7 @@ class IAMTokenManager(object):
     REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
     REFRESH_TOKEN_GRANT_TYPE = 'refresh_token'
 
-    def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None, 
+    def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None,
                  iam_client_id=None, iam_client_secret=None):
         self.iam_apikey = iam_apikey
         self.user_access_token = iam_access_token
