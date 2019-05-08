@@ -41,7 +41,7 @@ class DetailedResponse(object):
     def _to_dict(self):
         _dict = {}
         if hasattr(self, 'result') and self.result is not None:
-            _dict['result'] = self.result if isinstance(self.result, dict) else 'HTTP response'
+            _dict['result'] = self.result if isinstance(self.result, (dict, list)) else 'HTTP response'
         if hasattr(self, 'headers') and self.headers is not None:
             _dict['headers'] = self.headers
         if hasattr(self, 'status_code') and self.status_code is not None:
