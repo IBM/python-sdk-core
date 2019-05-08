@@ -128,7 +128,7 @@ class BaseService(object):
         if (self.username is None or self.password is None) and self.token_manager is None:
             raise ValueError(
                 'You must specify your IAM api key or username and password service '
-                'credentials (Note: these are different from your Bluemix id)')
+                'credentials (Note: these are different from your IBM Cloud id)')
 
     def _load_from_credential_file(self, service_name, separator='='):
         """
