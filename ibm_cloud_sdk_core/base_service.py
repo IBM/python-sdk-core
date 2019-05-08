@@ -198,7 +198,7 @@ class BaseService(object):
         self.password = password
         self.jar = CookieJar()
 
-    def set_token_manager(self, iam_apikey=None, iam_access_token=None, iam_url=None, 
+    def set_token_manager(self, iam_apikey=None, iam_access_token=None, iam_url=None,
                           iam_client_id=None, iam_client_secret=None):
         if has_bad_first_or_last_char(iam_apikey):
             raise ValueError('The credentials shouldn\'t start or end with curly brackets or quotes. '
