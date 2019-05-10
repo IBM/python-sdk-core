@@ -58,3 +58,7 @@ python3/
 /.project
 /.pydevproject
 /.settings/
+
+# ignore detect secrets files
+.pre-commit-config.yaml
+.secrets.baseline
