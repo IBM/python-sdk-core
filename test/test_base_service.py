@@ -19,7 +19,7 @@ class AnyServiceV1(BaseService):
                  iam_url=None,
                  icp_access_token=None,
                  authentication_type=None
-                 ):
+                ):
         BaseService.__init__(
             self,
             vcap_services_name='test',
@@ -228,6 +228,15 @@ def test_for_icp4d():
     assert service2.username is None
     assert service2.password is None
     assert isinstance(service2.token_manager, ICPTokenManager)
+
+    service3 = AnyServiceV1('2019-06-03', username='hello', password='world')
+    assert service3.username is not None
+    assert service3.password is not None
+    assert service3.token_manager is None
+
+    service3.set_icp_access_token('icp_access_token')
+    assert service3.token_manager is not None
+    assert isinstance(service3.token_manager, ICPTokenManager)
 
 def test_disable_SSL_verification():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')

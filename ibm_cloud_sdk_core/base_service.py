@@ -46,6 +46,7 @@ class BaseService(object):
     ICP_PREFIX = 'icp-'
     APIKEY = 'apikey'
     IAM_ACCESS_TOKEN = 'iam_access_token'
+    ICP_ACCESS_TOKEN = 'icp_access_token'
     URL = 'url'
     USERNAME = 'username'
     PASSWORD = 'password'
@@ -134,6 +135,8 @@ class BaseService(object):
                     self.set_iam_apikey(self.vcap_service_credentials.get(self.IAM_APIKEY))
                 if self.IAM_ACCESS_TOKEN in self.vcap_service_credentials:
                     self.set_iam_access_token(self.vcap_service_credentials.get(self.IAM_ACCESS_TOKEN))
+                if self.ICP_ACCESS_TOKEN in self.vcap_service_credentials:
+                    self.set_icp_access_token(self.vcap_service_credentials.get(self.ICP_ACCESS_TOKEN))
 
         if (self.username is None or self.password is None) and self.token_manager is None:
             raise ValueError(
@@ -263,6 +266,14 @@ class BaseService(object):
         else:
             self.token_manager = IAMTokenManager(iam_access_token=iam_access_token)
         self.iam_access_token = iam_access_token
+        self.jar = CookieJar()
+
+    def set_icp_access_token(self, icp_access_token):
+        if self.token_manager:
+            self.token_manager.set_access_token(icp_access_token)
+        else:
+            self.token_manager = ICPTokenManager(self.url, access_token=icp_access_token)
+        self.icp_access_token = icp_access_token
         self.jar = CookieJar()
 
     def set_iam_url(self, iam_url):
