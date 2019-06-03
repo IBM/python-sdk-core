@@ -16,12 +16,13 @@
 
 from .jwt_token_manager import JWTTokenManager
 
-class ICPTokenManager(JWTTokenManager):
-    def __init__(self, url, username=None, password=None, access_token=None):
-        url = url + '/v1/preauth/validateAuth'
+class ICP4DTokenManager(JWTTokenManager):
+    TOKEN_NAME = 'accessToken'
+    def __init__(self, icp4d_url, username=None, password=None, access_token=None):
+        url = icp4d_url + '/v1/preauth/validateAuth'
         self.username = username
         self.password = password
-        super(ICPTokenManager, self).__init__(url, access_token)
+        super(ICP4DTokenManager, self).__init__(url, access_token, self.TOKEN_NAME)
 
     def request_token(self):
         auth_tuple = (self.username, self.password)

@@ -8,7 +8,7 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
         self.url = url
         self.access_token = access_token
         self.request_count = 0 # just for tests to see how  many times request was called
-        super(JWTTokenManagerMockImpl, self).__init__(url, access_token)
+        super(JWTTokenManagerMockImpl, self).__init__(url, access_token, 'access_token')
 
     def request_token(self):
         self.request_count += 1

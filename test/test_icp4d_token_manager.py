@@ -1,7 +1,7 @@
 import responses
 import jwt
 import json
-from ibm_cloud_sdk_core import ICPTokenManager
+from ibm_cloud_sdk_core import ICP4DTokenManager
 
 @responses.activate
 def test_request_token():
@@ -25,7 +25,7 @@ def test_request_token():
                               'secret', algorithm='HS256',
                               headers={'kid': '230498151c214b788dd97f22b85410a5'}).decode('utf-8')
     response = {
-        "access_token": access_token,
+        "accessToken": access_token,
         "token_type": "Bearer",
         "expires_in": 3600,
         "expiration": 1524167011,
@@ -33,7 +33,7 @@ def test_request_token():
     }
     responses.add(responses.GET, url + '/v1/preauth/validateAuth', body=json.dumps(response), status=200)
 
-    token_manager = ICPTokenManager(url, "username", "password")
+    token_manager = ICP4DTokenManager(url, "username", "password")
     token_manager.disable_SSL_verification(True)
     token = token_manager.get_token()
 

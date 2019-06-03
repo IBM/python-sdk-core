@@ -20,9 +20,7 @@ import requests
 from .api_exception import ApiException
 
 class JWTTokenManager(object):
-    TOKEN_NAME = 'access_token'
-
-    def __init__(self, url, access_token=None):
+    def __init__(self, url, access_token=None, token_name=None):
         """
         Parameters
         ----------
@@ -37,6 +35,7 @@ class JWTTokenManager(object):
         self.time_to_live = None
         self.expire_time = None
         self.verify = None # to enable/ disable SSL verification
+        self.token_name = token_name
 
     def get_token(self):
         """
@@ -57,7 +56,7 @@ class JWTTokenManager(object):
             token_response = self.request_token()
             self._save_token_info(token_response)
 
-        return self.token_info.get(self.TOKEN_NAME)
+        return self.token_info.get(self.token_name)
 
     def set_access_token(self, access_token):
         """
@@ -117,7 +116,7 @@ class JWTTokenManager(object):
         token_response : str
             Response from token service
         """
-        access_token = token_response.get(self.TOKEN_NAME)
+        access_token = token_response.get(self.token_name)
 
         # The time of expiration is found by decoding the JWT access token
         decoded_response = jwt.decode(access_token, verify=False)

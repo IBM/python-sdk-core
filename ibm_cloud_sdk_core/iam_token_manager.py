@@ -21,6 +21,7 @@ class IAMTokenManager(JWTTokenManager):
     CONTENT_TYPE = 'application/x-www-form-urlencoded'
     REQUEST_TOKEN_GRANT_TYPE = 'urn:ibm:params:oauth:grant-type:apikey'
     REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
+    TOKEN_NAME = 'access_token'
 
     def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None,
                  iam_client_id=None, iam_client_secret=None):
@@ -28,7 +29,7 @@ class IAMTokenManager(JWTTokenManager):
         self.iam_url = iam_url if iam_url else self.DEFAULT_IAM_URL
         self.iam_client_id = iam_client_id
         self.iam_client_secret = iam_client_secret
-        super(IAMTokenManager, self).__init__(self.iam_url, iam_access_token)
+        super(IAMTokenManager, self).__init__(self.iam_url, iam_access_token, self.TOKEN_NAME)
 
     def request_token(self):
         """

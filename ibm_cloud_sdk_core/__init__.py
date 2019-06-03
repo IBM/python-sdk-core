@@ -17,6 +17,6 @@ from .base_service import BaseService
 from .detailed_response import DetailedResponse
 from .iam_token_manager import IAMTokenManager
 from .jwt_token_manager import JWTTokenManager
-from .icp_token_manager import ICPTokenManager
+from .icp4d_token_manager import ICP4DTokenManager
 from .api_exception import ApiException
 from .utils import datetime_to_string, string_to_datetime

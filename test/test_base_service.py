@@ -7,7 +7,7 @@ import responses
 import jwt
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
-from ibm_cloud_sdk_core import ICPTokenManager
+from ibm_cloud_sdk_core import ICP4DTokenManager
 
 class AnyServiceV1(BaseService):
     default_url = 'https://gateway.watsonplatform.net/test/api'
@@ -17,7 +17,8 @@ class AnyServiceV1(BaseService):
                  iam_apikey=None,
                  iam_access_token=None,
                  iam_url=None,
-                 icp_access_token=None,
+                 icp4d_access_token=None,
+                 icp4d_url=None,
                  authentication_type=None
                 ):
         BaseService.__init__(
@@ -32,7 +33,8 @@ class AnyServiceV1(BaseService):
             iam_access_token=iam_access_token,
             iam_url=iam_url,
             display_name='Watson',
-            icp_access_token=icp_access_token,
+            icp4d_access_token=icp4d_access_token,
+            icp4d_url=icp4d_url,
             authentication_type=authentication_type)
         self.version = version
 
@@ -223,29 +225,29 @@ def test_for_icp():
     assert service6.password is not None
 
 def test_for_icp4d():
-    service1 = AnyServiceV1('2017-07-07', username='hello', password='world', url='service_url', authentication_type='icp4d')
+    service1 = AnyServiceV1('2017-07-07', username='hello', password='world', icp4d_url='service_url', authentication_type='icp4d')
     assert service1.token_manager is not None
     assert service1.iam_apikey is None
     assert service1.username is not None
     assert service1.password is not None
-    assert service1.url == 'service_url'
-    assert isinstance(service1.token_manager, ICPTokenManager)
+    assert service1.icp4d_url == 'service_url'
+    assert isinstance(service1.token_manager, ICP4DTokenManager)
 
-    service2 = AnyServiceV1('2017-07-07', icp_access_token='icp_access_token')
+    service2 = AnyServiceV1('2017-07-07', icp4d_access_token='icp4d_access_token', icp4d_url='service_url')
     assert service2.token_manager is not None
     assert service2.iam_apikey is None
     assert service2.username is None
     assert service2.password is None
-    assert isinstance(service2.token_manager, ICPTokenManager)
+    assert isinstance(service2.token_manager, ICP4DTokenManager)
 
-    service3 = AnyServiceV1('2019-06-03', username='hello', password='world')
+    service3 = AnyServiceV1('2019-06-03', username='hello', password='world', icp4d_url='icp4d_url')
     assert service3.username is not None
     assert service3.password is not None
     assert service3.token_manager is None
 
-    service3.set_icp_access_token('icp_access_token')
+    service3.set_icp4d_access_token('icp4d_access_token')
     assert service3.token_manager is not None
-    assert isinstance(service3.token_manager, ICPTokenManager)
+    assert isinstance(service3.token_manager, ICP4DTokenManager)
 
 def test_disable_SSL_verification():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
@@ -254,7 +256,7 @@ def test_disable_SSL_verification():
     service1.disable_SSL_verification()
     assert service1.verify is False
 
-    service2 = AnyServiceV1('2017-07-07', username='hello', password='world', authentication_type='icp4d')
+    service2 = AnyServiceV1('2017-07-07', username='hello', password='world', authentication_type='icp4d', icp4d_url='icp4d_url')
     assert service2.verify is None
     service2.disable_SSL_verification()
     assert service2.token_manager.verify is not None
@@ -354,11 +356,12 @@ def test_vcap_credentials():
 
     vcap_services = '{"test":[{"credentials":{ \
         "url":"https://gateway.watsonplatform.net/compare-comply/api",\
-        "icp_access_token":"bogus icp_access_token"}}]}'
+        "icp4d_url":"https://test/",\
+        "icp4d_access_token":"bogus icp4d_access_token"}}]}'
     os.environ['VCAP_SERVICES'] = vcap_services
     service = AnyServiceV1('2018-11-20')
     assert service.token_manager is not None
-    assert service.token_manager.user_access_token == 'bogus icp_access_token'
+    assert service.token_manager.user_access_token == 'bogus icp4d_access_token'
     del os.environ['VCAP_SERVICES']
 
 @responses.activate

@@ -24,7 +24,7 @@ from requests.structures import CaseInsensitiveDict
 from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
 from .iam_token_manager import IAMTokenManager
-from .icp_token_manager import ICPTokenManager
+from .icp4d_token_manager import ICP4DTokenManager
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 
@@ -46,12 +46,13 @@ class BaseService(object):
     ICP_PREFIX = 'icp-'
     APIKEY = 'apikey'
     IAM_ACCESS_TOKEN = 'iam_access_token'
-    ICP_ACCESS_TOKEN = 'icp_access_token'
+    ICP4D_ACCESS_TOKEN = 'icp4d_access_token'
     URL = 'url'
     USERNAME = 'username'
     PASSWORD = 'password'
     IAM_APIKEY = 'iam_apikey'
     IAM_URL = 'iam_url'
+    ICP4D_URL = 'icp4d_url'
     APIKEY_DEPRECATION_MESSAGE = 'Authenticating with apikey is deprecated. Move to using Identity and Access Management (IAM) authentication.'
     DEFAULT_CREDENTIALS_FILE_NAME = 'ibm-credentials.env'
     SDK_NAME = 'ibm-python-sdk-core'
@@ -59,7 +60,7 @@ class BaseService(object):
     def __init__(self, vcap_services_name, url, username=None, password=None,
                  use_vcap_services=True, api_key=None, iam_apikey=None, iam_url=None,
                  iam_access_token=None, iam_client_id=None, iam_client_secret=None,
-                 display_name=None, icp_access_token=None, authentication_type=None):
+                 display_name=None, icp4d_access_token=None, icp4d_url=None, authentication_type=None):
         """
         It loads credentials with the following preference:
         1) Credentials explicitly set in the request
@@ -78,7 +79,8 @@ class BaseService(object):
         self.iam_url = iam_url
         self.iam_client_id = iam_client_id
         self.iam_client_secret = iam_client_secret
-        self.icp_access_token = icp_access_token
+        self.icp4d_access_token = icp4d_access_token
+        self.icp4d_url = icp4d_url
         self.token_manager = None
         self.default_headers = None
         self.verify = None # Indicates whether to ignore verifying the SSL certification
@@ -104,11 +106,13 @@ class BaseService(object):
             self.iam_apikey = self.password
             self.username = None
             self.password = None
-        elif self._is_for_icp4d(self.authentication_type, self.icp_access_token):
-            self.token_manager = ICPTokenManager(self.url,
-                                                 self.username,
-                                                 self.password,
-                                                 self.icp_access_token)
+        elif self._is_for_icp4d(self.authentication_type, self.icp4d_access_token):
+            if self.icp4d_url is None:
+                raise Exception('The icp4d_url is mandatory for ICP4D.')
+            self.token_manager = ICP4DTokenManager(self.icp4d_url,
+                                                   self.username,
+                                                   self.password,
+                                                   self.icp4d_access_token)
         elif self._is_for_icp(self.api_key) or self._is_for_icp(self.iam_apikey):
             self.username = self.APIKEY
             self.password = self.api_key or self.iam_apikey
@@ -138,8 +142,10 @@ class BaseService(object):
                     self.set_iam_apikey(self.vcap_service_credentials.get(self.IAM_APIKEY))
                 if self.IAM_ACCESS_TOKEN in self.vcap_service_credentials:
                     self.set_iam_access_token(self.vcap_service_credentials.get(self.IAM_ACCESS_TOKEN))
-                if self.ICP_ACCESS_TOKEN in self.vcap_service_credentials:
-                    self.set_icp_access_token(self.vcap_service_credentials.get(self.ICP_ACCESS_TOKEN))
+                if self.ICP4D_URL in self.vcap_service_credentials:
+                    self.icp4d_url = self.vcap_service_credentials.get(self.ICP4D_URL)
+                if self.ICP4D_ACCESS_TOKEN in self.vcap_service_credentials:
+                    self.set_icp4d_access_token(self.vcap_service_credentials.get(self.ICP4D_ACCESS_TOKEN))
 
         if (self.username is None or self.password is None) and self.token_manager is None:
             raise ValueError(
@@ -202,8 +208,8 @@ class BaseService(object):
     def _is_for_icp(self, credential=None):
         return credential and credential.startswith(self.ICP_PREFIX)
 
-    def _is_for_icp4d(self, authentication_type, icp_access_token=None):
-        return authentication_type == 'icp4d' or icp_access_token
+    def _is_for_icp4d(self, authentication_type, icp4d_access_token=None):
+        return authentication_type == 'icp4d' or icp4d_access_token
 
     def _has_basic_credentials(self, username, password):
         return username and password and not self._uses_basic_for_iam(username, password)
@@ -259,12 +265,14 @@ class BaseService(object):
         self.iam_access_token = iam_access_token
         self.jar = CookieJar()
 
-    def set_icp_access_token(self, icp_access_token):
+    def set_icp4d_access_token(self, icp4d_access_token):
         if self.token_manager:
-            self.token_manager.set_access_token(icp_access_token)
+            self.token_manager.set_access_token(icp4d_access_token)
         else:
-            self.token_manager = ICPTokenManager(self.url, access_token=icp_access_token)
-        self.icp_access_token = icp_access_token
+            if self.icp4d_url is None:
+                raise Exception('The icp4d_url is mandatory for ICP4D.')
+            self.token_manager = ICP4DTokenManager(self.icp4d_url, access_token=icp4d_access_token)
+        self.icp4d_access_token = icp4d_access_token
         self.jar = CookieJar()
 
     def set_iam_url(self, iam_url):
