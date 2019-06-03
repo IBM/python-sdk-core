@@ -1,4 +1,5 @@
 # coding: utf-8
+
 # Copyright 2019 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .base_service import BaseService
-from .detailed_response import DetailedResponse
-from .iam_token_manager import IAMTokenManager
 from .jwt_token_manager import JWTTokenManager
-from .icp_token_manager import ICPTokenManager
-from .api_exception import ApiException
-from .utils import datetime_to_string, string_to_datetime
+
+class ICPTokenManager(JWTTokenManager):
+    def __init__(self, url, username=None, password=None, access_token=None):
+        url = url + '/v1/preauth/validateAuth'
+        self.username = username
+        self.password = password
+        super(ICPTokenManager, self).__init__(url, access_token)
+
+    def request_token(self):
+        auth_tuple = (self.username, self.password)
+
+        response = self._request(
+            method='GET',
+            url=self.url,
+            auth_tuple=auth_tuple)
+        return response

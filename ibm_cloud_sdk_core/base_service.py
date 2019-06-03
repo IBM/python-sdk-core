@@ -24,6 +24,7 @@ from requests.structures import CaseInsensitiveDict
 from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
 from .iam_token_manager import IAMTokenManager
+from .icp_token_manager import ICPTokenManager
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 
@@ -55,9 +56,9 @@ class BaseService(object):
     SDK_NAME = 'ibm-python-sdk-core'
 
     def __init__(self, vcap_services_name, url, username=None, password=None,
-                 use_vcap_services=True, api_key=None,
-                 iam_apikey=None, iam_access_token=None, iam_url=None, iam_client_id=None, iam_client_secret=None,
-                 display_name=None):
+                 use_vcap_services=True, api_key=None, iam_apikey=None, iam_url=None,
+                 iam_access_token=None, iam_client_id=None, iam_client_secret=None,
+                 display_name=None, icp_access_token=None, authentication_type=None):
         """
         It loads credentials with the following preference:
         1) Credentials explicitly set in the request
@@ -66,41 +67,50 @@ class BaseService(object):
         """
         self.url = url
         self.http_config = {}
+        self.authentication_type = authentication_type.lower() if authentication_type else None
         self.jar = None
-        self.api_key = None
-        self.username = None
-        self.password = None
-        self.default_headers = None
-        self.iam_apikey = None
-        self.iam_access_token = None
-        self.iam_url = None
-        self.iam_client_id = None
-        self.iam_client_secret = None
+        self.api_key = api_key
+        self.username = username
+        self.password = password
+        self.iam_apikey = iam_apikey
+        self.iam_access_token = iam_access_token
+        self.iam_url = iam_url
+        self.iam_client_id = iam_client_id
+        self.iam_client_secret = iam_client_secret
+        self.icp_access_token = icp_access_token
         self.token_manager = None
+        self.default_headers = None
         self.verify = None # Indicates whether to ignore verifying the SSL certification
 
-        if has_bad_first_or_last_char(self.url):
-            raise ValueError('The URL shouldn\'t start or end with curly brackets or quotes. '
-                             'Be sure to remove any {} and \" characters surrounding your URL')
+        self._check_credentials()
 
         self.set_user_agent_header(self.build_user_agent())
 
         # 1. Credentials are passed in constructor
-        if api_key is not None:
-            if api_key.startswith(self.ICP_PREFIX):
-                self.set_username_and_password(self.APIKEY, api_key)
-            else:
-                self.set_token_manager(api_key, iam_access_token, iam_url, iam_client_id, iam_client_secret)
-        elif username is not None and password is not None:
-            if username is self.APIKEY and not password.startswith(self.ICP_PREFIX):
-                self.set_token_manager(password, iam_access_token, iam_url, iam_client_id, iam_client_secret)
-            else:
-                self.set_username_and_password(username, password)
-        elif iam_access_token is not None or iam_apikey is not None:
-            if iam_apikey and iam_apikey.startswith(self.ICP_PREFIX):
-                self.set_username_and_password(self.APIKEY, iam_apikey)
-            else:
-                self.set_token_manager(iam_apikey, iam_access_token, iam_url, iam_client_id, iam_client_secret)
+        if self.authentication_type == 'iam' or self._has_iam_credentials(self.iam_apikey, self.iam_access_token) or self._has_iam_credentials(self.api_key, self.iam_access_token):
+            self.token_manager = IAMTokenManager(self.iam_apikey or self.api_key or self.password,
+                                                 self.iam_access_token,
+                                                 self.iam_url,
+                                                 self.iam_client_id,
+                                                 self.iam_client_secret)
+            self.iam_apikey = self.iam_apikey or self.api_key or self.password
+        elif self._uses_basic_for_iam(self.username, self.password):
+            self.token_manager = IAMTokenManager(self.password,
+                                                 self.iam_access_token,
+                                                 self.iam_url,
+                                                 self.iam_client_id,
+                                                 self.iam_client_secret)
+            self.iam_apikey = self.password
+            self.username = None
+            self.password = None
+        elif self._is_for_icp4d(self.authentication_type, self.icp_access_token):
+            self.token_manager = ICPTokenManager(self.url,
+                                                 self.username,
+                                                 self.password,
+                                                 self.icp_access_token)
+        elif self._is_for_icp(self.api_key) or self._is_for_icp(self.iam_apikey):
+            self.username = self.APIKEY
+            self.password = self.api_key or self.iam_apikey
 
         # 2. Credentials from credential file
         if display_name and not self.username and not self.token_manager:
@@ -182,6 +192,41 @@ class BaseService(object):
                 return services[service_name][0]['credentials']
         else:
             return None
+
+    def _is_for_icp(self, credential=None):
+        return credential and credential.startswith(self.ICP_PREFIX)
+
+    def _is_for_icp4d(self, authentication_type, icp_access_token=None):
+        return authentication_type == 'icp4d' or icp_access_token
+
+    def _has_basic_credentials(self, username, password):
+        return username and password and not self._uses_basic_for_iam(username, password)
+
+    def _has_iam_credentials(self, iam_apikey, iam_access_token):
+        return (iam_apikey or iam_access_token) and not self._is_for_icp(iam_apikey)
+
+    def _uses_basic_for_iam(self, username, password):
+        """
+        Returns true if the user provides basic auth creds with the intention
+        of using IAM auth
+        """
+        return username and password and username == self.APIKEY and not self._is_for_icp(password)
+
+    def _has_bad_first_or_last_char(self, str):
+        return str is not None and (str.startswith('{') or str.startswith('"') or str.endswith('}') or str.endswith('"'))
+
+    def _check_credentials(self):
+        credentials_to_check = {
+            'URL': self.url,
+            'username': self.username,
+            'password': self.password,
+            'credentials': self.iam_apikey
+        }
+
+        for key in credentials_to_check:
+            if self._has_bad_first_or_last_char(credentials_to_check.get(key)):
+                raise ValueError('The ' + key + ' shouldn\'t start or end with curly brackets or quotes. '
+                                 'Be sure to remove any {} and \" characters surrounding your ' + key)
 
     def disable_SSL_verification(self):
         self.verify = False
