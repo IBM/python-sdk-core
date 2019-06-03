@@ -112,6 +112,9 @@ class BaseService(object):
         elif self._is_for_icp(self.api_key) or self._is_for_icp(self.iam_apikey):
             self.username = self.APIKEY
             self.password = self.api_key or self.iam_apikey
+        elif self.token_manager is None and self._has_basic_credentials(username, password):
+            self.username = username
+            self.password = password
 
         # 2. Credentials from credential file
         if display_name and not self.username and not self.token_manager:
@@ -233,6 +236,8 @@ class BaseService(object):
 
     def disable_SSL_verification(self):
         self.verify = False
+        if self.token_manager is not None:
+            self.token_manager.disable_SSL_verification(True)
 
     def set_username_and_password(self, username, password):
         if has_bad_first_or_last_char(username):
@@ -244,20 +249,6 @@ class BaseService(object):
 
         self.username = username
         self.password = password
-        self.jar = CookieJar()
-
-    def set_token_manager(self, iam_apikey=None, iam_access_token=None, iam_url=None,
-                          iam_client_id=None, iam_client_secret=None):
-        if has_bad_first_or_last_char(iam_apikey):
-            raise ValueError('The credentials shouldn\'t start or end with curly brackets or quotes. '
-                             'Be sure to remove any {} and \" characters surrounding your credentials')
-
-        self.token_manager = IAMTokenManager(iam_apikey, iam_access_token, iam_url, iam_client_id, iam_client_secret)
-        self.iam_apikey = iam_apikey
-        self.iam_access_token = iam_access_token
-        self.iam_url = iam_url
-        self.iam_client_id = iam_client_id
-        self.iam_client_secret = iam_client_secret
         self.jar = CookieJar()
 
     def set_iam_access_token(self, iam_access_token):

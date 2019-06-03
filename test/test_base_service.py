@@ -177,6 +177,15 @@ def test_when_apikey_is_username():
     assert service2.password is None
     assert service2.token_manager.iam_url == 'https://iam.stage1.cloud.ibm.com/identity/token'
 
+def test_set_username_and_password():
+    service = AnyServiceV1('2017-07-07', username='hello', password='world')
+    assert service.username == 'hello'
+    assert service.password == 'world'
+
+    service.set_username_and_password('hello', 'ibm')
+    assert service.username == 'hello'
+    assert service.password == 'ibm'
+
 def test_for_icp():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
     assert service1.token_manager is None
@@ -245,6 +254,11 @@ def test_disable_SSL_verification():
     service1.disable_SSL_verification()
     assert service1.verify is False
 
+    service2 = AnyServiceV1('2017-07-07', username='hello', password='world', authentication_type='icp4d')
+    assert service2.verify is None
+    service2.disable_SSL_verification()
+    assert service2.token_manager.verify is not None
+
 @responses.activate
 def test_http_head():
     service = AnyServiceV1('2018-11-20', username='username', password='password')
@@ -301,6 +315,16 @@ def test_has_bad_first_or_last_char():
         service.set_url('"wrong"')
     assert str(err.value) == 'The URL shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your URL'
 
+    with pytest.raises(ValueError) as err:
+        service = AnyServiceV1('2018-11-20', username='hello', password='world')
+        service.set_username_and_password('"wrong"', 'password')
+    assert str(err.value) == 'The username shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your username'
+
+    with pytest.raises(ValueError) as err:
+        service = AnyServiceV1('2018-11-20', username='hello', password='world')
+        service.set_username_and_password('hello', '"wrong"')
+    assert str(err.value) == 'The password shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your password'
+
 def test_set_credential_based_on_type():
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
@@ -326,6 +350,15 @@ def test_vcap_credentials():
     assert service.password == 'bogus password'
     assert service.iam_apikey == 'bogus iam_apikey'
     assert service.iam_access_token == 'bogus iam_access_token'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{"credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "icp_access_token":"bogus icp_access_token"}}]}'
+    os.environ['VCAP_SERVICES'] = vcap_services
+    service = AnyServiceV1('2018-11-20')
+    assert service.token_manager is not None
+    assert service.token_manager.user_access_token == 'bogus icp_access_token'
     del os.environ['VCAP_SERVICES']
 
 @responses.activate

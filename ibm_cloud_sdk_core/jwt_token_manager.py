@@ -78,7 +78,7 @@ class JWTTokenManager(object):
 
     def disable_SSL_verification(self, status=None):
         if status is not None:
-            self.verify = False
+            self.verify = status
 
     def request_token(self):
         raise NotImplementedError('request_token MUST be overridden by a subclass of JWTTokenManager.')
