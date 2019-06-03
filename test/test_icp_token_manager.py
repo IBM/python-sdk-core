@@ -21,7 +21,9 @@ def test_request_token():
         "exp": 1559324664
     }
 
-    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    access_token = jwt.encode(access_token_layout,
+                              'secret', algorithm='HS256',
+                              headers={'kid': '230498151c214b788dd97f22b85410a5'}).decode('utf-8')
     response = {
         "access_token": access_token,
         "token_type": "Bearer",
