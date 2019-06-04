@@ -368,7 +368,7 @@ class BaseService(object):
         if self.token_manager:
             access_token = self.token_manager.get_token()
             headers['Authorization'] = '{0} {1}'.format(self.BEARER, access_token)
-        if self.username and self.password:
+        elif self.username and self.password:
             auth = (self.username, self.password)
 
         # Use a one minute timeout when our caller doesn't give a timeout.
