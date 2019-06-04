@@ -107,7 +107,7 @@ class BaseService(object):
             self.username = None
             self.password = None
         elif self._is_for_icp4d(self.authentication_type, self.icp4d_access_token):
-            if self.icp4d_url is None:
+            if self.icp4d_access_token is None and self.icp4d_url is None:
                 raise Exception('The icp4d_url is mandatory for ICP4D.')
             self.token_manager = ICP4DTokenManager(self.icp4d_url,
                                                    self.username,
