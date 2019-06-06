@@ -4,8 +4,10 @@ import pytest
 import time
 import os
 import responses
+import jwt
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
+from ibm_cloud_sdk_core import ICP4DTokenManager
 
 class AnyServiceV1(BaseService):
     default_url = 'https://gateway.watsonplatform.net/test/api'
@@ -14,7 +16,11 @@ class AnyServiceV1(BaseService):
                  api_key=None,
                  iam_apikey=None,
                  iam_access_token=None,
-                 iam_url=None):
+                 iam_url=None,
+                 icp4d_access_token=None,
+                 icp4d_url=None,
+                 authentication_type=None
+                ):
         BaseService.__init__(
             self,
             vcap_services_name='test',
@@ -26,7 +32,10 @@ class AnyServiceV1(BaseService):
             iam_apikey=iam_apikey,
             iam_access_token=iam_access_token,
             iam_url=iam_url,
-            display_name='Watson')
+            display_name='Watson',
+            icp4d_access_token=icp4d_access_token,
+            icp4d_url=icp4d_url,
+            authentication_type=authentication_type)
         self.version = version
 
     def op_with_path_params(self, path0, path1):
@@ -53,6 +62,25 @@ class AnyServiceV1(BaseService):
     def head_request(self):
         response = self.request(method='HEAD', url='', accept_json=True)
         return response
+
+def get_access_token():
+    access_token_layout = {
+        "username": "dummy",
+        "role": "Admin",
+        "permissions": [
+            "administrator",
+            "manage_catalog"
+        ],
+        "sub": "admin",
+        "iss": "sss",
+        "aud": "sss",
+        "uid": "sss",
+        "iat": 3600,
+        "exp": int(time.time())
+    }
+
+    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    return access_token.decode('utf-8')
 
 @responses.activate
 def test_url_encoding():
@@ -114,27 +142,20 @@ def test_iam():
     service.set_iam_apikey('yyy')
     assert service.token_manager is not None
 
-    service.token_manager.token_info = {
-        "access_token": "dummy",
+    response = {
+        "access_token": get_access_token(),
         "token_type": "Bearer",
         "expires_in": 3600,
-        "expiration": int(time.time()) - 4000,
+        "expiration": int(time.time()),
         "refresh_token": "jy4gl91BQ"
     }
-    response = """{
-        "access_token": "hellohello",
-        "token_type": "Bearer",
-        "expires_in": 3600,
-        "expiration": 1524167011,
-        "refresh_token": "jy4gl91BQ"
-    }"""
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=json.dumps(response), status=200)
     responses.add(responses.GET,
                   service.default_url,
                   body=json.dumps({"foobar": "baz"}),
                   content_type='application/json')
     service.any_service_call()
-    assert "grant_type=refresh_token" in responses.calls[0].request.body
+    assert "grant-type%3Aapikey" in responses.calls[0].request.body
 
 def test_no_auth():
     try:
@@ -157,6 +178,15 @@ def test_when_apikey_is_username():
     assert service2.username is None
     assert service2.password is None
     assert service2.token_manager.iam_url == 'https://iam.stage1.cloud.ibm.com/identity/token'
+
+def test_set_username_and_password():
+    service = AnyServiceV1('2017-07-07', username='hello', password='world')
+    assert service.username == 'hello'
+    assert service.password == 'world'
+
+    service.set_username_and_password('hello', 'ibm')
+    assert service.username == 'hello'
+    assert service.password == 'ibm'
 
 def test_for_icp():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
@@ -194,12 +224,42 @@ def test_for_icp():
     assert service6.username is not None
     assert service6.password is not None
 
+def test_for_icp4d():
+    service1 = AnyServiceV1('2017-07-07', username='hello', password='world', icp4d_url='service_url', authentication_type='icp4d')
+    assert service1.token_manager is not None
+    assert service1.iam_apikey is None
+    assert service1.username is not None
+    assert service1.password is not None
+    assert service1.icp4d_url == 'service_url'
+    assert isinstance(service1.token_manager, ICP4DTokenManager)
+
+    service2 = AnyServiceV1('2017-07-07', icp4d_access_token='icp4d_access_token', icp4d_url='service_url')
+    assert service2.token_manager is not None
+    assert service2.iam_apikey is None
+    assert service2.username is None
+    assert service2.password is None
+    assert isinstance(service2.token_manager, ICP4DTokenManager)
+
+    service3 = AnyServiceV1('2019-06-03', username='hello', password='world', icp4d_url='icp4d_url')
+    assert service3.username is not None
+    assert service3.password is not None
+    assert service3.token_manager is None
+
+    service3.set_icp4d_access_token('icp4d_access_token')
+    assert service3.token_manager is not None
+    assert isinstance(service3.token_manager, ICP4DTokenManager)
+
 def test_disable_SSL_verification():
     service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
     assert service1.verify is None
 
     service1.disable_SSL_verification()
     assert service1.verify is False
+
+    service2 = AnyServiceV1('2017-07-07', username='hello', password='world', authentication_type='icp4d', icp4d_url='icp4d_url')
+    assert service2.verify is None
+    service2.disable_SSL_verification()
+    assert service2.token_manager.verify is not None
 
 @responses.activate
 def test_http_head():
@@ -257,6 +317,16 @@ def test_has_bad_first_or_last_char():
         service.set_url('"wrong"')
     assert str(err.value) == 'The URL shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your URL'
 
+    with pytest.raises(ValueError) as err:
+        service = AnyServiceV1('2018-11-20', username='hello', password='world')
+        service.set_username_and_password('"wrong"', 'password')
+    assert str(err.value) == 'The username shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your username'
+
+    with pytest.raises(ValueError) as err:
+        service = AnyServiceV1('2018-11-20', username='hello', password='world')
+        service.set_username_and_password('hello', '"wrong"')
+    assert str(err.value) == 'The password shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your password'
+
 def test_set_credential_based_on_type():
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
@@ -282,6 +352,16 @@ def test_vcap_credentials():
     assert service.password == 'bogus password'
     assert service.iam_apikey == 'bogus iam_apikey'
     assert service.iam_access_token == 'bogus iam_access_token'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{"credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "icp4d_url":"https://test/",\
+        "icp4d_access_token":"bogus icp4d_access_token"}}]}'
+    os.environ['VCAP_SERVICES'] = vcap_services
+    service = AnyServiceV1('2018-11-20')
+    assert service.token_manager is not None
+    assert service.token_manager.user_access_token == 'bogus icp4d_access_token'
     del os.environ['VCAP_SERVICES']
 
 @responses.activate
