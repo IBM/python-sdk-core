@@ -70,7 +70,7 @@ class BaseService(object):
         self.url = url
         self.http_config = {}
         self.authentication_type = authentication_type.lower() if authentication_type else None
-        self.jar = None
+        self.jar = CookieJar()
         self.api_key = api_key
         self.username = username
         self.password = password
