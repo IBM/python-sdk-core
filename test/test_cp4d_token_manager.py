@@ -1,7 +1,7 @@
 import responses
 import jwt
 import json
-from ibm_cloud_sdk_core import ICP4DTokenManager
+from ibm_cloud_sdk_core import CP4DTokenManager
 
 @responses.activate
 def test_request_token():
@@ -33,8 +33,8 @@ def test_request_token():
     }
     responses.add(responses.GET, url + '/v1/preauth/validateAuth', body=json.dumps(response), status=200)
 
-    token_manager = ICP4DTokenManager(url, "username", "password")
-    token_manager.disable_SSL_verification(True)
+    token_manager = CP4DTokenManager("username", "password", url)
+    token_manager.set_disable_ssl_verification(True)
     token = token_manager.get_token()
 
     assert responses.calls[0].request.url == url + '/v1/preauth/validateAuth'

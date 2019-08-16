@@ -1,4 +1,5 @@
 # coding: utf-8
+
 # Copyright 2019 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .base_service import BaseService
-from .detailed_response import DetailedResponse
-from .iam_token_manager import IAMTokenManager
-from .jwt_token_manager import JWTTokenManager
-from .cp4d_token_manager import CP4DTokenManager
-from .api_exception import ApiException
-from .utils import datetime_to_string, string_to_datetime
+from .authenticator import Authenticator
+
+class NoAuthAuthenticator(Authenticator):
+    authentication_type = 'noauth'
+
+    def validate(self):
+        pass
+
+    def _is_basic_authentication(self):
+        return False
+
+    def _is_bearer_authentication(self):
+        return False
+
+    def authenticate(self):
+        pass

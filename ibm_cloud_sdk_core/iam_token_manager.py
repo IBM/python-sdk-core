@@ -16,6 +16,7 @@
 
 from .jwt_token_manager import JWTTokenManager
 
+
 class IAMTokenManager(JWTTokenManager):
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com/identity/token'
     CONTENT_TYPE = 'application/x-www-form-urlencoded'
@@ -23,13 +24,31 @@ class IAMTokenManager(JWTTokenManager):
     REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
     TOKEN_NAME = 'access_token'
 
-    def __init__(self, iam_apikey=None, iam_access_token=None, iam_url=None,
-                 iam_client_id=None, iam_client_secret=None):
-        self.iam_apikey = iam_apikey
-        self.iam_url = iam_url if iam_url else self.DEFAULT_IAM_URL
-        self.iam_client_id = iam_client_id
-        self.iam_client_secret = iam_client_secret
-        super(IAMTokenManager, self).__init__(self.iam_url, iam_access_token, self.TOKEN_NAME)
+    def __init__(self,
+                 apikey,
+                 url=None,
+                 client_id=None,
+                 client_secret=None,
+                 disable_ssl_verification=False,
+                 headers=None,
+                 proxies=None):
+        """
+        :attr str apikey: The apikey
+        :attr str url: The url for authentication
+        :attr str client_id: The client id for rate limiting
+        :attr str client_secret: The client secret for rate limiting
+        :attr bool disable_ssl_verification: enables/ disabled ssl verification
+        :attr dict headers: user-defined headers
+        :attr dict proxies: user-defined proxies
+        """
+        self.apikey = apikey
+        self.url = url if url else self.DEFAULT_IAM_URL
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.headers = headers
+        self.proxies = proxies
+        super(IAMTokenManager, self).__init__(
+            self.url, disable_ssl_verification, self.TOKEN_NAME)
 
     def request_token(self):
         """
@@ -39,9 +58,12 @@ class IAMTokenManager(JWTTokenManager):
             'Content-type': self.CONTENT_TYPE,
             'Accept': 'application/json'
         }
+        if self.headers is not None and isinstance(self.headers, dict):
+            headers.update(self.headers)
+
         data = {
             'grant_type': self.REQUEST_TOKEN_GRANT_TYPE,
-            'apikey': self.iam_apikey,
+            'apikey': self.apikey,
             'response_type': self.REQUEST_TOKEN_RESPONSE_TYPE
         }
 
@@ -49,30 +71,31 @@ class IAMTokenManager(JWTTokenManager):
         auth_tuple = ('bx', 'bx')
 
         # If both the clientId and secret were specified by the user, then use them
-        if self.iam_client_id and self.iam_client_secret:
-            auth_tuple = (self.iam_client_id, self.iam_client_secret)
+        if self.client_id and self.client_secret:
+            auth_tuple = (self.client_id, self.client_secret)
 
         response = self._request(
             method='POST',
             url=self.url,
             headers=headers,
             data=data,
-            auth_tuple=auth_tuple)
+            auth_tuple=auth_tuple,
+            proxies=self.proxies)
         return response
 
-    def set_iam_apikey(self, iam_apikey):
+    def set_apikey(self, apikey):
         """
-        Set the IAM api key
+        Set the apikey
         """
-        self.iam_apikey = iam_apikey
+        self.apikey = apikey
 
-    def set_iam_url(self, iam_url):
+    def set_url(self, url):
         """
         Set the IAM url
         """
-        self.iam_url = iam_url
+        self.url = url
 
-    def set_iam_authorization_info(self, iam_client_id, iam_client_secret):
+    def set_authorization_info(self, client_id, client_secret):
         """
         Set the IAM authorization information.
         This consists of the client_id and secret.
@@ -81,5 +104,23 @@ class IAMTokenManager(JWTTokenManager):
         If these values are not supplied, then a default Authorization header
         is used.
         """
-        self.iam_client_id = iam_client_id
-        self.iam_client_secret = iam_client_secret
+        self.client_id = client_id
+        self.client_secret = client_secret
+
+    def set_headers(self, headers):
+        """
+        Sets user-defined headers
+        """
+        if isinstance(headers, dict):
+            self.headers = headers
+        else:
+            raise TypeError('headers must be a dictionary')
+
+    def set_proxies(self, proxies):
+        """
+        Sets proxies
+        """
+        if isinstance(proxies, dict):
+            self.proxies = proxies
+        else:
+            raise TypeError('proxies must be a dictionary')
