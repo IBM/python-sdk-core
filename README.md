@@ -21,17 +21,52 @@ easy_install --upgrade ibm-cloud-sdk-core
 ```
 
 ## Authentication Types
-There are several flavors of authentication supported in this package. To specify the intended authentication pattern to use, the user can pass in the parameter `authentication_type`. This parameter is optional, but it may become required in a future major release. The options for this parameter are `basic`, `iam`, and `icp4d`.
+There are several flavors of authentication supported in this package. To specify the intended authentication pattern to use, simply instantiate a `Authenticator` of your choice.
 
-### basic
+### Basic
 This indicates Basic Auth is to be used. Users will pass in a `username` and `password` and the SDK will generate a Basic Auth header to send with requests to the service.
 
-### iam
-This indicates that IAM token authentication is to be used. Users can pass in an `iam_apikey` or an `iam_access_token`. If an API key is used, the SDK will manage the token for the user. In either case, the SDK will generate a Bearer Auth header to send with requests to the service.
+```py
+from ibm_cloud_sdk_core.authenticators import BasicAuthenticator
 
-### icp4d
-This indicates that the service is an instance of ICP4D, which has its own version of token authentication. Users can pass in a `username` and `password`, or an `icp4d_access_token`. If a username and password is given, the SDK will manage the token for the user.
-A `icp4d_url` is **required** for this type. In order to use an SDK-managed token with ICP4D authentication, this option **must** be passed in.
+authenticator = BasicAuthenticator(<your_username>, <your_password>)
+```
+
+### IAM
+This indicates that IAM token authentication is to be used. Users can pass in a `apikey` and the SDK will generate a Bearer Auth header to send with requests to the service.
+
+```py
+from ibm_cloud_sdk_core.authenticators import IamAuthenticator
+
+authenticator = IamAuthenticator(<your_apikey>)
+```
+
+### Cloud Pak for Data
+This indicates that the service is an instance of CP4D, which has its own version of token authentication. Users can pass in a `username`, `password` and `url`, and the SDK will generate a Bearer Auth header to send with requests to the service.
+
+```py
+from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
+
+authenticator = CloudPakForDataAuthenticator(<your_username>, <your_password>, <your_url>)
+```
+
+### Bearer Token
+This indicates bearer token authentication is to be used. The system would prepend the `bearer` name to your token and add it to the authorization header.
+
+```py
+from ibm_cloud_sdk_core.authenticators import BearerTokenAuthenticator
+
+authenticator = BearerTokenAuthenticator(<your_bearer_token>)
+```
+
+### No Authentication
+This indicates that no authentication is needed when sending requests to the service
+
+```py
+from ibm_cloud_sdk_core.authenticators import NoauthAuthenticator
+
+authenticator = NoauthAuthenticator()
+```
 
 ## Issues
 
