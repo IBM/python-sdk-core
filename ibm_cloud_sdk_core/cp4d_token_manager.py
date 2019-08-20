@@ -37,7 +37,7 @@ class CP4DTokenManager(JWTTokenManager):
         """
         self.username = username
         self.password = password
-        url = url + '/v1/preauth/validateAuth'
+        url = url + '/v1/preauth/validateAuth' if url else None
         self.headers = headers
         self.proxies = proxies
         super(CP4DTokenManager, self).__init__(url, disable_ssl_verification,
@@ -56,24 +56,6 @@ class CP4DTokenManager(JWTTokenManager):
             auth_tuple=auth_tuple,
             proxies=self.proxies)
         return response
-
-    def set_username(self, username):
-        """
-        Sets the username
-        """
-        self.username = username
-
-    def set_password(self, password):
-        """
-        Sets the password
-        """
-        self.password = password
-
-    def set_url(self, url):
-        """
-        Sets the url
-        """
-        self.url = url
 
     def set_headers(self, headers):
         """

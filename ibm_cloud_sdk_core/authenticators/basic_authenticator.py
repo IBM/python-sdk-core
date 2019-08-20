@@ -16,6 +16,7 @@
 
 from .authenticator import Authenticator
 from ..utils import has_bad_first_or_last_char
+import base64
 
 
 class BasicAuthenticator(Authenticator):
@@ -43,36 +44,12 @@ class BasicAuthenticator(Authenticator):
                 'The username and password shouldn\'t start or end with curly brackets or quotes. '
                 'Please remove any surrounding {, }, or \" characters.')
 
-    def authenticate(self):
+    def authenticate(self, req):
         """
-        Returns the username and password tuple
+        Adds the Authorization header, if applicable
         """
-        return (self.username, self.password)
+        authstring = "{0}:{1}".format(self.username, self.password)
+        base64_authorization = base64.b64encode(authstring.encode('utf-8')).decode('utf-8')
 
-    def set_username(self, username):
-        """
-        Sets the username
-        """
-        self.username = username
-        self.validate()
-
-    def set_password(self, password):
-        """
-        Sets the password
-        """
-        self.password = password
-        self.validate()
-
-    def set_username_and_password(self, username, password):
-        """
-        Sets the username and password
-        """
-        self.username = username
-        self.password = password
-        self.validate()
-
-    def _is_basic_authentication(self):
-        return True
-
-    def _is_bearer_authentication(self):
-        return False
+        headers = req.get('headers')
+        headers['Authorization'] = 'Basic {0}'.format(base64_authorization)

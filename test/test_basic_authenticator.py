@@ -7,19 +7,9 @@ def test_basic_authenticator():
     assert authenticator.username == 'my_username'
     assert authenticator.password == 'my_password'
 
-    authenticator.set_username('bogus')
-    authenticator.set_password('bogus')
-
-    (username, password) = authenticator.authenticate()
-    assert username == 'bogus'
-    assert password == 'bogus'
-
-    authenticator.set_username_and_password('wonder', 'woman')
-    assert authenticator.username == 'wonder'
-    assert authenticator.password == 'woman'
-
-    assert authenticator._is_basic_authentication() is True
-    assert authenticator._is_bearer_authentication() is False
+    request = {'headers': {}}
+    authenticator.authenticate(request)
+    assert request['headers']['Authorization'] == 'Basic bXlfdXNlcm5hbWU6bXlfcGFzc3dvcmQ='
 
 def test_basic_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:

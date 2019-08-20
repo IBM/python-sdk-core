@@ -16,17 +16,11 @@
 
 from .authenticator import Authenticator
 
-class NoAuthAuthenticator(Authenticator):
+class NoauthAuthenticator(Authenticator):
     authentication_type = 'noauth'
 
     def validate(self):
         pass
 
-    def _is_basic_authentication(self):
-        return False
-
-    def _is_bearer_authentication(self):
-        return False
-
-    def authenticate(self):
+    def authenticate(self, req):
         pass

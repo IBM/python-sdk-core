@@ -18,7 +18,7 @@ from .authenticator import Authenticator
 from ..utils import has_bad_first_or_last_char
 
 
-class BearerAuthenticator(Authenticator):
+class BearerTokenAuthenticator(Authenticator):
     authentication_type = 'bearerToken'
 
     def __init__(self, bearer_token):
@@ -35,25 +35,15 @@ class BearerAuthenticator(Authenticator):
         if self.bearer_token is None:
             raise ValueError('The bearer token shouldn\'t be None.')
 
-        if has_bad_first_or_last_char(self.bearer_token):
-            raise ValueError(
-                'The bearer token shouldn\'t start or end with curly brackets or quotes. '
-                'Please remove any surrounding {, }, or \" characters.')
-
-    def authenticate(self):
+    def authenticate(self, req):
         """
-        Returns the bearer token
+        Adds the Authorization header, if applicable
         """
-        return 'Bearer {0}'.format(self.bearer_token)
+        headers = req.get('headers')
+        headers['Authorization'] = 'Bearer {0}'.format(self.bearer_token)
 
     def set_bearer_token(self, bearer_token):
         """
         Sets the bearer token
         """
         self.bearer_token = bearer_token
-
-    def _is_basic_authentication(self):
-        return False
-
-    def _is_bearer_authentication(self):
-        return True

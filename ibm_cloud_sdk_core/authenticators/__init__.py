@@ -16,7 +16,7 @@
 
 from .authenticator import Authenticator
 from .basic_authenticator import BasicAuthenticator
-from .bearer_authenticator import BearerAuthenticator
-from .cp4d_authenticator import CP4DAuthenticator
-from .iam_authenticator import IAMAuthenticator
-from .no_auth_authenticator import NoAuthAuthenticator
+from .bearer_token_authenticator import BearerTokenAuthenticator
+from .cp4d_authenticator import CloudPakForDataAuthenticator
+from .iam_authenticator import IamAuthenticator
+from .no_auth_authenticator import NoauthAuthenticator

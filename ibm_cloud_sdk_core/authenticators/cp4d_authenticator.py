@@ -19,7 +19,7 @@ from ..cp4d_token_manager import CP4DTokenManager
 from ..utils import has_bad_first_or_last_char
 
 
-class CP4DAuthenticator(Authenticator):
+class CloudPakForDataAuthenticator(Authenticator):
     authentication_type = 'cp4d'
 
     def __init__(self,
@@ -48,6 +48,9 @@ class CP4DAuthenticator(Authenticator):
         if self.token_manager.username is None or self.token_manager.password is None:
             raise ValueError('The username and password shouldn\'t be None.')
 
+        if self.token_manager.url is None:
+            raise ValueError('The url shouldn\'t be None.')
+
         if has_bad_first_or_last_char(
                 self.token_manager.username) or has_bad_first_or_last_char(self.token_manager.password):
             raise ValueError(
@@ -59,39 +62,13 @@ class CP4DAuthenticator(Authenticator):
                 'The url shouldn\'t start or end with curly brackets or quotes. '
                 'Please remove any surrounding {, }, or \" characters.')
 
-    def authenticate(self):
+    def authenticate(self, req):
         """
-        Returns the bearer token
+        Adds the Authorization header, if applicable
         """
+        headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
-        return 'Bearer {0}'.format(bearer_token)
-
-    def _is_basic_authentication(self):
-        return False
-
-    def _is_bearer_authentication(self):
-        return True
-
-    def set_username(self, username):
-        """
-        Sets the username
-        """
-        self.token_manager.set_username(username)
-        self.validate()
-
-    def set_password(self, password):
-        """
-        Sets the password
-        """
-        self.token_manager.set_password(password)
-        self.validate()
-
-    def set_url(self, url):
-        """
-        Sets the url
-        """
-        self.token_manager.set_url(url)
-        self.validate()
+        headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
 
     def set_disable_ssl_verification(self, status=False):
         """

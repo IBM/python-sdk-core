@@ -83,19 +83,7 @@ class IAMTokenManager(JWTTokenManager):
             proxies=self.proxies)
         return response
 
-    def set_apikey(self, apikey):
-        """
-        Set the apikey
-        """
-        self.apikey = apikey
-
-    def set_url(self, url):
-        """
-        Set the IAM url
-        """
-        self.url = url
-
-    def set_authorization_info(self, client_id, client_secret):
+    def set_client_id_and_secret(self, client_id, client_secret):
         """
         Set the IAM authorization information.
         This consists of the client_id and secret.

@@ -3,10 +3,11 @@ import responses
 import time
 import jwt
 import json
-from ibm_cloud_sdk_core.authenticators import CP4DAuthenticator
+from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
 
 def test_iam_authenticator():
-    authenticator = CP4DAuthenticator('my_username', 'my_password', 'http://my_url')
+    authenticator = CloudPakForDataAuthenticator(
+        'my_username', 'my_password', 'http://my_url')
     assert authenticator is not None
     assert authenticator.token_manager.url == 'http://my_url/v1/preauth/validateAuth'
     assert authenticator.token_manager.username == 'my_username'
@@ -14,14 +15,6 @@ def test_iam_authenticator():
     assert authenticator.token_manager.disable_ssl_verification is False
     assert authenticator.token_manager.headers is None
     assert authenticator.token_manager.proxies is None
-
-    authenticator.set_url('new_url')
-    assert authenticator.token_manager.url == 'new_url'
-
-    authenticator.set_username('tom')
-    assert authenticator.token_manager.username == 'tom'
-    authenticator.set_password('jerry')
-    assert authenticator.token_manager.password == 'jerry'
 
     authenticator.set_disable_ssl_verification(True)
     assert authenticator.token_manager.disable_ssl_verification is True
@@ -40,29 +33,30 @@ def test_iam_authenticator():
     authenticator.set_proxies({'dummy': 'proxies'})
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
 
-    assert authenticator._is_basic_authentication() is False
-    assert authenticator._is_bearer_authentication() is True
-
 
 def test_iam_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
-        CP4DAuthenticator('my_username', None, 'my_url')
+        CloudPakForDataAuthenticator('my_username', None, 'my_url')
     assert str(err.value) == 'The username and password shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        CP4DAuthenticator(None, 'my_password', 'my_url')
+        CloudPakForDataAuthenticator(None, 'my_password', 'my_url')
     assert str(err.value) == 'The username and password shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        CP4DAuthenticator('{my_username}', 'my_password', 'my_url')
+        CloudPakForDataAuthenticator('my_username', 'my_password', None)
+    assert str(err.value) == 'The url shouldn\'t be None.'
+
+    with pytest.raises(ValueError) as err:
+        CloudPakForDataAuthenticator('{my_username}', 'my_password', 'my_url')
     assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
-        CP4DAuthenticator('my_username', '{my_password}', 'my_url')
+        CloudPakForDataAuthenticator('my_username', '{my_password}', 'my_url')
     assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
-        CP4DAuthenticator('my_username', 'my_password', '{my_url}')
+        CloudPakForDataAuthenticator('my_username', 'my_password', '{my_url}')
     assert str(err.value) == 'The url shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
 
@@ -96,5 +90,9 @@ def test_get_token():
     }
     responses.add(responses.GET, url + '/v1/preauth/validateAuth', body=json.dumps(response), status=200)
 
-    authenticator = CP4DAuthenticator('my_username', 'my_password', url)
-    assert authenticator.authenticate() is not None
+    authenticator = CloudPakForDataAuthenticator(
+        'my_username', 'my_password', url)
+
+    request = {'headers': {}}
+    authenticator.authenticate(request)
+    assert request['headers']['Authorization'] == 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJ1c2VybmFtZSI6ImR1bW15Iiwicm9sZSI6IkFkbWluIiwicGVybWlzc2lvbnMiOlsiYWRtaW5pc3RyYXRvciIsIm1hbmFnZV9jYXRhbG9nIl0sInN1YiI6ImFkbWluIiwiaXNzIjoic3NzIiwiYXVkIjoic3NzIiwidWlkIjoic3NzIiwiaWF0IjoxNTU5MzI0NjY0LCJleHAiOjE1NTkzMjQ2NjR9.JBIDn_aYg76RcDWsPd5gosQehuqT6tJurU5JKvTETdA'

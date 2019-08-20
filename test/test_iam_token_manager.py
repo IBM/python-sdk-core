@@ -121,7 +121,7 @@ def test_request_token_auth_in_setter():
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey")
-    token_manager.set_authorization_info('foo', 'bar')
+    token_manager.set_client_id_and_secret('foo', 'bar')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -143,7 +143,7 @@ def test_request_token_auth_in_setter_client_id_only():
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey")
-    token_manager.set_authorization_info('foo', None)
+    token_manager.set_client_id_and_secret('foo', None)
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -165,7 +165,7 @@ def test_request_token_auth_in_setter_secret_only():
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey")
-    token_manager.set_authorization_info(None, 'bar')
+    token_manager.set_client_id_and_secret(None, 'bar')
     token_manager.set_headers({'user':'header'})
     token_manager.request_token()
 

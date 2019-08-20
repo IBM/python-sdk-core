@@ -18,9 +18,9 @@ from abc import ABC, abstractmethod
 
 class Authenticator(ABC):
     @abstractmethod
-    def authenticate(self):
+    def authenticate(self, req):
         """
-        Returns the (username, password) or bearer <token>
+        Adds the Authorization header, if applicable
         """
         pass
 
@@ -28,19 +28,5 @@ class Authenticator(ABC):
     def validate(self):
         """
         Checks if all the inputs needed are present
-        """
-        pass
-
-    @abstractmethod
-    def _is_basic_authentication(self):
-        """
-        Return true if basic authentication
-        """
-        pass
-
-    @abstractmethod
-    def _is_bearer_authentication(self):
-        """
-        Return true if bearer authentication
         """
         pass

@@ -19,7 +19,7 @@ from ..iam_token_manager import IAMTokenManager
 from ..utils import has_bad_first_or_last_char
 
 
-class IAMAuthenticator(Authenticator):
+class IamAuthenticator(Authenticator):
     authentication_type = 'iam'
 
     def __init__(self,
@@ -63,33 +63,15 @@ class IAMAuthenticator(Authenticator):
             raise ValueError(
                 'Both client id and client secret should be initialized.')
 
-    def authenticate(self):
+    def authenticate(self, req):
         """
-        Returns the bearer token
+        Adds the Authorization header, if applicable
         """
+        headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
-        return 'Bearer {0}'.format(bearer_token)
+        headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
 
-    def _is_basic_authentication(self):
-        return False
-
-    def _is_bearer_authentication(self):
-        return True
-
-    def set_apikey(self, apikey):
-        """
-        Set the IAM api key
-        """
-        self.token_manager.set_apikey(apikey)
-        self.validate()
-
-    def set_url(self, url):
-        """
-        Set the IAM url
-        """
-        self.token_manager.set_url(url)
-
-    def set_authorization_info(self, client_id, client_secret):
+    def set_client_id_and_secret(self, client_id, client_secret):
         """
         Set the IAM authorization information.
         This consists of the client_id and secret.
@@ -98,7 +80,7 @@ class IAMAuthenticator(Authenticator):
         If these values are not supplied, then a default Authorization header
         is used.
         """
-        self.token_manager.set_authorization_info(client_id, client_secret)
+        self.token_manager.set_client_id_and_secret(client_id, client_secret)
         self.validate()
 
     def set_disable_ssl_verification(self, status=False):
