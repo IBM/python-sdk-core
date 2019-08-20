@@ -8,7 +8,7 @@ import jwt
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
-from ibm_cloud_sdk_core.authenticators import IamAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
+from ibm_cloud_sdk_core.authenticators import IamAuthenticator, NoauthAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
 
 
 class AnyServiceV1(BaseService):
@@ -21,7 +21,6 @@ class AnyServiceV1(BaseService):
                  disable_ssl_verification=False):
         BaseService.__init__(
             self,
-            vcap_services_name='test',
             url=url,
             authenticator=authenticator,
             disable_ssl_verification=disable_ssl_verification,
@@ -137,7 +136,12 @@ def test_fail_http_config():
 @responses.activate
 def test_iam():
     iam_authenticator = IamAuthenticator('my_apikey', 'https://iam-test.cloud.ibm.com/identity/token')
+    file_path = os.path.join(
+    os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
+    assert service.url == 'https://gateway-s.watsonplatform.net/watson/api'
+    del os.environ['IBM_CREDENTIALS_FILE']
     assert service.authenticator is not None
 
     response = {
@@ -154,7 +158,7 @@ def test_iam():
         status=200)
     responses.add(
         responses.GET,
-        service.default_url,
+        'https://gateway-s.watsonplatform.net/watson/api',
         body=json.dumps({
             "foobar": "baz"
         }),
@@ -172,7 +176,7 @@ def test_no_auth():
         AnyServiceV1('2017-07-07', authenticator=MadeUp())
     assert str(err.value) == 'authenticator should be of type Authenticator'
 
-    service = AnyServiceV1('2017-07-07')
+    service = AnyServiceV1('2017-07-07', authenticator=NoauthAuthenticator())
     assert service.authenticator is not None
     assert isinstance(service.authenticator, Authenticator)
 
@@ -239,72 +243,6 @@ def test_has_bad_first_or_last_char():
     assert str(
         err.value
     ) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
-
-
-def test_set_credential_based_on_type():
-    file_path = os.path.join(
-        os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service = AnyServiceV1('2018-11-20')
-    assert service.authenticator is not None
-    assert service.authenticator.token_manager.apikey == '5678efgh'
-    del os.environ['IBM_CREDENTIALS_FILE']
-
-    file_path = os.path.join(
-        os.path.dirname(__file__), '../resources/ibm-credentials-basic.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service2 = AnyServiceV1('2018-11-20')
-    assert service2.authenticator is not None
-    assert service2.authenticator.username == 'my_username'
-    del os.environ['IBM_CREDENTIALS_FILE']
-
-    file_path = os.path.join(
-        os.path.dirname(__file__), '../resources/ibm-credentials-cp4d.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service3 = AnyServiceV1('2018-11-20')
-    assert service3.authenticator is not None
-    assert service3.authenticator.token_manager.username == 'my_username'
-    assert service3.authenticator.token_manager.password == 'my_password'
-    del os.environ['IBM_CREDENTIALS_FILE']
-
-    file_path = os.path.join(
-        os.path.dirname(__file__), '../resources/ibm-credentials-no-auth.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service4 = AnyServiceV1('2018-11-20')
-    assert service4.authenticator is not None
-    del os.environ['IBM_CREDENTIALS_FILE']
-
-    file_path = os.path.join(
-        os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service5 = AnyServiceV1('2018-11-20')
-    assert service5.authenticator is not None
-    assert service5.authenticator.bearer_token is not None
-    del os.environ['IBM_CREDENTIALS_FILE']
-
-def test_vcap_credentials():
-    vcap_services = '{"test":[{"credentials":{ \
-        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
-        "username":"bogus username", \
-        "password":"bogus password"}}]}'
-
-    os.environ['VCAP_SERVICES'] = vcap_services
-    service = AnyServiceV1('2018-11-20')
-    assert service.url == 'https://gateway.watsonplatform.net/compare-comply/api'
-    assert service.authenticator is not None
-    assert service.authenticator.username == 'bogus username'
-    assert service.authenticator.password == 'bogus password'
-    del os.environ['VCAP_SERVICES']
-
-    vcap_services = '{"test":[{"credentials":{ \
-        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
-        "apikey":"bogus apikey"}}]}'
-
-    os.environ['VCAP_SERVICES'] = vcap_services
-    service = AnyServiceV1('2018-11-20')
-    assert service.authenticator is not None
-    assert service.authenticator.token_manager.apikey == 'bogus apikey'
-    del os.environ['VCAP_SERVICES']
 
 @responses.activate
 def test_request_server_error():
