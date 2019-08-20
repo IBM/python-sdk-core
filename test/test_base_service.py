@@ -8,7 +8,7 @@ import jwt
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator, Authenticator, BasicAuthenticator, CP4DAuthenticator
+from ibm_cloud_sdk_core.authenticators import IamAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
 
 
 class AnyServiceV1(BaseService):
@@ -36,21 +36,24 @@ class AnyServiceV1(BaseService):
         params = {'version': self.version}
         url = '/v1/foo/{0}/bar/{1}/baz'.format(
             *self._encode_path_vars(path0, path1))
-        response = self.request(
-            method='GET', url=url, params=params, accept_json=True)
+        request = self.prepare_request(method='GET', url=url, params=params)
+        response = self.send(request)
         return response
 
     def with_http_config(self, http_config):
         self.set_http_config(http_config)
-        response = self.request(method='GET', url='', accept_json=True)
+        request = self.prepare_request(method='GET', url='', accept_json=True)
+        response = self.send(request)
         return response
 
     def any_service_call(self):
-        response = self.request(method='GET', url='', accept_json=True)
+        request = self.prepare_request(method='GET', url='', accept_json=True)
+        response = self.send(request)
         return response
 
     def head_request(self):
-        response = self.request(method='HEAD', url='', accept_json=True)
+        request = self.prepare_request(method='HEAD', url='', accept_json=True)
+        response = self.send(request)
         return response
 
 
@@ -133,13 +136,9 @@ def test_fail_http_config():
 
 @responses.activate
 def test_iam():
-    url = "https://iam.cloud.ibm.com/identity/token"
-    iam_authenticator = IAMAuthenticator('my_apikey')
+    iam_authenticator = IamAuthenticator('my_apikey', 'https://iam-test.cloud.ibm.com/identity/token')
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
     assert service.authenticator is not None
-
-    iam_authenticator.set_url('https://iam-test.cloud.ibm.com/identity/token')
-    assert service.authenticator.token_manager.url == 'https://iam-test.cloud.ibm.com/identity/token'
 
     response = {
         "access_token": get_access_token(),
@@ -178,20 +177,9 @@ def test_no_auth():
     assert isinstance(service.authenticator, Authenticator)
 
 
-def test_set_username_and_password():
-    basic_authenticator = BasicAuthenticator('my_username', 'my_password')
-    service = AnyServiceV1('2017-07-07', authenticator=basic_authenticator)
-    assert service.authenticator.username == 'my_username'
-    assert service.authenticator.password == 'my_password'
-
-    basic_authenticator.set_username_and_password('hello', 'ibm')
-    assert service.authenticator.username == 'hello'
-    assert service.authenticator.password == 'ibm'
-
-
 def test_for_cp4d():
-    cp4d_authenticator = CP4DAuthenticator('my_username', 'my_password',
-                                           'my_url')
+    cp4d_authenticator = CloudPakForDataAuthenticator('my_username', 'my_password',
+                                                      'my_url')
     service = AnyServiceV1('2017-07-07', authenticator=cp4d_authenticator)
     assert service.authenticator.token_manager is not None
     assert service.authenticator.token_manager.username == 'my_username'
@@ -207,8 +195,8 @@ def test_disable_ssl_verification():
     service1.set_disable_ssl_verification(False)
     assert service1.disable_ssl_verification is False
 
-    cp4d_authenticator = CP4DAuthenticator('my_username', 'my_password',
-                                           'my_url')
+    cp4d_authenticator = CloudPakForDataAuthenticator('my_username', 'my_password',
+                                                      'my_url')
     service2 = AnyServiceV1('2017-07-07', authenticator=cp4d_authenticator)
     assert service2.disable_ssl_verification is False
     cp4d_authenticator.set_disable_ssl_verification(True)
@@ -330,7 +318,8 @@ def test_request_server_error():
         content_type='application/json')
     service = AnyServiceV1('2018-11-20')
     try:
-        service.request('GET', url='')
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
     except ApiException as err:
         assert err.message == 'internal server error'
 
@@ -345,13 +334,15 @@ def test_request_success_json():
         }),
         content_type='application/json')
     service = AnyServiceV1('2018-11-20')
-    detailed_response = service.request('GET', url='', accept_json=True)
+    prepped = service.prepare_request('GET', url='')
+    detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {'foo': 'bar'}
 
     service = AnyServiceV1('2018-11-20', authenticator=BasicAuthenticator('my_username', 'my_password'))
     service.set_default_headers({'test': 'header'})
     service.set_disable_ssl_verification(True)
-    detailed_response = service.request('GET', url='', accept_json=True)
+    prepped = service.prepare_request('GET', url='')
+    detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {'foo': 'bar'}
 
 @responses.activate
@@ -365,8 +356,9 @@ def test_request_success_response():
         }),
         content_type='application/json')
     service = AnyServiceV1('2018-11-20')
-    detailed_response = service.request('GET', url='')
-    assert detailed_response.get_result().text == '{"foo": "bar"}'
+    prepped = service.prepare_request('GET', url='')
+    detailed_response = service.send(prepped)
+    assert detailed_response.get_result() == {"foo": "bar"}
 
 @responses.activate
 def test_request_fail_401():
@@ -380,7 +372,8 @@ def test_request_fail_401():
         content_type='application/json')
     service = AnyServiceV1('2018-11-20')
     try:
-        service.request('GET', url='')
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
     except ApiException as err:
         assert err.message == 'Unauthorized: Access is denied due to invalid credentials'
 
@@ -448,18 +441,16 @@ def test_user_agent_header():
         responses.GET,
         'https://gateway.watsonplatform.net/test/api',
         status=200,
-        body=json.dumps({
-            'foo': 'bar'
-        }),
-        content_type='application/json')
-    response = service.request(
-        'GET', url='', headers={
-            'user-agent': 'my_user_agent'
-        })
+        body='some text')
+    prepped = service.prepare_request('GET', url='', headers={
+        'user-agent': 'my_user_agent'
+    })
+    response = service.send(prepped)
     assert response.get_result().request.headers.__getitem__(
         'user-agent') == 'my_user_agent'
 
-    response = service.request('GET', url='', headers=None)
+    prepped = service.prepare_request('GET', url='', headers=None)
+    response = service.send(prepped)
     assert response.get_result().request.headers.__getitem__(
         'user-agent') == user_agent_header['User-Agent']
 
@@ -481,4 +472,4 @@ def test_files():
             os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
     form_data['file1'] = (None, file, 'application/octet-stream')
     form_data['string1'] = (None, 'hello', 'text.plain')
-    service.request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)

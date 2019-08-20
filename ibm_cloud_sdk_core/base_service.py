@@ -25,7 +25,7 @@ from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
-from .authenticators import Authenticator, BasicAuthenticator, BearerAuthenticator, CP4DAuthenticator, IAMAuthenticator, NoAuthAuthenticator
+from .authenticators import Authenticator, BasicAuthenticator, BearerTokenAuthenticator, CloudPakForDataAuthenticator, IamAuthenticator, NoauthAuthenticator
 from http.cookiejar import CookieJar
 
 # Uncomment this to enable http debugging
@@ -88,7 +88,7 @@ class BaseService(object):
                 self._set_service_properties(vcap_service_credentials)
 
         if not self.authenticator:
-            self.authenticator = NoAuthAuthenticator()
+            self.authenticator = NoauthAuthenticator()
 
     def _load_from_credential_file(self, service_name, separator='='):
         """
@@ -139,23 +139,23 @@ class BaseService(object):
                 username=properties.get('username'),
                 password=properties.get('password'))
         elif auth_type == 'bearerToken':
-            self.authenticator = BearerAuthenticator(
+            self.authenticator = BearerTokenAuthenticator(
                 bearer_token=properties.get('bearer_token'))
         elif auth_type == 'cp4d':
-            self.authenticator = CP4DAuthenticator(
+            self.authenticator = CloudPakForDataAuthenticator(
                 username=properties.get('username'),
                 password=properties.get('password'),
                 url=properties.get('auth_url'),
                 disable_ssl_verification=properties.get('auth_disable_ssl'))
         elif auth_type == 'iam':
-            self.authenticator = IAMAuthenticator(
+            self.authenticator = IamAuthenticator(
                 apikey=properties.get('apikey'),
                 url=properties.get('auth_url'),
                 client_id=properties.get('client_id'),
                 client_secret=properties.get('client_secret'),
                 disable_ssl_verification=properties.get('auth_disable_ssl'))
         elif auth_type == 'noauth':
-            self.authenticator = NoAuthAuthenticator()
+            self.authenticator = NoauthAuthenticator()
 
     def _set_service_properties(self, properties):
         if 'url' in properties:
@@ -227,51 +227,7 @@ class BaseService(object):
         else:
             raise TypeError("headers parameter must be a dictionary")
 
-    def request(self,
-                method,
-                url,
-                accept_json=False,
-                headers=None,
-                params=None,
-                json=None,
-                data=None,
-                files=None,
-                **kwargs):
-        full_url = self.url + url
-
-        headers = remove_null_values(headers) if headers else {}
-        headers = cleanup_values(headers)
-        headers = CaseInsensitiveDict(headers)
-
-        if self.default_headers is not None:
-            headers.update(self.default_headers)
-        if accept_json:
-            headers['accept'] = 'application/json'
-
-        if not any(key in headers for key in ['user-agent', 'User-Agent']):
-            headers.update(self.user_agent_header)
-
-        # Remove keys with None values
-        params = remove_null_values(params)
-        params = cleanup_values(params)
-        json = remove_null_values(json)
-        data = remove_null_values(data)
-        files = remove_null_values(files)
-
-        if sys.version_info >= (3, 0) and isinstance(data, str):
-            data = data.encode('utf-8')
-
-        # Support versions of requests older than 2.4.2 without the json input
-        if not data and json is not None:
-            data = json_import.dumps(json)
-            headers.update({'content-type': 'application/json'})
-
-        auth = None
-        if self.authenticator._is_bearer_authentication():
-            headers['Authorization'] = self.authenticator.authenticate()
-        elif self.authenticator._is_basic_authentication():
-            auth = self.authenticator.authenticate()
-
+    def send(self, request, **kwargs):
         # Use a one minute timeout when our caller doesn't give a timeout.
         # http://docs.python-requests.org/en/master/user/quickstart/#timeouts
         kwargs = dict({"timeout": 60}, **kwargs)
@@ -280,41 +236,21 @@ class BaseService(object):
         if self.disable_ssl_verification:
             kwargs['verify'] = False
 
-        if files is not None:
-            for k, file_tuple in files.items():
-                if file_tuple and len(
-                        file_tuple) == 3 and file_tuple[0] is None:
-                    file = file_tuple[1]
-                    if file and hasattr(file, 'name'):
-                        filename = basename(file.name)
-                        files[k] = (filename, file_tuple[1], file_tuple[2])
-
-        response = requests.request(
-            method=method,
-            url=full_url,
-            cookies=self.jar,
-            auth=auth,
-            headers=headers,
-            params=params,
-            data=data,
-            files=files,
-            **kwargs)
+        response = requests.request(**request, cookies=self.jar, **kwargs)
+        print(response.headers)
 
         if 200 <= response.status_code <= 299:
-            if response.status_code == 204 or method == 'HEAD':
+            if response.status_code == 204 or request['method'] == 'HEAD':
                 # There is no body content for a HEAD request or a 204 response
-                return DetailedResponse(None, response.headers,
-                                        response.status_code)
-            if accept_json:
+                result = None
+            elif not response.text:
+                result = None
+            else:
                 try:
-                    response_json = response.json()
+                    result = response.json()
                 except:
-                    # deserialization fails because there is no text
-                    return DetailedResponse(None, response.headers,
-                                            response.status_code)
-                return DetailedResponse(response_json, response.headers,
-                                        response.status_code)
-            return DetailedResponse(response, response.headers,
+                    result = response
+            return DetailedResponse(result, response.headers,
                                     response.status_code)
         else:
             error_message = None
@@ -323,6 +259,47 @@ class BaseService(object):
                                 'invalid credentials'
             raise ApiException(
                 response.status_code, error_message, http_response=response)
+
+
+    def prepare_request(self, method, url, headers=None,
+                        params=None, data=None, files=None, **kwargs):
+        request = {'method': method}
+
+        request['url'] = self.url + url
+
+        headers = remove_null_values(headers) if headers else {}
+        headers = cleanup_values(headers)
+        headers = CaseInsensitiveDict(headers)
+        if self.default_headers is not None:
+            headers.update(self.default_headers)
+        if not any(key in headers for key in ['user-agent', 'User-Agent']):
+            headers.update(self.user_agent_header)
+        request['headers'] = headers
+
+        params = remove_null_values(params)
+        params = cleanup_values(params)
+        request['params'] = params
+
+        data = remove_null_values(data)
+        if sys.version_info >= (3, 0) and isinstance(data, str):
+            data = data.encode('utf-8')
+        request['data'] = data
+
+        if self.authenticator:
+            self.authenticator.authenticate(request)
+
+        files = remove_null_values(files)
+        if files is not None:
+            for k, file_tuple in files.items():
+                if file_tuple and len(
+                        file_tuple) == 3 and file_tuple[0] is None:
+                    file = file_tuple[1]
+                    if file and hasattr(file, 'name'):
+                        filename = basename(file.name)
+                        files[k] = (filename, file_tuple[1], file_tuple[2])
+        request['files'] = files
+        return request
+
 
     @staticmethod
     def _convert_model(val, classname=None):
