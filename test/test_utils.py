@@ -7,7 +7,7 @@ def test_datetime_conversion():
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338'
 
-def test_get_authenticator_from_environment_from_credential_file():
+def test_get_authenticator_from_credential_file():
     file_path = os.path.join(
     os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
@@ -48,6 +48,13 @@ def test_get_authenticator_from_environment_from_credential_file():
     assert authenticator.bearer_token is not None
     del os.environ['IBM_CREDENTIALS_FILE']
 
+def test_get_authenticator_from_env_variabled():
+    os.environ['TEST_APIKEY'] = '5678efgh'
+    authenticator = get_authenticator_from_environment('test')
+    assert authenticator is not None
+    assert authenticator.token_manager.apikey == '5678efgh'
+    del os.environ['TEST_APIKEY']
+
 def test_vcap_credentials():
     vcap_services = '{"test":[{"credentials":{ \
         "url":"https://gateway.watsonplatform.net/compare-comply/api",\
@@ -70,4 +77,3 @@ def test_vcap_credentials():
     assert authenticator is not None
     assert authenticator.token_manager.apikey == 'bogus apikey'
     del os.environ['VCAP_SERVICES']
-

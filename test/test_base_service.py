@@ -137,11 +137,15 @@ def test_fail_http_config():
 def test_iam():
     iam_authenticator = IamAuthenticator('my_apikey', 'https://iam-test.cloud.ibm.com/identity/token')
     file_path = os.path.join(
-    os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
+        os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    os.environ['WATSON_URL'] = 'https://gateway-s.watsonplatform.net/watson/api'
+    os.environ['WATSON_DISABLE_SSL'] = 'False'
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
     assert service.url == 'https://gateway-s.watsonplatform.net/watson/api'
     del os.environ['IBM_CREDENTIALS_FILE']
+    del os.environ['WATSON_URL']
+    del os.environ['WATSON_DISABLE_SSL']
     assert service.authenticator is not None
 
     response = {
@@ -165,7 +169,6 @@ def test_iam():
         content_type='application/json')
     service.any_service_call()
     assert "grant-type%3Aapikey" in responses.calls[0].request.body
-
 
 def test_no_auth():
     class MadeUp(object):

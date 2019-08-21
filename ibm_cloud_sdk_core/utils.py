@@ -16,7 +16,7 @@
 
 import dateutil.parser as date_parser
 from os.path import dirname, isfile, join, expanduser, abspath
-from os import getenv
+from os import getenv, environ
 import json as json_import
 
 def has_bad_first_or_last_char(str):
@@ -62,19 +62,34 @@ def get_authenticator_from_environment(service_name):
     """
     authenticator = None
     # 1. Credentials from credential file
-    config = read_from_external_sources(service_name)
+    config = read_from_credential_file(service_name)
     if config:
         authenticator = contruct_authenticator(config)
 
-    # 2. Credentials from VCAP
+    # 3. From env variables
+    if not authenticator:
+        config = read_from_env_variables(service_name)
+        if config:
+            authenticator = contruct_authenticator(config)
+
+    # 3. Credentials from VCAP
     if not authenticator:
         config = read_from_vcap_services(service_name)
         if config:
             authenticator = contruct_authenticator(config)
-
     return authenticator
 
-def read_from_external_sources(service_name, separator='='):
+def read_from_env_variables(service_name):
+    """
+    :return dict config: parsed env variables
+    """
+    service_name = service_name.lower()
+    config = {}
+    for key, value in environ.items():
+        _parse_key_and_update_config(config, service_name.lower(), key.lower(), value)
+    return config
+
+def read_from_credential_file(service_name, separator='='):
     """
     :param str service_name: The service name
     :return dict config: parsed key values pairs
@@ -106,12 +121,14 @@ def read_from_external_sources(service_name, separator='='):
                 if len(key_val) == 2:
                     key = key_val[0].lower()
                     value = key_val[1]
-                    if service_name in key:
-                        index = key.find('_')
-                        if index != -1:
-                            config[key[index + 1:]] = value
-
+                    _parse_key_and_update_config(config, service_name, key, value)
     return config
+
+def _parse_key_and_update_config(config, service_name, key, value):
+    if service_name in key:
+        index = key.find('_')
+        if index != -1:
+            config[key[index + 1:]] = value
 
 def read_from_vcap_services(service_name):
     vcap_services = getenv('VCAP_SERVICES')
@@ -148,7 +165,7 @@ def contruct_authenticator(config):
             password=config.get('password'),
             url=config.get('auth_url'),
             disable_ssl_verification=config.get('auth_disable_ssl'))
-    elif auth_type == 'iam':
+    elif auth_type == 'iam' and config.get('apikey'):
         authenticator = IamAuthenticator(
             apikey=config.get('apikey'),
             url=config.get('auth_url'),
