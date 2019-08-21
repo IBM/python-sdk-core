@@ -15,7 +15,6 @@
 # limitations under the License.
 
 from .authenticator import Authenticator
-from ..utils import has_bad_first_or_last_char
 
 
 class BearerTokenAuthenticator(Authenticator):

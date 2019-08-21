@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import dateutil.parser as date_parser
-from os.path import dirname, isfile, join, expanduser, abspath, basename
+from os.path import dirname, isfile, join, expanduser, abspath
 from os import getenv
 import json as json_import
 

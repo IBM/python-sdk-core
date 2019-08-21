@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from os.path import dirname, isfile, join, expanduser, abspath, basename
+from os.path import basename
 import platform
 import json as json_import
 import sys
