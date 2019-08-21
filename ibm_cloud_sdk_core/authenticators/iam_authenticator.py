@@ -77,8 +77,6 @@ class IamAuthenticator(Authenticator):
         This consists of the client_id and secret.
         These values are used to form the basic authorization header that
         is used when interacting with the IAM token server.
-        If these values are not supplied, then a default Authorization header
-        is used.
         """
         self.token_manager.set_client_id_and_secret(client_id, client_secret)
         self.validate()

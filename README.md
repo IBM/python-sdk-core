@@ -21,7 +21,7 @@ easy_install --upgrade ibm-cloud-sdk-core
 ```
 
 ## Authentication Types
-There are several flavors of authentication supported in this package. To specify the intended authentication pattern to use, simply instantiate a `Authenticator` of your choice.
+There are several flavors of authentication supported in this package. To specify the intended authentication pattern to use, simply instantiate the `Authenticator` of your choice.
 
 ### Basic
 This indicates Basic Auth is to be used. Users will pass in a `username` and `password` and the SDK will generate a Basic Auth header to send with requests to the service.

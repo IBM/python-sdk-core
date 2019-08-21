@@ -19,6 +19,7 @@ from .jwt_token_manager import JWTTokenManager
 
 class CP4DTokenManager(JWTTokenManager):
     TOKEN_NAME = 'accessToken'
+    VALIDATE_AUTH_PATH = '/v1/preauth/validateAuth'
 
     def __init__(self,
                  username,
@@ -37,7 +38,8 @@ class CP4DTokenManager(JWTTokenManager):
         """
         self.username = username
         self.password = password
-        url = url + '/v1/preauth/validateAuth' if url else None
+        if url and not self.VALIDATE_AUTH_PATH in url:
+            url = url + '/v1/preauth/validateAuth'
         self.headers = headers
         self.proxies = proxies
         super(CP4DTokenManager, self).__init__(url, disable_ssl_verification,

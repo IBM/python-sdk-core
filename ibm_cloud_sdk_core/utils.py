@@ -131,7 +131,7 @@ def read_from_vcap_services(service_name):
     return vcap_service_credentials
 
 def contruct_authenticator(config):
-    auth_type = config.get('auth_type')
+    auth_type = config.get('auth_type') if config.get('auth_type') else 'iam'
     authenticator = None
     from .authenticators import BasicAuthenticator, BearerTokenAuthenticator, CloudPakForDataAuthenticator, IamAuthenticator, NoauthAuthenticator
 

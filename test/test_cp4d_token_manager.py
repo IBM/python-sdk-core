@@ -39,4 +39,9 @@ def test_request_token():
 
     assert responses.calls[0].request.url == url + '/v1/preauth/validateAuth'
     assert token == access_token
-    assert len(responses.calls) == 1
+
+    token_manager = CP4DTokenManager("username", "password", url + '/v1/preauth/validateAuth')
+    token = token_manager.get_token()
+    assert responses.calls[0].request.url == url + '/v1/preauth/validateAuth'
+    assert token == access_token
+    assert len(responses.calls) == 2

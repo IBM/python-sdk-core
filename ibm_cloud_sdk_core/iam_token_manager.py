@@ -67,9 +67,7 @@ class IAMTokenManager(JWTTokenManager):
             'response_type': self.REQUEST_TOKEN_RESPONSE_TYPE
         }
 
-        # Use bx:bx as default auth header creds
-        auth_tuple = ('bx', 'bx')
-
+        auth_tuple = None
         # If both the clientId and secret were specified by the user, then use them
         if self.client_id and self.client_secret:
             auth_tuple = (self.client_id, self.client_secret)

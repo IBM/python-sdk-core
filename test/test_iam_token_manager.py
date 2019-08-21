@@ -33,7 +33,6 @@ def test_request_token_auth_default():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("apikey")
@@ -41,7 +40,7 @@ def test_request_token_auth_default():
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
-    assert responses.calls[0].request.headers['Authorization'] == default_auth_header
+    assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
 
 @responses.activate
@@ -75,7 +74,6 @@ def test_request_token_auth_in_ctor_client_id_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey", iam_url, 'foo')
@@ -83,7 +81,7 @@ def test_request_token_auth_in_ctor_client_id_only():
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
-    assert responses.calls[0].request.headers['Authorization'] == default_auth_header
+    assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
 
 @responses.activate
@@ -96,7 +94,6 @@ def test_request_token_auth_in_ctor_secret_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey", iam_url, None, 'bar')
@@ -104,7 +101,7 @@ def test_request_token_auth_in_ctor_secret_only():
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
-    assert responses.calls[0].request.headers['Authorization'] == default_auth_header
+    assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
 
 @responses.activate
@@ -139,7 +136,6 @@ def test_request_token_auth_in_setter_client_id_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey")
@@ -148,7 +144,7 @@ def test_request_token_auth_in_setter_client_id_only():
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
-    assert responses.calls[0].request.headers['Authorization'] == default_auth_header
+    assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
 
 @responses.activate
@@ -161,7 +157,6 @@ def test_request_token_auth_in_setter_secret_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey")
@@ -171,5 +166,5 @@ def test_request_token_auth_in_setter_secret_only():
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
-    assert responses.calls[0].request.headers['Authorization'] == default_auth_header
+    assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
