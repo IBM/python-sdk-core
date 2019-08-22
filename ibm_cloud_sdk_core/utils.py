@@ -66,7 +66,7 @@ def get_authenticator_from_environment(service_name):
     if config:
         authenticator = contruct_authenticator(config)
 
-    # 3. From env variables
+    # 2. From env variables
     if not authenticator:
         config = read_from_env_variables(service_name)
         if config:

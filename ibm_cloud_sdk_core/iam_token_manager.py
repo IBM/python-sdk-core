@@ -87,8 +87,6 @@ class IAMTokenManager(JWTTokenManager):
         This consists of the client_id and secret.
         These values are used to form the basic authorization header that
         is used when interacting with the IAM token server.
-        If these values are not supplied, then a default Authorization header
-        is used.
         """
         self.client_id = client_id
         self.client_secret = client_secret

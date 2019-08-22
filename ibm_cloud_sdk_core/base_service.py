@@ -43,7 +43,7 @@ class BaseService(object):
                  display_name=None):
         """
         :attr str url: The url for service api calls
-        :attr Athenticator authenticator: The authenticator for authentication
+        :attr Authenticator authenticator: The authenticator for authentication
         :attr bool disable_ssl_verification: enables/ disabled ssl verification
         :attr str display_name the name used for mapping services in environment file
         """
