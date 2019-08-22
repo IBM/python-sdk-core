@@ -56,10 +56,12 @@ class BaseService(object):
 
         self._set_user_agent_header(self._build_user_agent())
 
-        if self.authenticator:
-            if not isinstance(self.authenticator, Authenticator):
-                raise ValueError(
-                    'authenticator should be of type Authenticator')
+        if not self.authenticator:
+            raise ValueError('authenticator must be provided')
+
+        if not isinstance(self.authenticator, Authenticator):
+            raise ValueError(
+                'authenticator should be of type Authenticator')
 
         if display_name:
             service_name = display_name.replace(' ', '_').lower()
