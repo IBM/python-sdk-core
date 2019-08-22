@@ -17,7 +17,7 @@
 from .authenticator import Authenticator
 
 class NoAuthAuthenticator(Authenticator):
-    authentication_type = 'noauth'
+    authentication_type = 'noAuth'
 
     def validate(self):
         pass

@@ -36,7 +36,7 @@ authenticator = BasicAuthenticator(<your_username>, <your_password>)
 This indicates that IAM token authentication is to be used. Users can pass in a `apikey` and the SDK will generate a Bearer Auth header to send with requests to the service.
 
 ```py
-from ibm_cloud_sdk_core.authenticators import IamAuthenticator
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 authenticator = IAMAuthenticator(<your_apikey>)
 ```

@@ -172,7 +172,7 @@ def contruct_authenticator(config):
             client_id=config.get('client_id'),
             client_secret=config.get('client_secret'),
             disable_ssl_verification=config.get('auth_disable_ssl'))
-    elif auth_type == 'noauth':
+    elif auth_type == 'noAuth':
         authenticator = NoAuthAuthenticator()
 
     return authenticator
