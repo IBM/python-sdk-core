@@ -8,7 +8,7 @@ import jwt
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
-from ibm_cloud_sdk_core.authenticators import IamAuthenticator, NoauthAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator, NoAuthAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
 
 
 class AnyServiceV1(BaseService):
@@ -81,7 +81,7 @@ def get_access_token():
 
 @responses.activate
 def test_url_encoding():
-    service = AnyServiceV1('2017-07-07', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
 
     # All characters in path0 _must_ be encoded in path segments
     path0 = ' \"<>^`{}|/\\?#%[]'
@@ -112,7 +112,7 @@ def test_url_encoding():
 
 @responses.activate
 def test_http_config():
-    service = AnyServiceV1('2017-07-07', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
     responses.add(
         responses.GET,
         service.default_url,
@@ -128,14 +128,14 @@ def test_http_config():
 
 
 def test_fail_http_config():
-    service = AnyServiceV1('2017-07-07', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
     with pytest.raises(TypeError):
         service.with_http_config(None)
 
 
 @responses.activate
 def test_iam():
-    iam_authenticator = IamAuthenticator('my_apikey', 'https://iam-test.cloud.ibm.com/identity/token')
+    iam_authenticator = IAMAuthenticator('my_apikey', 'https://iam-test.cloud.ibm.com/identity/token')
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
@@ -179,7 +179,7 @@ def test_no_auth():
         AnyServiceV1('2017-07-07', authenticator=MadeUp())
     assert str(err.value) == 'authenticator should be of type Authenticator'
 
-    service = AnyServiceV1('2017-07-07', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
     assert service.authenticator is not None
     assert isinstance(service.authenticator, Authenticator)
 
@@ -196,7 +196,7 @@ def test_for_cp4d():
 
 
 def test_disable_ssl_verification():
-    service1 = AnyServiceV1('2017-07-07', authenticator=NoauthAuthenticator(), disable_ssl_verification=True)
+    service1 = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator(), disable_ssl_verification=True)
     assert service1.disable_ssl_verification is True
 
     service1.set_disable_ssl_verification(False)
@@ -212,7 +212,7 @@ def test_disable_ssl_verification():
 
 @responses.activate
 def test_http_head():
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     expectedHeaders = {'Test-Header1': 'value1', 'Test-Header2': 'value2'}
     responses.add(
         responses.HEAD,
@@ -230,7 +230,7 @@ def test_http_head():
 
 @responses.activate
 def test_response_with_no_body():
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     responses.add(responses.GET, service.default_url, status=200, body=None)
 
     response = service.any_service_call()
@@ -257,7 +257,7 @@ def test_request_server_error():
             'error': 'internal server error'
         }),
         content_type='application/json')
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     try:
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
@@ -274,7 +274,7 @@ def test_request_success_json():
             'foo': 'bar'
         }),
         content_type='application/json')
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     prepped = service.prepare_request('GET', url='')
     detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {'foo': 'bar'}
@@ -296,7 +296,7 @@ def test_request_success_response():
             'foo': 'bar'
         }),
         content_type='application/json')
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     prepped = service.prepare_request('GET', url='')
     detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {"foo": "bar"}
@@ -311,7 +311,7 @@ def test_request_fail_401():
             'foo': 'bar'
         }),
         content_type='application/json')
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     try:
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
@@ -339,7 +339,7 @@ def test_misc_methods():
             return cls(**args)
 
     mock = MockModel('foo')
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     model1 = service._convert_model(mock)
     assert model1 == {'x': 'foo'}
 
@@ -352,14 +352,14 @@ def test_misc_methods():
     assert res_str == 'default,123'
 
 def test_default_headers():
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     service.set_default_headers({'xxx': 'yyy'})
     assert service.default_headers == {'xxx': 'yyy'}
     with pytest.raises(TypeError):
         service.set_default_headers('xxx')
 
 def test_set_url():
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     with pytest.raises(ValueError) as err:
         service.set_url('{url}')
     assert str(err.value) == 'The url shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your url'
@@ -373,7 +373,7 @@ def test_get_authenticator():
 
 @responses.activate
 def test_user_agent_header():
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     user_agent_header = service.user_agent_header
     assert user_agent_header is not None
     assert user_agent_header['User-Agent'] is not None
@@ -397,7 +397,7 @@ def test_user_agent_header():
 
 @responses.activate
 def test_files():
-    service = AnyServiceV1('2018-11-20', authenticator=NoauthAuthenticator())
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
     responses.add(
         responses.GET,

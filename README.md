@@ -38,7 +38,7 @@ This indicates that IAM token authentication is to be used. Users can pass in a 
 ```py
 from ibm_cloud_sdk_core.authenticators import IamAuthenticator
 
-authenticator = IamAuthenticator(<your_apikey>)
+authenticator = IAMAuthenticator(<your_apikey>)
 ```
 
 ### Cloud Pak for Data
@@ -63,9 +63,9 @@ authenticator = BearerTokenAuthenticator(<your_bearer_token>)
 This indicates that no authentication is needed when sending requests to the service
 
 ```py
-from ibm_cloud_sdk_core.authenticators import NoauthAuthenticator
+from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 
-authenticator = NoauthAuthenticator()
+authenticator = NoAuthAuthenticator()
 ```
 
 ## Issues

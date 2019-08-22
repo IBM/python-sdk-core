@@ -19,7 +19,7 @@ from ..iam_token_manager import IAMTokenManager
 from ..utils import has_bad_first_or_last_char
 
 
-class IamAuthenticator(Authenticator):
+class IAMAuthenticator(Authenticator):
     authentication_type = 'iam'
 
     def __init__(self,

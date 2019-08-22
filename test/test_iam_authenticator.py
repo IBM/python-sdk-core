@@ -3,11 +3,11 @@ import responses
 import time
 import jwt
 import json
-from ibm_cloud_sdk_core.authenticators import IamAuthenticator
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 
 def test_iam_authenticator():
-    authenticator = IamAuthenticator('my_apikey')
+    authenticator = IAMAuthenticator('my_apikey')
     assert authenticator is not None
     assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com/identity/token'
     assert authenticator.token_manager.client_id is None
@@ -38,22 +38,22 @@ def test_iam_authenticator():
 
 def test_iam_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
-        IamAuthenticator(None)
+        IAMAuthenticator(None)
     assert str(err.value) == 'The apikey shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        IamAuthenticator('{apikey}')
+        IAMAuthenticator('{apikey}')
     assert str(
         err.value
     ) == 'The apikey shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
-        IamAuthenticator('my_apikey', client_id='my_client_id')
+        IAMAuthenticator('my_apikey', client_id='my_client_id')
     assert str(
         err.value) == 'Both client id and client secret should be initialized.'
 
     with pytest.raises(ValueError) as err:
-        IamAuthenticator('my_apikey', client_secret='my_client_secret')
+        IAMAuthenticator('my_apikey', client_secret='my_client_secret')
     assert str(
         err.value) == 'Both client id and client secret should be initialized.'
 
@@ -91,7 +91,7 @@ def test_get_token():
     responses.add(
         responses.POST, url=url, body=json.dumps(response), status=200)
 
-    authenticator = IamAuthenticator('my_apikey')
+    authenticator = IAMAuthenticator('my_apikey')
     request = {'headers': {}}
     authenticator.authenticate(request)
     assert request['headers']['Authorization'] is not None

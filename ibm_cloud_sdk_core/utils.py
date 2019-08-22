@@ -150,7 +150,7 @@ def read_from_vcap_services(service_name):
 def contruct_authenticator(config):
     auth_type = config.get('auth_type') if config.get('auth_type') else 'iam'
     authenticator = None
-    from .authenticators import BasicAuthenticator, BearerTokenAuthenticator, CloudPakForDataAuthenticator, IamAuthenticator, NoauthAuthenticator
+    from .authenticators import BasicAuthenticator, BearerTokenAuthenticator, CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator
 
     if auth_type == 'basic':
         authenticator = BasicAuthenticator(
@@ -166,13 +166,13 @@ def contruct_authenticator(config):
             url=config.get('auth_url'),
             disable_ssl_verification=config.get('auth_disable_ssl'))
     elif auth_type == 'iam' and config.get('apikey'):
-        authenticator = IamAuthenticator(
+        authenticator = IAMAuthenticator(
             apikey=config.get('apikey'),
             url=config.get('auth_url'),
             client_id=config.get('client_id'),
             client_secret=config.get('client_secret'),
             disable_ssl_verification=config.get('auth_disable_ssl'))
     elif auth_type == 'noauth':
-        authenticator = NoauthAuthenticator()
+        authenticator = NoAuthAuthenticator()
 
     return authenticator

@@ -3,10 +3,10 @@ import responses
 import time
 import jwt
 import json
-from ibm_cloud_sdk_core.authenticators import NoauthAuthenticator
+from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 
 def test_no_auth_authenticator():
-    authenticator = NoauthAuthenticator()
+    authenticator = NoAuthAuthenticator()
     assert authenticator is not None
     assert authenticator.authentication_type == 'noauth'
 
