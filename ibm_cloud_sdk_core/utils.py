@@ -83,7 +83,7 @@ def read_from_env_variables(service_name):
     """
     :return dict config: parsed env variables
     """
-    service_name = service_name.lower()
+    service_name = service_name.replace(' ', '_').lower()
     config = {}
     for key, value in environ.items():
         _parse_key_and_update_config(config, service_name.lower(), key.lower(), value)
@@ -94,7 +94,7 @@ def read_from_credential_file(service_name, separator='='):
     :param str service_name: The service name
     :return dict config: parsed key values pairs
     """
-    service_name = service_name.lower()
+    service_name = service_name.replace(' ', '_').lower()
     DEFAULT_CREDENTIALS_FILE_NAME = 'ibm-credentials.env'
 
     # File path specified by an env variable
@@ -131,20 +131,23 @@ def _parse_key_and_update_config(config, service_name, key, value):
             config[key[index + 1:]] = value
 
 def read_from_vcap_services(service_name):
+    service_name = service_name.replace(' ', '_').lower()
     vcap_services = getenv('VCAP_SERVICES')
     vcap_service_credentials = None
     if vcap_services:
         services = json_import.loads(vcap_services)
 
-        if service_name in services:
-            vcap_service_credentials = services[service_name][0]['credentials']
-            if vcap_service_credentials is not None and isinstance(vcap_service_credentials, dict):
-                if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'): # cf
-                    vcap_service_credentials['auth_type'] = 'basic'
-                elif vcap_service_credentials.get('apikey'):  # rc
-                    vcap_service_credentials['auth_type'] = 'iam'
-                else: # no other auth mechanism is supported
-                    vcap_service_credentials = None
+        for key in services.keys():
+            name = key.replace('-', '_')
+            if name == service_name:
+                vcap_service_credentials = services[key][0]['credentials']
+                if vcap_service_credentials is not None and isinstance(vcap_service_credentials, dict):
+                    if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'): # cf
+                        vcap_service_credentials['auth_type'] = 'basic'
+                    elif vcap_service_credentials.get('apikey'):  # rc
+                        vcap_service_credentials['auth_type'] = 'iam'
+                    else: # no other auth mechanism is supported
+                        vcap_service_credentials = None
     return vcap_service_credentials
 
 def contruct_authenticator(config):
