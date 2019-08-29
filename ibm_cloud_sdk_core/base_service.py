@@ -44,7 +44,7 @@ class BaseService(object):
         """
         :attr str url: The url for service api calls
         :attr Authenticator authenticator: The authenticator for authentication
-        :attr bool disable_ssl_verification: enables/ disabled ssl verification
+        :attr bool disable_ssl_verification: enables/ disables ssl verification
         :attr str display_name the name used for mapping services in environment file
         """
         self.url = url
@@ -179,9 +179,13 @@ class BaseService(object):
         params = cleanup_values(params)
         request['params'] = params
 
-        data = remove_null_values(data)
         if sys.version_info >= (3, 0) and isinstance(data, str):
             data = data.encode('utf-8')
+
+        if data and isinstance(data, dict):
+            data = remove_null_values(data)
+            headers.update({'content-type': 'application/json'})
+            data = json_import.dumps(data)
         request['data'] = data
 
         if self.authenticator:
