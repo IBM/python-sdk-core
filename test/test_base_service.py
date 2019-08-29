@@ -414,3 +414,9 @@ def test_files():
     form_data['file1'] = (None, file, 'application/octet-stream')
     form_data['string1'] = (None, 'hello', 'text.plain')
     service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+
+
+def test_json():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    req = service.prepare_request('POST', url='', headers={'X-opt-out': True}, data={'hello': 'world'})
+    assert req.get('data') == "{\"hello\": \"world\"}"
