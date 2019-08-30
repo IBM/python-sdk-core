@@ -206,10 +206,6 @@ class BaseService(object):
 
     @staticmethod
     def _convert_model(val, classname=None):
-        if classname is not None and not hasattr(val, "_from_dict"):
-            if isinstance(val, str):
-                val = json_import.loads(val)
-            val = classname._from_dict(dict(val))
         if hasattr(val, "_to_dict"):
             return val._to_dict()
         return val
