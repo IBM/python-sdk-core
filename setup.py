@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 __version__ = '1.0.0-rc3'
@@ -68,7 +67,7 @@ setup(name='ibm-cloud-sdk-core',
       author_email='erika.dsouza@ibm.com',
       long_description=read_md('README.md'),
       url='https://github.com/IBM/python-sdk-core',
-      packages=['ibm_cloud_sdk_core'],
+      packages=find_packages(),
       include_package_data=True,
       keywords='watson, ibm, cloud',
       classifiers=[
