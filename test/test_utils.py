@@ -77,3 +77,12 @@ def test_vcap_credentials():
     assert authenticator is not None
     assert authenticator.token_manager.apikey == 'bogus apikey'
     del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{"credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "iam_apikey":"bogus apikey"}}]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('test')
+    assert authenticator is None
+    del os.environ['VCAP_SERVICES']
