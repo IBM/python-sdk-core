@@ -343,7 +343,7 @@ def test_misc_methods():
     model1 = service._convert_model(mock)
     assert model1 == {'x': 'foo'}
 
-    model2 = service._convert_model("{\"x\": \"foo\"}", MockModel)
+    model2 = service._convert_model("{\"x\": \"foo\"}")
     assert model2 is not None
     assert model2['x'] == 'foo'
 
