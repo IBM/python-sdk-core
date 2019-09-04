@@ -420,3 +420,18 @@ def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     req = service.prepare_request('POST', url='', headers={'X-opt-out': True}, data={'hello': 'world'})
     assert req.get('data') == "{\"hello\": \"world\"}"
+
+def test_debugging():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    service.enable_debugging()
+    assert service.debug is True
+    service.disable_debugging()
+    assert service.debug is False
+
+def test_logging():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../resources/logging.conf')
+    service.enable_logging(log_file_path)
+
+    logger = service.get_logger()
+    assert logger is not None
