@@ -26,10 +26,9 @@ from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from .authenticators import Authenticator
 from http.cookiejar import CookieJar
-
-# Uncomment this to enable http debugging
-# import http.client as http_client
-# http_client.HTTPConnection.debuglevel = 1
+from http.client import HTTPConnection
+import logging
+import logging.config
 
 
 class BaseService(object):
@@ -53,6 +52,7 @@ class BaseService(object):
         self.authenticator = authenticator
         self.disable_ssl_verification = disable_ssl_verification
         self.default_headers = None
+        self.debug = False
 
         self._set_user_agent_header(self._build_user_agent())
 
@@ -203,6 +203,32 @@ class BaseService(object):
         request['files'] = files
         return request
 
+    def enable_debugging(self):
+        """
+        Enables the HTTPConnection.debuglevel print() statement
+        """
+        self.debug = True
+        HTTPConnection.debuglevel = 1
+
+    def disable_debugging(self):
+        """
+        Disables the HTTPConnection.debuglevel print() statement
+        """
+        self.debug = False
+        HTTPConnection.debuglevel = 0
+
+    def enable_logging(self, config_file_path):
+        """
+        :param str config_file_path: The config file path.
+        """
+        logging.config.fileConfig(
+            config_file_path, disable_existing_loggers=False)
+
+    def get_logger(self, name=None):
+        """
+        Returns the root logger if no name is provided
+        """
+        return logging.getLogger(name)
 
     @staticmethod
     def _convert_model(val):
