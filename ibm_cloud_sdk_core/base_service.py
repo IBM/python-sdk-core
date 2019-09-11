@@ -37,7 +37,7 @@ class BaseService(object):
     SDK_NAME = 'ibm-python-sdk-core'
 
     def __init__(self,
-                 url,
+                 service_url,
                  authenticator=None,
                  disable_ssl_verification=False,
                  display_name=None):
@@ -47,7 +47,7 @@ class BaseService(object):
         :attr bool disable_ssl_verification: enables/ disables ssl verification
         :attr str display_name the name used for mapping services in environment file
         """
-        self.url = url
+        self.service_url = service_url
         self.http_config = {}
         self.jar = CookieJar()
         self.authenticator = authenticator
@@ -100,16 +100,16 @@ class BaseService(object):
         """
         self.disable_ssl_verification = status
 
-    def set_url(self, url):
+    def set_service_url(self, service_url):
         """
-        Sets the url
+        Sets the service url
         """
-        if has_bad_first_or_last_char(url):
+        if has_bad_first_or_last_char(service_url):
             raise ValueError(
-                'The url shouldn\'t start or end with curly brackets or quotes. '
-                'Be sure to remove any {} and \" characters surrounding your url'
+                'The service url shouldn\'t start or end with curly brackets or quotes. '
+                'Be sure to remove any {} and \" characters surrounding your service url'
             )
-        self.url = url
+        self.service_url = service_url
 
     def get_authenticator(self):
         """
@@ -164,7 +164,7 @@ class BaseService(object):
                         params=None, data=None, files=None, **kwargs):
         request = {'method': method}
 
-        request['url'] = self.url + url
+        request['url'] = self.service_url + url
 
         headers = remove_null_values(headers) if headers else {}
         headers = cleanup_values(headers)

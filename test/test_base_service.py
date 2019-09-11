@@ -16,12 +16,12 @@ class AnyServiceV1(BaseService):
 
     def __init__(self,
                  version,
-                 url=default_url,
+                 service_url=default_url,
                  authenticator=None,
                  disable_ssl_verification=False):
         BaseService.__init__(
             self,
-            url=url,
+            service_url=service_url,
             authenticator=authenticator,
             disable_ssl_verification=disable_ssl_verification,
             display_name='Watson')
@@ -162,7 +162,7 @@ def test_iam():
         status=200)
     responses.add(
         responses.GET,
-        'https://gateway-s.watsonplatform.net/watson/api',
+        url='https://gateway.watsonplatform.net/test/api',
         body=json.dumps({
             "foobar": "baz"
         }),
@@ -358,13 +358,13 @@ def test_default_headers():
     with pytest.raises(TypeError):
         service.set_default_headers('xxx')
 
-def test_set_url():
+def test_set_service_url():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     with pytest.raises(ValueError) as err:
-        service.set_url('{url}')
-    assert str(err.value) == 'The url shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your url'
+        service.set_service_url('{url}')
+    assert str(err.value) == 'The service url shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your service url'
 
-    service.set_url('my_url')
+    service.set_service_url('my_url')
 
 def test_get_authenticator():
     auth = BasicAuthenticator('my_username', 'my_password')
