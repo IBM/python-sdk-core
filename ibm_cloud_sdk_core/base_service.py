@@ -164,6 +164,9 @@ class BaseService(object):
                         params=None, data=None, files=None, **kwargs):
         request = {'method': method}
 
+        # validate the service url is set
+        if not self.service_url:
+            raise ValueError('The service_url is required')
         request['url'] = self.service_url + url
 
         headers = remove_null_values(headers) if headers else {}

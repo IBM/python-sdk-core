@@ -420,3 +420,9 @@ def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     req = service.prepare_request('POST', url='', headers={'X-opt-out': True}, data={'hello': 'world'})
     assert req.get('data') == "{\"hello\": \"world\"}"
+
+def test_service_url_not_set():
+    service = BaseService(service_url='', authenticator=NoAuthAuthenticator(), display_name='Watson')
+    with pytest.raises(ValueError) as err:
+        service.prepare_request('POST', url='')
+    assert str(err.value) == 'The service_url is required'
