@@ -73,6 +73,35 @@ authenticator = NoAuthAuthenticator()
 If you encounter an issue with this project, you are welcome to submit a [bug report](https://github.com/IBM/python-sdk-core/issues).
 Before opening a new issue, please search for similar issues. It's possible that someone has already reported it.
 
+## Logging
+
+### Enable logging
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+This would show output of the form:
+```
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): iam.cloud.ibm.com:443
+DEBUG:urllib3.connectionpool:https://iam.cloud.ibm.com:443 "POST /identity/token HTTP/1.1" 200 1809
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): gateway.watsonplatform.net:443
+DEBUG:urllib3.connectionpool:https://gateway.watsonplatform.net:443 "POST /assistant/api/v1/workspaces?version=2018-07-10 HTTP/1.1" 201 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): gateway.watsonplatform.net:443
+DEBUG:urllib3.connectionpool:https://gateway.watsonplatform.net:443 "GET /assistant/api/v1/workspaces/883a2a44-eb5f-4b1a-96b0-32a90b475ea8?version=2018-07-10&export=true HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): gateway.watsonplatform.net:443
+DEBUG:urllib3.connectionpool:https://gateway.watsonplatform.net:443 "DELETE /assistant/api/v1/workspaces/883a2a44-eb5f-4b1a-96b0-32a90b475ea8?version=2018-07-10 HTTP/1.1" 200 28
+```
+
+### Low level request and response dump
+To get low level information of the requests/ responses:
+
+```python
+from http.client import HTTPConnection
+HTTPConnection.debuglevel = 1
+```
+
 ## Open source @ IBM
 
 Find more open source projects on the [IBM Github Page](http://github.com/IBM)
