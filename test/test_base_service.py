@@ -142,7 +142,7 @@ def test_iam():
     os.environ['WATSON_URL'] = 'https://gateway-s.watsonplatform.net/watson/api'
     os.environ['WATSON_DISABLE_SSL'] = 'False'
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
-    assert service.url == 'https://gateway-s.watsonplatform.net/watson/api'
+    assert service.service_url == 'https://gateway-s.watsonplatform.net/watson/api'
     del os.environ['IBM_CREDENTIALS_FILE']
     del os.environ['WATSON_URL']
     del os.environ['WATSON_DISABLE_SSL']
@@ -162,7 +162,7 @@ def test_iam():
         status=200)
     responses.add(
         responses.GET,
-        url='https://gateway.watsonplatform.net/test/api',
+        url='https://gateway-s.watsonplatform.net/watson/api',
         body=json.dumps({
             "foobar": "baz"
         }),
