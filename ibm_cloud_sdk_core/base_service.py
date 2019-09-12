@@ -66,8 +66,8 @@ class BaseService(object):
         if display_name:
             service_name = display_name.replace(' ', '_').lower()
             config = read_from_env_variables(service_name)
-            if config.get('url'):
-                self.url = config.get('url')
+            if config.get('service_url'):
+                self.service_url = config.get('service_url')
             if config.get('disable_ssl'):
                 self.disable_ssl_verification = config.get('disable_ssl')
 
