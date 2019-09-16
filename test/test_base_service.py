@@ -139,13 +139,9 @@ def test_iam():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    os.environ['WATSON_URL'] = 'https://gateway-s.watsonplatform.net/watson/api'
-    os.environ['WATSON_DISABLE_SSL'] = 'False'
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
     assert service.service_url == 'https://gateway-s.watsonplatform.net/watson/api'
     del os.environ['IBM_CREDENTIALS_FILE']
-    del os.environ['WATSON_URL']
-    del os.environ['WATSON_DISABLE_SSL']
     assert service.authenticator is not None
 
     response = {

@@ -54,29 +54,40 @@ def string_to_datetime(string):
     """
     return date_parser.parse(string)
 
+def read_external_sources(service_name):
+    """
+    Try to get config from external sources, with the following priority:
+    1. Credentials file(ibm-credentials.env)
+    2. Environment variables
+    3. VCAP Services(Cloud Foundry)
+    :param service_name: The service name
+    :return: dict
+    """
+    config = {}
+
+    config = read_from_credential_file(service_name)
+
+    if not config:
+        config = read_from_env_variables(service_name)
+
+    if not config:
+        config = read_from_vcap_services(service_name)
+
+    return config
+
 def get_authenticator_from_environment(service_name):
     """
-    Checks the credentials file and VCAP_SERVICES environment variable
+    Try to get authenticator from external sources, with the following priority:
+    1. Credentials file(ibm-credentials.env)
+    2. Environment variables
+    3. VCAP Services(Cloud Foundry)
     :param service_name: The service name
     :return: the authenticator
     """
     authenticator = None
-    # 1. Credentials from credential file
-    config = read_from_credential_file(service_name)
+    config = read_external_sources(service_name)
     if config:
         authenticator = contruct_authenticator(config)
-
-    # 2. From env variables
-    if not authenticator:
-        config = read_from_env_variables(service_name)
-        if config:
-            authenticator = contruct_authenticator(config)
-
-    # 3. Credentials from VCAP
-    if not authenticator:
-        config = read_from_vcap_services(service_name)
-        if config:
-            authenticator = contruct_authenticator(config)
     return authenticator
 
 def read_from_env_variables(service_name):
@@ -125,7 +136,7 @@ def read_from_credential_file(service_name, separator='='):
     return config
 
 def _parse_key_and_update_config(config, service_name, key, value):
-    if service_name in key:
+    if key.startswith(service_name):
         index = key.find('_')
         if index != -1:
             config[key[index + 1:]] = value
@@ -133,7 +144,7 @@ def _parse_key_and_update_config(config, service_name, key, value):
 def read_from_vcap_services(service_name):
     service_name = service_name.replace(' ', '_').lower()
     vcap_services = getenv('VCAP_SERVICES')
-    vcap_service_credentials = None
+    vcap_service_credentials = {}
     if vcap_services:
         services = json_import.loads(vcap_services)
 
@@ -147,7 +158,7 @@ def read_from_vcap_services(service_name):
                     elif vcap_service_credentials.get('apikey'):  # rc
                         vcap_service_credentials['auth_type'] = 'iam'
                     else: # no other auth mechanism is supported
-                        vcap_service_credentials = None
+                        vcap_service_credentials = {}
     return vcap_service_credentials
 
 def contruct_authenticator(config):

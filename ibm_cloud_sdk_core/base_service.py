@@ -21,7 +21,7 @@ import sys
 import requests
 from requests.structures import CaseInsensitiveDict
 from .version import __version__
-from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_from_env_variables
+from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from .authenticators import Authenticator
@@ -65,7 +65,7 @@ class BaseService(object):
 
         if display_name:
             service_name = display_name.replace(' ', '_').lower()
-            config = read_from_env_variables(service_name)
+            config = read_external_sources(service_name)
             if config.get('url'):
                 self.service_url = config.get('url')
             if config.get('disable_ssl'):

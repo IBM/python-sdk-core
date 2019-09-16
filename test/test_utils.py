@@ -48,7 +48,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.bearer_token is not None
     del os.environ['IBM_CREDENTIALS_FILE']
 
-def test_get_authenticator_from_env_variabled():
+def test_get_authenticator_from_env_variables():
     os.environ['TEST_APIKEY'] = '5678efgh'
     authenticator = get_authenticator_from_environment('test')
     assert authenticator is not None
