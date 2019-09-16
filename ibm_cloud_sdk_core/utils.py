@@ -111,16 +111,16 @@ def read_from_credential_file(service_name, separator='='):
     # File path specified by an env variable
     credential_file_path = getenv('IBM_CREDENTIALS_FILE')
 
-    # Home directory
-    if credential_file_path is None:
-        file_path = join(expanduser('~'), DEFAULT_CREDENTIALS_FILE_NAME)
-        if isfile(file_path):
-            credential_file_path = file_path
-
     # Top-level of the project directory
     if credential_file_path is None:
         file_path = join(
             dirname(dirname(abspath(__file__))), DEFAULT_CREDENTIALS_FILE_NAME)
+        if isfile(file_path):
+            credential_file_path = file_path
+
+    # Home directory
+    if credential_file_path is None:
+        file_path = join(expanduser('~'), DEFAULT_CREDENTIALS_FILE_NAME)
         if isfile(file_path):
             credential_file_path = file_path
 
