@@ -87,14 +87,14 @@ def get_authenticator_from_environment(service_name):
     authenticator = None
     config = read_external_sources(service_name)
     if config:
-        authenticator = contruct_authenticator(config)
+        authenticator = _construct_authenticator(config)
     return authenticator
 
 def read_from_env_variables(service_name):
     """
     :return dict config: parsed env variables
     """
-    service_name = service_name.replace(' ', '_').lower()
+    service_name = service_name.replace(' ', '_').replace('-', '_').lower()
     config = {}
     for key, value in environ.items():
         _parse_key_and_update_config(config, service_name.lower(), key.lower(), value)
@@ -105,7 +105,7 @@ def read_from_credential_file(service_name, separator='='):
     :param str service_name: The service name
     :return dict config: parsed key values pairs
     """
-    service_name = service_name.replace(' ', '_').lower()
+    service_name = service_name.replace(' ', '_').replace('-', '_').lower()
     DEFAULT_CREDENTIALS_FILE_NAME = 'ibm-credentials.env'
 
     # File path specified by an env variable
@@ -142,7 +142,7 @@ def _parse_key_and_update_config(config, service_name, key, value):
             config[key[index + 1:]] = value
 
 def read_from_vcap_services(service_name):
-    service_name = service_name.replace(' ', '_').lower()
+    service_name = service_name.replace(' ', '_').replace('-', '_').lower()
     vcap_services = getenv('VCAP_SERVICES')
     vcap_service_credentials = {}
     if vcap_services:
@@ -161,7 +161,7 @@ def read_from_vcap_services(service_name):
                         vcap_service_credentials = {}
     return vcap_service_credentials
 
-def contruct_authenticator(config):
+def _construct_authenticator(config):
     auth_type = config.get('auth_type').lower() if config.get('auth_type') else 'iam'
     authenticator = None
     from .authenticators import BasicAuthenticator, BearerTokenAuthenticator, CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator

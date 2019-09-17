@@ -64,7 +64,7 @@ class BaseService(object):
                 'authenticator should be of type Authenticator')
 
         if display_name:
-            service_name = display_name.replace(' ', '_').lower()
+            service_name = display_name.replace(' ', '_').replace('-', '_').lower()
             config = read_external_sources(service_name)
             if config.get('url'):
                 self.service_url = config.get('url')
