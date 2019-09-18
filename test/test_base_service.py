@@ -422,3 +422,8 @@ def test_service_url_not_set():
     with pytest.raises(ValueError) as err:
         service.prepare_request('POST', url='')
     assert str(err.value) == 'The service_url is required'
+
+def test_multi_word_service_name():
+    os.environ['personality-insights_url'] = 'xyz'
+    service = BaseService(service_url='', authenticator=NoAuthAuthenticator(), display_name='personality-insights')
+    assert service.service_url == 'xyz'
