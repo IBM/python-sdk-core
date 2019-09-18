@@ -140,7 +140,7 @@ def test_iam():
         os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
-    assert service.service_url == 'https://gateway-s.watsonplatform.net/watson/api'
+    assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
     del os.environ['IBM_CREDENTIALS_FILE']
     assert service.authenticator is not None
 
@@ -158,7 +158,7 @@ def test_iam():
         status=200)
     responses.add(
         responses.GET,
-        url='https://gateway-s.watsonplatform.net/watson/api',
+        url='https://gateway.watsonplatform.net/test/api',
         body=json.dumps({
             "foobar": "baz"
         }),
@@ -422,8 +422,3 @@ def test_service_url_not_set():
     with pytest.raises(ValueError) as err:
         service.prepare_request('POST', url='')
     assert str(err.value) == 'The service_url is required'
-
-def test_multi_word_service_name():
-    os.environ['personality-insights_url'] = 'xyz'
-    service = BaseService(service_url='', authenticator=NoAuthAuthenticator(), display_name='personality-insights')
-    assert service.service_url == 'xyz'

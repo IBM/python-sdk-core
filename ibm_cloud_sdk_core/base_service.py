@@ -63,15 +63,6 @@ class BaseService(object):
             raise ValueError(
                 'authenticator should be of type Authenticator')
 
-        if display_name:
-            service_name = display_name.replace(' ', '_').replace('-', '_').lower()
-            config = read_external_sources(service_name)
-            if config.get('url'):
-                self.service_url = config.get('url')
-            if config.get('disable_ssl'):
-                self.disable_ssl_verification = config.get('disable_ssl')
-
-
     def _get_system_info(self):
         return '{0} {1} {2}'.format(
             platform.system(),  # OS
