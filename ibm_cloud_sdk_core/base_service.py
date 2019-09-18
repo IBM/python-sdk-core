@@ -37,7 +37,7 @@ class BaseService(object):
     SDK_NAME = 'ibm-python-sdk-core'
 
     def __init__(self,
-                 service_url,
+                 service_url=None,
                  authenticator=None,
                  disable_ssl_verification=False,
                  display_name=None):
