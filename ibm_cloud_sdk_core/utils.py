@@ -128,62 +128,62 @@ def read_from_credential_file(service_name, separator='='):
             for line in fp:
                 key_val = line.strip().split(separator)
                 if len(key_val) == 2:
-                    key = key_val[0].lower()
+                    key = key_val[0]
                     value = key_val[1]
                     _parse_key_and_update_config(config, service_name, key, value)
     return config
 
 def _parse_key_and_update_config(config, service_name, key, value):
-    service_name = service_name.replace(' ', '_').replace('-', '_').lower()
-    key = key.lower()
+    service_name = service_name.replace(' ', '_').replace('-', '_').upper()
     if key.startswith(service_name):
         config[key[len(service_name) + 1:]] = value
 
 def read_from_vcap_services(service_name):
-    service_name = service_name.replace(' ', '_').replace('-', '_').lower()
     vcap_services = getenv('VCAP_SERVICES')
     vcap_service_credentials = {}
     if vcap_services:
         services = json_import.loads(vcap_services)
 
         for key in services.keys():
-            name = key.replace('-', '_')
-            if name == service_name:
+            if key == service_name:
                 vcap_service_credentials = services[key][0]['credentials']
                 if vcap_service_credentials is not None and isinstance(vcap_service_credentials, dict):
                     if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'): # cf
-                        vcap_service_credentials['auth_type'] = 'basic'
+                        vcap_service_credentials['AUTH_TYPE'] = 'basic'
+                        vcap_service_credentials['USERNAME'] = vcap_service_credentials.get('username')
+                        vcap_service_credentials['PASSWORD'] = vcap_service_credentials.get('password')
                     elif vcap_service_credentials.get('apikey'):  # rc
-                        vcap_service_credentials['auth_type'] = 'iam'
+                        vcap_service_credentials['AUTH_TYPE'] = 'iam'
+                        vcap_service_credentials['APIKEY'] = vcap_service_credentials.get('apikey')
                     else: # no other auth mechanism is supported
                         vcap_service_credentials = {}
     return vcap_service_credentials
 
 def _construct_authenticator(config):
-    auth_type = config.get('auth_type').lower() if config.get('auth_type') else 'iam'
+    auth_type = config.get('AUTH_TYPE').lower() if config.get('AUTH_TYPE') else 'iam'
     authenticator = None
     from .authenticators import BasicAuthenticator, BearerTokenAuthenticator, CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator
 
     if auth_type == 'basic':
         authenticator = BasicAuthenticator(
-            username=config.get('username'),
-            password=config.get('password'))
+            username=config.get('USERNAME'),
+            password=config.get('PASSWORD'))
     elif auth_type == 'bearertoken':
         authenticator = BearerTokenAuthenticator(
-            bearer_token=config.get('bearer_token'))
+            bearer_token=config.get('BEARER_TOKEN'))
     elif auth_type == 'cp4d':
         authenticator = CloudPakForDataAuthenticator(
-            username=config.get('username'),
-            password=config.get('password'),
-            url=config.get('auth_url'),
-            disable_ssl_verification=config.get('auth_disable_ssl'))
-    elif auth_type == 'iam' and config.get('apikey'):
+            username=config.get('USERNAME'),
+            password=config.get('PASSWORD'),
+            url=config.get('AUTH_URL'),
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL'))
+    elif auth_type == 'iam' and config.get('APIKEY'):
         authenticator = IAMAuthenticator(
-            apikey=config.get('apikey'),
-            url=config.get('auth_url'),
-            client_id=config.get('client_id'),
-            client_secret=config.get('client_secret'),
-            disable_ssl_verification=config.get('auth_disable_ssl'))
+            apikey=config.get('APIKEY'),
+            url=config.get('AUTH_URL'),
+            client_id=config.get('CLIENT_ID'),
+            client_secret=config.get('CLIENT_SECRET'),
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL'))
     elif auth_type == 'noauth':
         authenticator = NoAuthAuthenticator()
 
