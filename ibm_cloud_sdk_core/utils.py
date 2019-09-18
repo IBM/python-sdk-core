@@ -137,9 +137,7 @@ def _parse_key_and_update_config(config, service_name, key, value):
     service_name = service_name.replace(' ', '_').replace('-', '_').lower()
     key = key.replace(' ', '_').replace('-', '_').lower()
     if key.startswith(service_name):
-        index = key.find(service_name)
-        if index != -1:
-            config[key[index + len(service_name) + 1:]] = value
+        config[key[len(service_name) + 1:]] = value
 
 def read_from_vcap_services(service_name):
     service_name = service_name.replace(' ', '_').replace('-', '_').lower()
