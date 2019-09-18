@@ -11,7 +11,7 @@ def test_get_authenticator_from_credential_file():
     file_path = os.path.join(
     os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    authenticator = get_authenticator_from_environment('watson')
+    authenticator = get_authenticator_from_environment('ibm watson')
     assert authenticator is not None
     assert authenticator.token_manager.apikey == '5678efgh'
     del os.environ['IBM_CREDENTIALS_FILE']

@@ -9,6 +9,7 @@ from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator, NoAuthAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 
 class AnyServiceV1(BaseService):
@@ -24,7 +25,7 @@ class AnyServiceV1(BaseService):
             service_url=service_url,
             authenticator=authenticator,
             disable_ssl_verification=disable_ssl_verification,
-            display_name='Watson')
+            display_name='ibm Watson')
         self.version = version
 
     def op_with_path_params(self, path0, path1):
@@ -135,10 +136,10 @@ def test_fail_http_config():
 
 @responses.activate
 def test_iam():
-    iam_authenticator = IAMAuthenticator('my_apikey', 'https://iam-test.cloud.ibm.com/identity/token')
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    iam_authenticator = get_authenticator_from_environment('ibm-watson')
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
     assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
     del os.environ['IBM_CREDENTIALS_FILE']
@@ -153,7 +154,7 @@ def test_iam():
     }
     responses.add(
         responses.POST,
-        url='https://iam-test.cloud.ibm.com/identity/token',
+        url='https://iam.cloud.ibm.com/identity/token',
         body=json.dumps(response),
         status=200)
     responses.add(
