@@ -39,13 +39,11 @@ class BaseService(object):
     def __init__(self,
                  service_url=None,
                  authenticator=None,
-                 disable_ssl_verification=False,
-                 display_name=None):
+                 disable_ssl_verification=False):
         """
-        :attr str url: The url for service api calls
+        :attr str service_url: The url for service api calls
         :attr Authenticator authenticator: The authenticator for authentication
         :attr bool disable_ssl_verification: enables/ disables ssl verification
-        :attr str display_name the name used for mapping services in environment file
         """
         self.service_url = service_url
         self.http_config = {}

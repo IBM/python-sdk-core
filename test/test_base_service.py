@@ -24,8 +24,7 @@ class AnyServiceV1(BaseService):
             self,
             service_url=service_url,
             authenticator=authenticator,
-            disable_ssl_verification=disable_ssl_verification,
-            display_name='ibm Watson')
+            disable_ssl_verification=disable_ssl_verification)
         self.version = version
 
     def op_with_path_params(self, path0, path1):
@@ -419,7 +418,7 @@ def test_json():
     assert req.get('data') == "{\"hello\": \"world\"}"
 
 def test_service_url_not_set():
-    service = BaseService(service_url='', authenticator=NoAuthAuthenticator(), display_name='Watson')
+    service = BaseService(service_url='', authenticator=NoAuthAuthenticator())
     with pytest.raises(ValueError) as err:
         service.prepare_request('POST', url='')
     assert str(err.value) == 'The service_url is required'
