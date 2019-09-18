@@ -135,7 +135,7 @@ def read_from_credential_file(service_name, separator='='):
 
 def _parse_key_and_update_config(config, service_name, key, value):
     service_name = service_name.replace(' ', '_').replace('-', '_').lower()
-    key = key.replace(' ', '_').replace('-', '_').lower()
+    key = key.lower()
     if key.startswith(service_name):
         config[key[len(service_name) + 1:]] = value
 

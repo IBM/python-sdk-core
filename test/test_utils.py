@@ -88,8 +88,8 @@ def test_vcap_credentials():
     del os.environ['VCAP_SERVICES']
 
 def test_multi_word_service_name():
-    os.environ['PERSONALITY-INSIGHTS_APIKEY'] = '5678efgh'
+    os.environ['PERSONALITY_INSIGHTS_APIKEY'] = '5678efgh'
     authenticator = get_authenticator_from_environment('personality-insights')
     assert authenticator is not None
     assert authenticator.token_manager.apikey == '5678efgh'
-    del os.environ['PERSONALITY-INSIGHTS_APIKEY']
+    del os.environ['PERSONALITY_INSIGHTS_APIKEY']
