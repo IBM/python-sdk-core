@@ -26,6 +26,7 @@ from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from .authenticators import Authenticator
 from http.cookiejar import CookieJar
+import logging
 
 # Uncomment this to enable http debugging
 # import http.client as http_client
@@ -35,6 +36,9 @@ from http.cookiejar import CookieJar
 class BaseService(object):
 
     SDK_NAME = 'ibm-python-sdk-core'
+    ERROR_MSG_DISABLE_SSL = 'If you\'re trying to call a service on ICP or Cloud Pak for Data, you may not have a valid SSL certificate. '\
+        'If you need to access the service without setting that up, try using the disable_ssl_verification option in your authentication '\
+        'configuration and/or setting set_disable_ssl_verification(True) on your service.'
 
     def __init__(self,
                  service_url=None,
@@ -125,28 +129,38 @@ class BaseService(object):
         if self.disable_ssl_verification:
             kwargs['verify'] = False
 
-        response = requests.request(**request, cookies=self.jar, **kwargs)
+        try:
+            response = requests.request(**request, cookies=self.jar, **kwargs)
 
-        if 200 <= response.status_code <= 299:
-            if response.status_code == 204 or request['method'] == 'HEAD':
-                # There is no body content for a HEAD request or a 204 response
-                result = None
-            elif not response.text:
-                result = None
+            if 200 <= response.status_code <= 299:
+                if response.status_code == 204 or request['method'] == 'HEAD':
+                    # There is no body content for a HEAD request or a 204 response
+                    result = None
+                elif not response.text:
+                    result = None
+                else:
+                    try:
+                        result = response.json()
+                    except:
+                        result = response
+                return DetailedResponse(result, response.headers,
+                                        response.status_code)
             else:
-                try:
-                    result = response.json()
-                except:
-                    result = response
-            return DetailedResponse(result, response.headers,
-                                    response.status_code)
-        else:
-            error_message = None
-            if response.status_code == 401:
-                error_message = 'Unauthorized: Access is denied due to ' \
-                                'invalid credentials'
-            raise ApiException(
-                response.status_code, error_message, http_response=response)
+                error_message = None
+                if response.status_code == 401:
+                    error_message = 'Unauthorized: Access is denied due to ' \
+                                    'invalid credentials'
+                raise ApiException(
+                    response.status_code, error_message, http_response=response)
+        except requests.exceptions.SSLError:
+            logging.exception(self.ERROR_MSG_DISABLE_SSL)
+            raise
+        except ApiException as err:
+            logging.exception(err.message)
+            raise
+        except:
+            logging.exception('Error in service call')
+            raise
 
 
     def prepare_request(self, method, url, headers=None,
