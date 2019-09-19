@@ -21,7 +21,7 @@ import sys
 import requests
 from requests.structures import CaseInsensitiveDict
 from .version import __version__
-from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_from_env_variables
+from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from .authenticators import Authenticator
@@ -37,15 +37,13 @@ class BaseService(object):
     SDK_NAME = 'ibm-python-sdk-core'
 
     def __init__(self,
-                 service_url,
+                 service_url=None,
                  authenticator=None,
-                 disable_ssl_verification=False,
-                 display_name=None):
+                 disable_ssl_verification=False):
         """
-        :attr str url: The url for service api calls
+        :attr str service_url: The url for service api calls
         :attr Authenticator authenticator: The authenticator for authentication
         :attr bool disable_ssl_verification: enables/ disables ssl verification
-        :attr str display_name the name used for mapping services in environment file
         """
         self.service_url = service_url
         self.http_config = {}
@@ -62,15 +60,6 @@ class BaseService(object):
         if not isinstance(self.authenticator, Authenticator):
             raise ValueError(
                 'authenticator should be of type Authenticator')
-
-        if display_name:
-            service_name = display_name.replace(' ', '_').lower()
-            config = read_from_env_variables(service_name)
-            if config.get('url'):
-                self.service_url = config.get('url')
-            if config.get('disable_ssl'):
-                self.disable_ssl_verification = config.get('disable_ssl')
-
 
     def _get_system_info(self):
         return '{0} {1} {2}'.format(

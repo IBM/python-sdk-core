@@ -9,9 +9,9 @@ def test_datetime_conversion():
 
 def test_get_authenticator_from_credential_file():
     file_path = os.path.join(
-    os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
+        os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    authenticator = get_authenticator_from_environment('watson')
+    authenticator = get_authenticator_from_environment('ibm watson')
     assert authenticator is not None
     assert authenticator.token_manager.apikey == '5678efgh'
     del os.environ['IBM_CREDENTIALS_FILE']
@@ -48,7 +48,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.bearer_token is not None
     del os.environ['IBM_CREDENTIALS_FILE']
 
-def test_get_authenticator_from_env_variabled():
+def test_get_authenticator_from_env_variables():
     os.environ['TEST_APIKEY'] = '5678efgh'
     authenticator = get_authenticator_from_environment('test')
     assert authenticator is not None
@@ -86,3 +86,10 @@ def test_vcap_credentials():
     authenticator = get_authenticator_from_environment('test')
     assert authenticator is None
     del os.environ['VCAP_SERVICES']
+
+def test_multi_word_service_name():
+    os.environ['PERSONALITY_INSIGHTS_APIKEY'] = '5678efgh'
+    authenticator = get_authenticator_from_environment('personality-insights')
+    assert authenticator is not None
+    assert authenticator.token_manager.apikey == '5678efgh'
+    del os.environ['PERSONALITY_INSIGHTS_APIKEY']
