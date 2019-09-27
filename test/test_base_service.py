@@ -391,26 +391,67 @@ def test_user_agent_header():
     assert response.get_result().request.headers.__getitem__(
         'user-agent') == user_agent_header['User-Agent']
 
-@responses.activate
-def test_files():
+def test_files_dict():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
-    responses.add(
-        responses.GET,
-        'https://gateway.watsonplatform.net/test/api',
-        status=200,
-        body=json.dumps({
-            'foo': 'bar'
-        }),
-        content_type='application/json')
     form_data = {}
     file = open(
         os.path.join(
             os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
     form_data['file1'] = (None, file, 'application/octet-stream')
-    form_data['string1'] = (None, 'hello', 'text.plain')
-    service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    form_data['string1'] = (None, 'hello', 'text/plain')
+    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    files = request['files']
+    assert isinstance(files, list)
+    assert len(files) == 2
+    filesDict = dict(files)
+    file1 = filesDict['file1']
+    assert file1[0] == 'ibm-credentials-iam.env'
+    string1 = filesDict['string1']
+    assert string1[0] is None
+    
+def test_files_list():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
+    form_data = []
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
+    form_data.append(('file1', (None, file, 'application/octet-stream')))
+    form_data.append(('string1', (None, 'hello', 'text/plain')))
+    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    files = request['files']
+    assert isinstance(files, list)
+    assert len(files) == 2
+    filesDict = dict(files)
+    file1 = filesDict['file1']
+    assert file1[0] == 'ibm-credentials-iam.env'
+    string1 = filesDict['string1']
+    assert string1[0] is None
+    
+def test_files_duplicate_parts():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+
+    form_data = []
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
+    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-basic.env'), 'r')
+    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env'), 'r')
+    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    files = request['files']
+    assert isinstance(files, list)
+    assert len(files) == 3
+    for part_name, tuple in files:
+        assert part_name == 'creds_file'
+        assert tuple[0] is not None
 
 def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())

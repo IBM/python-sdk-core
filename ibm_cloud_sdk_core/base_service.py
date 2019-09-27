@@ -197,16 +197,26 @@ class BaseService(object):
         if self.authenticator:
             self.authenticator.authenticate(request)
 
-        files = remove_null_values(files)
+        # Next, we need to process the 'files' argument to try to fill in
+        # any missing filenames where possible.  
+        # 'files' can be a dictionary (i.e { '<part-name>': (<tuple>)} )
+        # or a list of tuples [ (<part-name>, (<tuple>))... ]
+        # If 'files' is a dictionary we'll convert it to a list of tuples.
+        new_files = []
         if files is not None:
-            for k, file_tuple in files.items():
-                if file_tuple and len(
-                        file_tuple) == 3 and file_tuple[0] is None:
-                    file = file_tuple[1]
+            # If 'files' is a dictionary, transform it into a list of tuples.
+            if isinstance(files, dict):
+                files = remove_null_values(files)
+                files = files.items()
+            # Next, fill in any missing filenames from file tuples.
+            for part_name, tuple in files:
+                if tuple and len(tuple) == 3 and tuple[0] is None:
+                    file = tuple[1]
                     if file and hasattr(file, 'name'):
                         filename = basename(file.name)
-                        files[k] = (filename, file_tuple[1], file_tuple[2])
-        request['files'] = files
+                        tuple = (filename, tuple[1], tuple[2])
+                new_files.append((part_name, tuple))
+        request['files'] = new_files
         return request
 
 
