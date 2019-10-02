@@ -482,3 +482,16 @@ def test_files():
     form_data['file1'] = (None, file, 'application/octet-stream')
     form_data['string1'] = (None, 'hello', 'text.plain')
     service.request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+
+def test_setting_proxy():
+    service = BaseService('test', 'http://bogus', iam_apikey='testkey')
+    assert service.token_manager is not None
+    assert service.token_manager.http_config == {}
+
+    http_config = {
+        "proxies": {
+            "http": "user:password@host:port"
+        }
+    }
+    service.set_http_config(http_config)
+    assert service.token_manager.http_config == http_config

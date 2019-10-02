@@ -36,6 +36,7 @@ class JWTTokenManager(object):
         self.expire_time = None
         self.verify = None # to enable/ disable SSL verification
         self.token_name = token_name
+        self.http_config = {}
 
     def get_token(self):
         """
@@ -130,6 +131,9 @@ class JWTTokenManager(object):
         self.token_info = token_response
 
     def _request(self, method, url, headers=None, params=None, data=None, auth_tuple=None, **kwargs):
+        kwargs = dict({"timeout": 60}, **kwargs)
+        kwargs = dict(kwargs, **self.http_config)
+
         if self.verify is not None:
             kwargs['verify'] = not self.verify
 
