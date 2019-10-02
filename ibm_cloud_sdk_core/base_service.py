@@ -21,10 +21,11 @@ import sys
 import requests
 from requests.structures import CaseInsensitiveDict
 from .version import __version__
-from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
+from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from .authenticators import Authenticator
+from .jwt_token_manager import JWTTokenManager
 from http.cookiejar import CookieJar
 import logging
 
@@ -36,9 +37,9 @@ import logging
 class BaseService(object):
 
     SDK_NAME = 'ibm-python-sdk-core'
-    ERROR_MSG_DISABLE_SSL = 'If you\'re trying to call a service on ICP or Cloud Pak for Data, you may not have a valid SSL certificate. '\
-        'If you need to access the service without setting that up, try using the disable_ssl_verification option in your authentication '\
-        'configuration and/or setting set_disable_ssl_verification(True) on your service.'
+    ERROR_MSG_DISABLE_SSL = 'The connection failed because the SSL certificate is not valid. To use a self-signed certificate, '\
+                            'disable verification of the server\'s SSL certificate by invoking the set_disable_ssl_verification(True) '\
+                            'on your service instance and/ or use the disable_ssl_verification option of the authenticator.'
 
     def __init__(self,
                  service_url=None,
@@ -84,6 +85,8 @@ class BaseService(object):
         """
         if isinstance(http_config, dict):
             self.http_config = http_config
+            if self.authenticator and hasattr(self.authenticator, 'token_manager') and isinstance(self.authenticator.token_manager, JWTTokenManager):
+                self.authenticator.token_manager.http_config = http_config
         else:
             raise TypeError("http_config parameter must be a dictionary")
 

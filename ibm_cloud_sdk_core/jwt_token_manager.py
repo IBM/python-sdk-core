@@ -33,6 +33,7 @@ class JWTTokenManager(object):
         self.token_name = token_name
         self.token_info = {}
         self.time_for_new_token = None
+        self.http_config = {}
 
     def get_token(self):
         """
@@ -118,6 +119,9 @@ class JWTTokenManager(object):
                  data=None,
                  auth_tuple=None,
                  **kwargs):
+        kwargs = dict({"timeout": 60}, **kwargs)
+        kwargs = dict(kwargs, **self.http_config)
+
         if self.disable_ssl_verification:
             kwargs['verify'] = False
 
