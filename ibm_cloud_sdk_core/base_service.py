@@ -330,6 +330,8 @@ class BaseService(object):
         """
         if isinstance(http_config, dict):
             self.http_config = http_config
+            if self.token_manager:
+                self.token_manager.http_config = http_config
         else:
             raise TypeError("http_config parameter must be a dictionary")
 
