@@ -21,10 +21,11 @@ import sys
 import requests
 from requests.structures import CaseInsensitiveDict
 from .version import __version__
-from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
+from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from .authenticators import Authenticator
+from .jwt_token_manager import JWTTokenManager
 from http.cookiejar import CookieJar
 import logging
 
@@ -84,6 +85,8 @@ class BaseService(object):
         """
         if isinstance(http_config, dict):
             self.http_config = http_config
+            if self.authenticator and hasattr(self.authenticator, 'token_manager') and isinstance(self.authenticator.token_manager, JWTTokenManager):
+                self.authenticator.token_manager.http_config = http_config
         else:
             raise TypeError("http_config parameter must be a dictionary")
 
