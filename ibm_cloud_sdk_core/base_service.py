@@ -37,9 +37,9 @@ import logging
 class BaseService(object):
 
     SDK_NAME = 'ibm-python-sdk-core'
-    ERROR_MSG_DISABLE_SSL = 'If you\'re trying to call a service on ICP or Cloud Pak for Data, you may not have a valid SSL certificate. '\
-        'If you need to access the service without setting that up, try using the disable_ssl_verification option in your authentication '\
-        'configuration and/or setting set_disable_ssl_verification(True) on your service.'
+    ERROR_MSG_DISABLE_SSL = 'The connection failed because the SSL certificate is not valid. To use a self-signed certificate, '\
+                            'disable verification of the server\'s SSL certificate by invoking the set_disable_ssl_verification(True) '\
+                            'on your service instance and/ or use the disable_ssl_verification option of the authenticator.'
 
     def __init__(self,
                  service_url=None,
