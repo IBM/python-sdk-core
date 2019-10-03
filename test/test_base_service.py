@@ -7,35 +7,24 @@ import responses
 import jwt
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
-from ibm_cloud_sdk_core import ICP4DTokenManager
+from ibm_cloud_sdk_core import CP4DTokenManager
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator, NoAuthAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
+from ibm_cloud_sdk_core import get_authenticator_from_environment
+
 
 class AnyServiceV1(BaseService):
     default_url = 'https://gateway.watsonplatform.net/test/api'
 
-    def __init__(self, version, url=default_url, username=None, password=None,
-                 api_key=None,
-                 iam_apikey=None,
-                 iam_access_token=None,
-                 iam_url=None,
-                 icp4d_access_token=None,
-                 icp4d_url=None,
-                 authentication_type=None
-                ):
+    def __init__(self,
+                 version,
+                 service_url=default_url,
+                 authenticator=None,
+                 disable_ssl_verification=False):
         BaseService.__init__(
             self,
-            vcap_services_name='test',
-            url=url,
-            api_key=api_key,
-            username=username,
-            password=password,
-            use_vcap_services=True,
-            iam_apikey=iam_apikey,
-            iam_access_token=iam_access_token,
-            iam_url=iam_url,
-            display_name='Watson',
-            icp4d_access_token=icp4d_access_token,
-            icp4d_url=icp4d_url,
-            authentication_type=authentication_type)
+            service_url=service_url,
+            authenticator=authenticator,
+            disable_ssl_verification=disable_ssl_verification)
         self.version = version
 
     def op_with_path_params(self, path0, path1):
@@ -46,31 +35,32 @@ class AnyServiceV1(BaseService):
         params = {'version': self.version}
         url = '/v1/foo/{0}/bar/{1}/baz'.format(
             *self._encode_path_vars(path0, path1))
-        response = self.request(
-            method='GET', url=url, params=params, accept_json=True)
+        request = self.prepare_request(method='GET', url=url, params=params)
+        response = self.send(request)
         return response
 
     def with_http_config(self, http_config):
         self.set_http_config(http_config)
-        response = self.request(method='GET', url='', accept_json=True)
+        request = self.prepare_request(method='GET', url='', accept_json=True)
+        response = self.send(request)
         return response
 
     def any_service_call(self):
-        response = self.request(method='GET', url='', accept_json=True)
+        request = self.prepare_request(method='GET', url='', accept_json=True)
+        response = self.send(request)
         return response
 
     def head_request(self):
-        response = self.request(method='HEAD', url='', accept_json=True)
+        request = self.prepare_request(method='HEAD', url='', accept_json=True)
+        response = self.send(request)
         return response
+
 
 def get_access_token():
     access_token_layout = {
         "username": "dummy",
         "role": "Admin",
-        "permissions": [
-            "administrator",
-            "manage_catalog"
-        ],
+        "permissions": ["administrator", "manage_catalog"],
         "sub": "admin",
         "iss": "sss",
         "aud": "sss",
@@ -79,12 +69,19 @@ def get_access_token():
         "exp": int(time.time())
     }
 
-    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    access_token = jwt.encode(
+        access_token_layout,
+        'secret',
+        algorithm='HS256',
+        headers={
+            'kid': '230498151c214b788dd97f22b85410a5'
+        })
     return access_token.decode('utf-8')
+
 
 @responses.activate
 def test_url_encoding():
-    service = AnyServiceV1('2017-07-07', username='username', password='password')
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
 
     # All characters in path0 _must_ be encoded in path segments
     path0 = ' \"<>^`{}|/\\?#%[]'
@@ -96,11 +93,14 @@ def test_url_encoding():
     path_encoded = '/v1/foo/' + path0_encoded + '/bar/' + path1_encoded + '/baz'
     test_url = service.default_url + path_encoded
 
-    responses.add(responses.GET,
-                  test_url,
-                  status=200,
-                  body=json.dumps({"foobar": "baz"}),
-                  content_type='application/json')
+    responses.add(
+        responses.GET,
+        test_url,
+        status=200,
+        body=json.dumps({
+            "foobar": "baz"
+        }),
+        content_type='application/json')
 
     response = service.op_with_path_params(path0, path1)
 
@@ -109,38 +109,40 @@ def test_url_encoding():
     assert path_encoded in responses.calls[0].request.url
     assert 'version=2017-07-07' in responses.calls[0].request.url
 
+
 @responses.activate
 def test_http_config():
-    service = AnyServiceV1('2017-07-07', username='username', password='password')
-    responses.add(responses.GET,
-                  service.default_url,
-                  status=200,
-                  body=json.dumps({"foobar": "baz"}),
-                  content_type='application/json')
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
+    responses.add(
+        responses.GET,
+        service.default_url,
+        status=200,
+        body=json.dumps({
+            "foobar": "baz"
+        }),
+        content_type='application/json')
 
     response = service.with_http_config({'timeout': 100})
     assert response is not None
     assert len(responses.calls) == 1
 
+
 def test_fail_http_config():
-    service = AnyServiceV1('2017-07-07', username='username', password='password')
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
     with pytest.raises(TypeError):
         service.with_http_config(None)
 
+
 @responses.activate
 def test_iam():
-    iam_url = "https://iam.cloud.ibm.com/identity/token"
-    service = AnyServiceV1('2017-07-07', iam_apikey="iam_apikey")
-    assert service.token_manager is not None
-
-    service.set_iam_url('https://iam-test.cloud.ibm.com/identity/token')
-    assert service.token_manager.iam_url == 'https://iam-test.cloud.ibm.com/identity/token'
-
-    iam_url = "https://iam.cloud.ibm.com/identity/token"
-    service = AnyServiceV1('2017-07-07', username='xxx', password='yyy')
-    assert service.token_manager is None
-    service.set_iam_apikey('yyy')
-    assert service.token_manager is not None
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    iam_authenticator = get_authenticator_from_environment('ibm-watson')
+    service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
+    assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
+    del os.environ['IBM_CREDENTIALS_FILE']
+    assert service.authenticator is not None
 
     response = {
         "access_token": get_access_token(),
@@ -149,127 +151,71 @@ def test_iam():
         "expiration": int(time.time()),
         "refresh_token": "jy4gl91BQ"
     }
-    responses.add(responses.POST, url=iam_url, body=json.dumps(response), status=200)
-    responses.add(responses.GET,
-                  service.default_url,
-                  body=json.dumps({"foobar": "baz"}),
-                  content_type='application/json')
+    responses.add(
+        responses.POST,
+        url='https://iam.cloud.ibm.com/identity/token',
+        body=json.dumps(response),
+        status=200)
+    responses.add(
+        responses.GET,
+        url='https://gateway.watsonplatform.net/test/api',
+        body=json.dumps({
+            "foobar": "baz"
+        }),
+        content_type='application/json')
     service.any_service_call()
     assert "grant-type%3Aapikey" in responses.calls[0].request.body
 
 def test_no_auth():
-    try:
-        service = AnyServiceV1('2017-07-07')
-        service.request('GET', url='')
-    except ValueError as err:
-        assert str(err) == 'You must specify your IAM api key or username and password service credentials (Note: these are different from your IBM Cloud id)'
+    class MadeUp(object):
+        def __init__(self):
+            self.lazy = 'made up'
 
-def test_when_apikey_is_username():
-    service1 = AnyServiceV1('2017-07-07', username='apikey', password='xxxxx')
-    assert service1.token_manager is not None
-    assert service1.iam_apikey == 'xxxxx'
-    assert service1.username is None
-    assert service1.password is None
-    assert service1.token_manager.iam_url == 'https://iam.cloud.ibm.com/identity/token'
+    with pytest.raises(ValueError) as err:
+        AnyServiceV1('2017-07-07', authenticator=MadeUp())
+    assert str(err.value) == 'authenticator should be of type Authenticator'
 
-    service2 = AnyServiceV1('2017-07-07', username='apikey', password='xxxxx', iam_url='https://iam.stage1.cloud.ibm.com/identity/token')
-    assert service2.token_manager is not None
-    assert service2.iam_apikey == 'xxxxx'
-    assert service2.username is None
-    assert service2.password is None
-    assert service2.token_manager.iam_url == 'https://iam.stage1.cloud.ibm.com/identity/token'
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
+    assert service.authenticator is not None
+    assert isinstance(service.authenticator, Authenticator)
 
-def test_set_username_and_password():
-    service = AnyServiceV1('2017-07-07', username='hello', password='world')
-    assert service.username == 'hello'
-    assert service.password == 'world'
 
-    service.set_username_and_password('hello', 'ibm')
-    assert service.username == 'hello'
-    assert service.password == 'ibm'
+def test_for_cp4d():
+    cp4d_authenticator = CloudPakForDataAuthenticator('my_username', 'my_password',
+                                                      'my_url')
+    service = AnyServiceV1('2017-07-07', authenticator=cp4d_authenticator)
+    assert service.authenticator.token_manager is not None
+    assert service.authenticator.token_manager.username == 'my_username'
+    assert service.authenticator.token_manager.password == 'my_password'
+    assert service.authenticator.token_manager.url == 'my_url/v1/preauth/validateAuth'
+    assert isinstance(service.authenticator.token_manager, CP4DTokenManager)
 
-def test_for_icp():
-    service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
-    assert service1.token_manager is None
-    assert service1.iam_apikey is None
-    assert service1.username is not None
-    assert service1.password is not None
-    assert service1.url == 'service_url'
 
-    service2 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxx', url='service_url')
-    assert service2.token_manager is None
-    assert service2.iam_apikey is None
-    assert service2.username is not None
-    assert service2.password is not None
-    assert service2.url == 'service_url'
+def test_disable_ssl_verification():
+    service1 = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator(), disable_ssl_verification=True)
+    assert service1.disable_ssl_verification is True
 
-    service3 = AnyServiceV1('2017-07-07', iam_apikey='icp-xxx')
-    assert service3.token_manager is None
-    assert service2.iam_apikey is None
-    assert service2.username is not None
-    assert service2.password is not None
+    service1.set_disable_ssl_verification(False)
+    assert service1.disable_ssl_verification is False
 
-    service4 = AnyServiceV1('2017-07-07', iam_access_token='lala')
-    assert service4.token_manager is not None
-    assert service4.username is None
-    assert service4.password is None
+    cp4d_authenticator = CloudPakForDataAuthenticator('my_username', 'my_password',
+                                                      'my_url')
+    service2 = AnyServiceV1('2017-07-07', authenticator=cp4d_authenticator)
+    assert service2.disable_ssl_verification is False
+    cp4d_authenticator.set_disable_ssl_verification(True)
+    assert service2.authenticator.token_manager.disable_ssl_verification is True
 
-    service5 = AnyServiceV1('2017-07-07', api_key='haha')
-    assert service5.token_manager is not None
-    assert service5.username is None
-    assert service5.password is None
-
-    service6 = AnyServiceV1('2017-07-07', api_key='icp-haha')
-    assert service6.token_manager is None
-    assert service6.username is not None
-    assert service6.password is not None
-
-def test_for_icp4d():
-    service1 = AnyServiceV1('2017-07-07', username='hello', password='world', icp4d_url='service_url', authentication_type='icp4d')
-    assert service1.token_manager is not None
-    assert service1.iam_apikey is None
-    assert service1.username is not None
-    assert service1.password is not None
-    assert service1.icp4d_url == 'service_url'
-    assert isinstance(service1.token_manager, ICP4DTokenManager)
-
-    service2 = AnyServiceV1('2017-07-07', icp4d_access_token='icp4d_access_token', icp4d_url='service_url')
-    assert service2.token_manager is not None
-    assert service2.iam_apikey is None
-    assert service2.username is None
-    assert service2.password is None
-    assert isinstance(service2.token_manager, ICP4DTokenManager)
-
-    service3 = AnyServiceV1('2019-06-03', username='hello', password='world', icp4d_url='icp4d_url')
-    assert service3.username is not None
-    assert service3.password is not None
-    assert service3.token_manager is None
-
-    service3.set_icp4d_access_token('icp4d_access_token')
-    assert service3.token_manager is not None
-    assert isinstance(service3.token_manager, ICP4DTokenManager)
-
-def test_disable_SSL_verification():
-    service1 = AnyServiceV1('2017-07-07', username='apikey', password='icp-xxxx', url='service_url')
-    assert service1.verify is None
-
-    service1.disable_SSL_verification()
-    assert service1.verify is False
-
-    service2 = AnyServiceV1('2017-07-07', username='hello', password='world', authentication_type='icp4d', icp4d_url='icp4d_url')
-    assert service2.verify is None
-    service2.disable_SSL_verification()
-    assert service2.token_manager.verify is not None
 
 @responses.activate
 def test_http_head():
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     expectedHeaders = {'Test-Header1': 'value1', 'Test-Header2': 'value2'}
-    responses.add(responses.HEAD,
-                  service.default_url,
-                  status=200,
-                  headers=expectedHeaders,
-                  content_type=None)
+    responses.add(
+        responses.HEAD,
+        service.default_url,
+        status=200,
+        headers=expectedHeaders,
+        content_type=None)
 
     response = service.head_request()
     assert response is not None
@@ -277,143 +223,101 @@ def test_http_head():
     assert response.headers is not None
     assert response.headers == expectedHeaders
 
+
 @responses.activate
 def test_response_with_no_body():
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
-    responses.add(responses.GET,
-                  service.default_url,
-                  status=200,
-                  body=None)
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    responses.add(responses.GET, service.default_url, status=200, body=None)
 
     response = service.any_service_call()
     assert response is not None
     assert len(responses.calls) == 1
     assert response.get_result() is None
 
+
 def test_has_bad_first_or_last_char():
     with pytest.raises(ValueError) as err:
-        AnyServiceV1('2018-11-20', username='{username}', password='password')
-    assert str(err.value) == 'The username shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your username'
-
-    with pytest.raises(ValueError) as err:
-        AnyServiceV1('2018-11-20', username='username', password='{password}')
-    assert str(err.value) == 'The password shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your password'
-
-    with pytest.raises(ValueError) as err:
-        AnyServiceV1('2018-11-20', iam_apikey='{apikey}')
-    assert str(err.value) == 'The credentials shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your credentials'
-
-    with pytest.raises(ValueError) as err:
-        AnyServiceV1('2018-11-20', iam_apikey='apikey', url='"url"')
-    assert str(err.value) == 'The URL shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your URL'
-
-    with pytest.raises(ValueError) as err:
-        service = AnyServiceV1('2018-11-20', iam_apikey='apikey', url='url')
-        service.set_iam_apikey('"wrong"')
-    assert str(err.value) == 'The credentials shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your credentials'
-
-    with pytest.raises(ValueError) as err:
-        service = AnyServiceV1('2018-11-20', iam_apikey='apikey', url='url')
-        service.set_url('"wrong"')
-    assert str(err.value) == 'The URL shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your URL'
-
-    with pytest.raises(ValueError) as err:
-        service = AnyServiceV1('2018-11-20', username='hello', password='world')
-        service.set_username_and_password('"wrong"', 'password')
-    assert str(err.value) == 'The username shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your username'
-
-    with pytest.raises(ValueError) as err:
-        service = AnyServiceV1('2018-11-20', username='hello', password='world')
-        service.set_username_and_password('hello', '"wrong"')
-    assert str(err.value) == 'The password shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your password'
-
-def test_set_credential_based_on_type():
-    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service = AnyServiceV1('2018-11-20')
-    assert service.iam_apikey == '5678efgh'
-    del os.environ['IBM_CREDENTIALS_FILE']
-
-    service = AnyServiceV1('2018-11-20', username='test', password='test')
-    assert service.username == 'test'
-
-def test_vcap_credentials():
-    vcap_services = '{"test":[{"credentials":{ \
-        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
-        "username":"bogus username", \
-        "password":"bogus password", \
-        "apikey":"bogus apikey",\
-        "iam_access_token":"bogus iam_access_token",\
-        "iam_apikey":"bogus iam_apikey"}}]}'
-    os.environ['VCAP_SERVICES'] = vcap_services
-    service = AnyServiceV1('2018-11-20')
-    assert service.url == 'https://gateway.watsonplatform.net/compare-comply/api'
-    assert service.username == 'bogus username'
-    assert service.password == 'bogus password'
-    assert service.iam_apikey == 'bogus iam_apikey'
-    assert service.iam_access_token == 'bogus iam_access_token'
-    del os.environ['VCAP_SERVICES']
-
-    vcap_services = '{"test":[{"credentials":{ \
-        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
-        "icp4d_url":"https://test/",\
-        "icp4d_access_token":"bogus icp4d_access_token"}}]}'
-    os.environ['VCAP_SERVICES'] = vcap_services
-    service = AnyServiceV1('2018-11-20')
-    assert service.token_manager is not None
-    assert service.token_manager.user_access_token == 'bogus icp4d_access_token'
-    del os.environ['VCAP_SERVICES']
+        basic_authenticator = BasicAuthenticator('{my_username}', 'my_password')
+        AnyServiceV1('2018-11-20', authenticator=basic_authenticator)
+    assert str(
+        err.value
+    ) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
 @responses.activate
 def test_request_server_error():
-    responses.add(responses.GET,
-                  'https://gateway.watsonplatform.net/test/api',
-                  status=500,
-                  body=json.dumps({'error': 'internal server error'}),
-                  content_type='application/json')
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        status=500,
+        body=json.dumps({
+            'error': 'internal server error'
+        }),
+        content_type='application/json')
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     try:
-        service.request('GET', url='')
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
     except ApiException as err:
         assert err.message == 'internal server error'
 
 @responses.activate
 def test_request_success_json():
-    responses.add(responses.GET,
-                  'https://gateway.watsonplatform.net/test/api',
-                  status=200,
-                  body=json.dumps({'foo': 'bar'}),
-                  content_type='application/json')
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
-    detailed_response = service.request('GET', url='', accept_json=True)
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        status=200,
+        body=json.dumps({
+            'foo': 'bar'
+        }),
+        content_type='application/json')
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    prepped = service.prepare_request('GET', url='')
+    detailed_response = service.send(prepped)
+    assert detailed_response.get_result() == {'foo': 'bar'}
+
+    service = AnyServiceV1('2018-11-20', authenticator=BasicAuthenticator('my_username', 'my_password'))
+    service.set_default_headers({'test': 'header'})
+    service.set_disable_ssl_verification(True)
+    prepped = service.prepare_request('GET', url='')
+    detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {'foo': 'bar'}
 
 @responses.activate
 def test_request_success_response():
-    responses.add(responses.GET,
-                  'https://gateway.watsonplatform.net/test/api',
-                  status=200,
-                  body=json.dumps({'foo': 'bar'}),
-                  content_type='application/json')
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
-    detailed_response = service.request('GET', url='')
-    assert detailed_response.get_result().text == '{"foo": "bar"}'
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        status=200,
+        body=json.dumps({
+            'foo': 'bar'
+        }),
+        content_type='application/json')
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    prepped = service.prepare_request('GET', url='')
+    detailed_response = service.send(prepped)
+    assert detailed_response.get_result() == {"foo": "bar"}
 
 @responses.activate
 def test_request_fail_401():
-    responses.add(responses.GET,
-                  'https://gateway.watsonplatform.net/test/api',
-                  status=401,
-                  body=json.dumps({'foo': 'bar'}),
-                  content_type='application/json')
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        status=401,
+        body=json.dumps({
+            'foo': 'bar'
+        }),
+        content_type='application/json')
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     try:
-        service.request('GET', url='')
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
     except ApiException as err:
         assert err.message == 'Unauthorized: Access is denied due to invalid credentials'
 
 def test_misc_methods():
+
     class MockModel(object):
+
         def __init__(self, x=None):
             self.x = x
 
@@ -431,11 +335,11 @@ def test_misc_methods():
             return cls(**args)
 
     mock = MockModel('foo')
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     model1 = service._convert_model(mock)
     assert model1 == {'x': 'foo'}
 
-    model2 = service._convert_model("{\"x\": \"foo\"}", MockModel)
+    model2 = service._convert_model("{\"x\": \"foo\"}")
     assert model2 is not None
     assert model2['x'] == 'foo'
 
@@ -444,49 +348,127 @@ def test_misc_methods():
     assert res_str == 'default,123'
 
 def test_default_headers():
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     service.set_default_headers({'xxx': 'yyy'})
     assert service.default_headers == {'xxx': 'yyy'}
     with pytest.raises(TypeError):
         service.set_default_headers('xxx')
 
+def test_set_service_url():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    with pytest.raises(ValueError) as err:
+        service.set_service_url('{url}')
+    assert str(err.value) == 'The service url shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your service url'
+
+    service.set_service_url('my_url')
+
+def test_get_authenticator():
+    auth = BasicAuthenticator('my_username', 'my_password')
+    service = AnyServiceV1('2018-11-20', authenticator=auth)
+    assert service.get_authenticator() is not None
+
 @responses.activate
 def test_user_agent_header():
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
-    user_agent_header = service.get_user_agent_header()
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    user_agent_header = service.user_agent_header
     assert user_agent_header is not None
     assert user_agent_header['User-Agent'] is not None
 
-    responses.add(responses.GET,
-                  'https://gateway.watsonplatform.net/test/api',
-                  status=200,
-                  body=json.dumps({'foo': 'bar'}),
-                  content_type='application/json')
-    response = service.request('GET', url='', headers={'user-agent': 'my_user_agent'})
-    assert response.get_result().request.headers.__getitem__('user-agent') == 'my_user_agent'
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        status=200,
+        body='some text')
+    prepped = service.prepare_request('GET', url='', headers={
+        'user-agent': 'my_user_agent'
+    })
+    response = service.send(prepped)
+    assert response.get_result().request.headers.__getitem__(
+        'user-agent') == 'my_user_agent'
 
-    response = service.request('GET', url='', headers=None)
-    assert response.get_result().request.headers.__getitem__('user-agent') == user_agent_header['User-Agent']
+    prepped = service.prepare_request('GET', url='', headers=None)
+    response = service.send(prepped)
+    assert response.get_result().request.headers.__getitem__(
+        'user-agent') == user_agent_header['User-Agent']
 
-@responses.activate
-def test_files():
-    service = AnyServiceV1('2018-11-20', username='username', password='password')
+def test_files_dict():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
-    responses.add(responses.GET,
-                  'https://gateway.watsonplatform.net/test/api',
-                  status=200,
-                  body=json.dumps({'foo': 'bar'}),
-                  content_type='application/json')
     form_data = {}
-    file = open(os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env'), 'r')
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
     form_data['file1'] = (None, file, 'application/octet-stream')
-    form_data['string1'] = (None, 'hello', 'text.plain')
-    service.request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    form_data['string1'] = (None, 'hello', 'text/plain')
+    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    files = request['files']
+    assert isinstance(files, list)
+    assert len(files) == 2
+    filesDict = dict(files)
+    file1 = filesDict['file1']
+    assert file1[0] == 'ibm-credentials-iam.env'
+    string1 = filesDict['string1']
+    assert string1[0] is None
+    
+def test_files_list():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+
+    form_data = []
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
+    form_data.append(('file1', (None, file, 'application/octet-stream')))
+    form_data.append(('string1', (None, 'hello', 'text/plain')))
+    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    files = request['files']
+    assert isinstance(files, list)
+    assert len(files) == 2
+    filesDict = dict(files)
+    file1 = filesDict['file1']
+    assert file1[0] == 'ibm-credentials-iam.env'
+    string1 = filesDict['string1']
+    assert string1[0] is None
+    
+def test_files_duplicate_parts():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+
+    form_data = []
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
+    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-basic.env'), 'r')
+    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    file = open(
+        os.path.join(
+            os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env'), 'r')
+    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    files = request['files']
+    assert isinstance(files, list)
+    assert len(files) == 3
+    for part_name, tuple in files:
+        assert part_name == 'creds_file'
+        assert tuple[0] is not None
+
+def test_json():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    req = service.prepare_request('POST', url='', headers={'X-opt-out': True}, data={'hello': 'world'})
+    assert req.get('data') == "{\"hello\": \"world\"}"
+
+def test_service_url_not_set():
+    service = BaseService(service_url='', authenticator=NoAuthAuthenticator())
+    with pytest.raises(ValueError) as err:
+        service.prepare_request('POST', url='')
+    assert str(err.value) == 'The service_url is required'
+
 
 def test_setting_proxy():
-    service = BaseService('test', 'http://bogus', iam_apikey='testkey')
-    assert service.token_manager is not None
-    assert service.token_manager.http_config == {}
+    service = BaseService('test', authenticator=IAMAuthenticator('wonder woman'))
+    assert service.authenticator is not None
+    assert service.authenticator.token_manager.http_config == {}
 
     http_config = {
         "proxies": {
@@ -494,4 +476,8 @@ def test_setting_proxy():
         }
     }
     service.set_http_config(http_config)
-    assert service.token_manager.http_config == http_config
+    assert service.authenticator.token_manager.http_config == http_config
+
+    service2 = BaseService('test', authenticator=BasicAuthenticator('marvellous', 'mrs maisel'))
+    service2.set_http_config(http_config)
+    assert service2.authenticator is not None

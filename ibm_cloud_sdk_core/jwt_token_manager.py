@@ -19,31 +19,27 @@ import time
 import requests
 from .api_exception import ApiException
 
+
 class JWTTokenManager(object):
-    def __init__(self, url, access_token=None, token_name=None):
+
+    def __init__(self, url, disable_ssl_verification=False, token_name=None):
         """
-        Parameters
-        ----------
-        url : str
-            url of the api to retrieve tokens from
-        access_token : str
-            User-managed access token
+        :attr str url: url of the API to retrieve tokens from
+        :attr bool disable_ssl_verification: disables ssl verification when True
+        :attr: str token_name: name of the key containing the token
         """
-        self.token_info = {}
         self.url = url
-        self.user_access_token = access_token
-        self.time_to_live = None
-        self.expire_time = None
-        self.verify = None # to enable/ disable SSL verification
+        self.disable_ssl_verification = disable_ssl_verification
         self.token_name = token_name
+        self.token_info = {}
+        self.time_for_new_token = None
         self.http_config = {}
 
     def get_token(self):
         """
         The source of the token is determined by the following logic:
-        1. If user provides their own managed access token, assume it is valid and send it
-        2.  a) If this class is managing tokens and does not yet have one, make a request for one
-            b) If this class is managing tokens and the token has expired, request a new one
+        2.  a) If this class does not yet have one, make a request for one
+            b) If this class token has expired, request a new one
         3. If this class is managing tokens and has a valid token stored, send it
 
         Returns
@@ -51,37 +47,22 @@ class JWTTokenManager(object):
         str
             A valid access token
         """
-        if self.user_access_token:
-            return self.user_access_token
-        elif not self.token_info or self._is_token_expired():
+        if not self.token_info or self._is_token_expired():
             token_response = self.request_token()
             self._save_token_info(token_response)
 
         return self.token_info.get(self.token_name)
 
-    def set_access_token(self, access_token):
+    def set_disable_ssl_verification(self, status=False):
         """
-        Set a self-managed IAM access token.
-        The access token should be valid and not yet expired.
-
-        By using this method, you accept responsibility for managing the
-        access token yourself. You must set a new access token before this
-        one expires. Failing to do so will result in authentication errors
-        after this token expires.
-
-        Parameters
-        ----------
-        access_token : str
-            A valid, non-expired access token
+        Sets the ssl verification to enabled or disabled
         """
-        self.user_access_token = access_token
-
-    def disable_SSL_verification(self, status=None):
-        if status is not None:
-            self.verify = status
+        self.disable_ssl_verification = status
 
     def request_token(self):
-        raise NotImplementedError('request_token MUST be overridden by a subclass of JWTTokenManager.')
+        raise NotImplementedError(
+            'request_token MUST be overridden by a subclass of JWTTokenManager.'
+        )
 
     def _get_current_time(self):
         return int(time.time())
@@ -100,13 +81,11 @@ class JWTTokenManager(object):
         bool
             If token expired or not
         """
-        if self.time_to_live is None or self.expire_time is None:
+        if not self.time_for_new_token:
             return True
 
-        fraction_of_ttl = 0.8
         current_time = self._get_current_time()
-        time_for_new_token = self.expire_time - (self.time_to_live * (1.0 - fraction_of_ttl))
-        return time_for_new_token < current_time
+        return self.time_for_new_token < current_time
 
     def _save_token_info(self, token_response):
         """
@@ -125,21 +104,35 @@ class JWTTokenManager(object):
         iat = decoded_response.get('iat')
 
         # exp is the time of expire and iat is the time of token retrieval
-        self.time_to_live = exp - iat
-        self.expire_time = exp
-
+        time_to_live = exp - iat
+        expire_time = exp
+        fraction_of_ttl = 0.8
+        self.time_for_new_token = expire_time - (time_to_live *
+                                                 (1.0 - fraction_of_ttl))
         self.token_info = token_response
 
-    def _request(self, method, url, headers=None, params=None, data=None, auth_tuple=None, **kwargs):
+    def _request(self,
+                 method,
+                 url,
+                 headers=None,
+                 params=None,
+                 data=None,
+                 auth_tuple=None,
+                 **kwargs):
         kwargs = dict({"timeout": 60}, **kwargs)
         kwargs = dict(kwargs, **self.http_config)
 
-        if self.verify is not None:
-            kwargs['verify'] = not self.verify
+        if self.disable_ssl_verification:
+            kwargs['verify'] = False
 
-        response = requests.request(method=method, url=url,
-                                    headers=headers, params=params,
-                                    data=data, auth=auth_tuple, **kwargs)
+        response = requests.request(
+            method=method,
+            url=url,
+            headers=headers,
+            params=params,
+            data=data,
+            auth=auth_tuple,
+            **kwargs)
         if 200 <= response.status_code <= 299:
             return response.json()
         else:

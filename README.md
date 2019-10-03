@@ -25,22 +25,86 @@ easy_install --upgrade ibm-cloud-sdk-core
 ```
 
 ## Authentication Types
-There are several flavors of authentication supported in this package. To specify the intended authentication pattern to use, the user can pass in the parameter `authentication_type`. This parameter is optional, but it may become required in a future major release. The options for this parameter are `basic`, `iam`, and `icp4d`.
+There are several flavors of authentication supported in this package. To specify the intended authentication pattern to use, simply instantiate the `Authenticator` of your choice.
 
-### basic
+### Basic
 This indicates Basic Auth is to be used. Users will pass in a `username` and `password` and the SDK will generate a Basic Auth header to send with requests to the service.
 
-### iam
-This indicates that IAM token authentication is to be used. Users can pass in an `iam_apikey` or an `iam_access_token`. If an API key is used, the SDK will manage the token for the user. In either case, the SDK will generate a Bearer Auth header to send with requests to the service.
+```py
+from ibm_cloud_sdk_core.authenticators import BasicAuthenticator
 
-### icp4d
-This indicates that the service is an instance of ICP4D, which has its own version of token authentication. Users can pass in a `username` and `password`, or an `icp4d_access_token`. If a username and password is given, the SDK will manage the token for the user.
-A `icp4d_url` is **required** for this type. In order to use an SDK-managed token with ICP4D authentication, this option **must** be passed in.
+authenticator = BasicAuthenticator(<your_username>, <your_password>)
+```
+
+### IAM
+This indicates that IAM token authentication is to be used. Users can pass in a `apikey` and the SDK will generate a Bearer Auth header to send with requests to the service.
+
+```py
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+
+authenticator = IAMAuthenticator(<your_apikey>)
+```
+
+### Cloud Pak for Data
+This indicates that the service is an instance of CP4D, which has its own version of token authentication. Users can pass in a `username`, `password` and `url`, and the SDK will generate a Bearer Auth header to send with requests to the service.
+
+```py
+from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
+
+authenticator = CloudPakForDataAuthenticator(<your_username>, <your_password>, <your_url>)
+```
+
+### Bearer Token
+This indicates bearer token authentication is to be used. The system would prepend the `bearer` name to your token and add it to the authorization header.
+
+```py
+from ibm_cloud_sdk_core.authenticators import BearerTokenAuthenticator
+
+authenticator = BearerTokenAuthenticator(<your_bearer_token>)
+```
+
+### No Authentication
+This indicates that no authentication is needed when sending requests to the service
+
+```py
+from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
+
+authenticator = NoAuthAuthenticator()
+```
 
 ## Issues
 
 If you encounter an issue with this project, you are welcome to submit a [bug report](https://github.com/IBM/python-sdk-core/issues).
 Before opening a new issue, please search for similar issues. It's possible that someone has already reported it.
+
+## Logging
+
+### Enable logging
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+This would show output of the form:
+```
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): iam.cloud.ibm.com:443
+DEBUG:urllib3.connectionpool:https://iam.cloud.ibm.com:443 "POST /identity/token HTTP/1.1" 200 1809
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): gateway.watsonplatform.net:443
+DEBUG:urllib3.connectionpool:https://gateway.watsonplatform.net:443 "POST /assistant/api/v1/workspaces?version=2018-07-10 HTTP/1.1" 201 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): gateway.watsonplatform.net:443
+DEBUG:urllib3.connectionpool:https://gateway.watsonplatform.net:443 "GET /assistant/api/v1/workspaces/883a2a44-eb5f-4b1a-96b0-32a90b475ea8?version=2018-07-10&export=true HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): gateway.watsonplatform.net:443
+DEBUG:urllib3.connectionpool:https://gateway.watsonplatform.net:443 "DELETE /assistant/api/v1/workspaces/883a2a44-eb5f-4b1a-96b0-32a90b475ea8?version=2018-07-10 HTTP/1.1" 200 28
+```
+
+### Low level request and response dump
+To get low level information of the requests/ responses:
+
+```python
+from http.client import HTTPConnection
+HTTPConnection.debuglevel = 1
+```
 
 ## Open source @ IBM
 

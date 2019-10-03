@@ -24,8 +24,8 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
             "iss": "sss",
             "aud": "sss",
             "uid": "sss",
-            "iat": current_time + 3600,
-            "exp": current_time
+            "iat": current_time,
+            "exp": current_time + 3600
         }
 
         access_token = jwt.encode(token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
@@ -40,17 +40,11 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
 
 def test_get_token():
     url = "https://iam.cloud.ibm.com/identity/token"
-    # Case 1:
-    token_manager = JWTTokenManagerMockImpl(url, 'user_access_token')
+    token_manager = JWTTokenManagerMockImpl(url)
     token = token_manager.get_token()
-    assert token == token_manager.user_access_token
-
-    # Case 2a:
-    token_manager.set_access_token(None)
-    token_manager.get_token()
     assert token_manager.token_info.get('expires_in') == 3600
+    assert token_manager._is_token_expired() is False
 
-    # Case 3, valid token present
     token_manager.token_info = {"access_token": "old_dummy",
                                 "token_type": "Bearer",
                                 "expires_in": 3600,
@@ -60,10 +54,8 @@ def test_get_token():
     token = token_manager.get_token()
     assert token == "old_dummy"
 
-    # Case 2b, expired token:
-    token_manager.expire_time = int(time.time()) - (13 * 3600)
-    token_manager.time_to_live = 43200
-
+    # expired token:
+    token_manager.time_for_new_token = token_manager._get_current_time() - 300
     token = token_manager.get_token()
     assert token != "old_dummy"
     assert token_manager.request_count == 2
@@ -71,10 +63,9 @@ def test_get_token():
 def test_is_token_expired():
     token_manager = JWTTokenManagerMockImpl(None, None)
     assert token_manager._is_token_expired() is True
-    token_manager.time_to_live = 3600
-    token_manager.expire_time = int(time.time()) + 6000
+    token_manager.time_for_new_token = token_manager._get_current_time() + 3600
     assert token_manager._is_token_expired() is False
-    token_manager.expire_time = int(time.time()) - 3600
+    token_manager.time_for_new_token = token_manager._get_current_time() - 3600
     assert token_manager._is_token_expired()
 
 def test_not_implemented_error():
@@ -82,3 +73,8 @@ def test_not_implemented_error():
         token_manager = JWTTokenManager(None, None)
         token_manager.request_token()
     assert str(err.value) == 'request_token MUST be overridden by a subclass of JWTTokenManager.'
+
+def test_disable_ssl_verification():
+    token_manager = JWTTokenManagerMockImpl('https://iam.cloud.ibm.com/identity/token')
+    token_manager.set_disable_ssl_verification(True)
+    assert token_manager.disable_ssl_verification is True
