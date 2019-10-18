@@ -15,19 +15,38 @@
 # limitations under the License.
 
 import jwt
-import time
 import requests
+import time
+from typing import Optional
 from .api_exception import ApiException
 
 
 class JWTTokenManager(object):
+    """An abstract class to contain functionality for parsing, storing, and requesting JWT tokens.
 
-    def __init__(self, url, disable_ssl_verification=False, token_name=None):
-        """
-        :attr str url: url of the API to retrieve tokens from
-        :attr bool disable_ssl_verification: disables ssl verification when True
-        :attr: str token_name: name of the key containing the token
-        """
+    get_token will retrieve a new token from the url in case the that there is no existing token,
+    or the previous token has expired. Child classes will implement request_token, which will do
+    the actual acquisition of a new token.
+
+    Args:
+        url: The url to request tokens from.
+
+    Keyword Args:
+        disable_ssl_verification: A flag that indicates whether verification of
+            the server's SSL certificate should be disabled or not. Defaults to False.
+        token_name: The key that maps to the token in the dictionary returned from request_token. Defaults to None.
+
+    Attributes:
+        url (str): The url to request tokens from.
+        disable_ssl_verification (bool): A flag that indicates whether verification of
+        the server's SSL certificate should be disabled or not.
+        token_name (str): The key used of the token in the dict returned from request_token.
+        token_info (dict): The most token_response from request_token.
+        time_for_new_token (int): The time in epoch seconds when the current token within token_info will expire.
+        http_config (dict): The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
+    """
+
+    def __init__(self, url: str, disable_ssl_verification: bool = False, token_name: Optional[str] = None):
         self.url = url
         self.disable_ssl_verification = disable_ssl_verification
         self.token_name = token_name
@@ -35,17 +54,16 @@ class JWTTokenManager(object):
         self.time_for_new_token = None
         self.http_config = {}
 
-    def get_token(self):
-        """
-        The source of the token is determined by the following logic:
-        2.  a) If this class does not yet have one, make a request for one
-            b) If this class token has expired, request a new one
-        3. If this class is managing tokens and has a valid token stored, send it
+    def get_token(self) -> str:
+        """Get a token to be used for authentication.
 
-        Returns
-        -------
-        str
-            A valid access token
+        The source of the token is determined by the following logic:
+        1.  a) If this class does not yet have one, make a request for one
+            b) If this class token has expired, request a new one
+        2. If this class is managing tokens and has a valid token stored, send it
+
+        Returns:
+            str: A valid access token
         """
         if not self.token_info or self._is_token_expired():
             token_response = self.request_token()
@@ -53,13 +71,20 @@ class JWTTokenManager(object):
 
         return self.token_info.get(self.token_name)
 
-    def set_disable_ssl_verification(self, status=False):
-        """
-        Sets the ssl verification to enabled or disabled
+    def set_disable_ssl_verification(self, status: bool = False):
+        """Sets the ssl verification to enabled or disabled.
+
+        Args:
+            status: the flag to be used for determining status.
         """
         self.disable_ssl_verification = status
 
     def request_token(self):
+        """Should be overridden by child classes.
+
+        Raises:
+            NotImplementedError: Thrown when called.
+        """
         raise NotImplementedError(
             'request_token MUST be overridden by a subclass of JWTTokenManager.'
         )
@@ -72,7 +97,7 @@ class JWTTokenManager(object):
         Check if currently stored token is expired.
 
         Using a buffer to prevent the edge case of the
-        oken expiring before the request could be made.
+        token expiring before the request could be made.
 
         The buffer will be a fraction of the total TTL. Using 80%.
 
@@ -118,7 +143,7 @@ class JWTTokenManager(object):
                  params=None,
                  data=None,
                  auth_tuple=None,
-                 **kwargs):
+                 **kwargs) -> dict:
         kwargs = dict({"timeout": 60}, **kwargs)
         kwargs = dict(kwargs, **self.http_config)
 
