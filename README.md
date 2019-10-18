@@ -24,53 +24,15 @@ or
 easy_install --upgrade ibm-cloud-sdk-core
 ```
 
-## Authentication Types
-There are several flavors of authentication supported in this package. To specify the intended authentication pattern to use, simply instantiate the `Authenticator` of your choice.
+## Authentication
+The python-sdk-core project supports the following types of authentication:
+- Basic Authentication
+- Bearer Token
+- Identity and Access Management (IAM)
+- Cloud Pak for Data
+- No Authentication
 
-### Basic
-This indicates Basic Auth is to be used. Users will pass in a `username` and `password` and the SDK will generate a Basic Auth header to send with requests to the service.
-
-```py
-from ibm_cloud_sdk_core.authenticators import BasicAuthenticator
-
-authenticator = BasicAuthenticator(<your_username>, <your_password>)
-```
-
-### IAM
-This indicates that IAM token authentication is to be used. Users can pass in a `apikey` and the SDK will generate a Bearer Auth header to send with requests to the service.
-
-```py
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-
-authenticator = IAMAuthenticator(<your_apikey>)
-```
-
-### Cloud Pak for Data
-This indicates that the service is an instance of CP4D, which has its own version of token authentication. Users can pass in a `username`, `password` and `url`, and the SDK will generate a Bearer Auth header to send with requests to the service.
-
-```py
-from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
-
-authenticator = CloudPakForDataAuthenticator(<your_username>, <your_password>, <your_url>)
-```
-
-### Bearer Token
-This indicates bearer token authentication is to be used. The system would prepend the `bearer` name to your token and add it to the authorization header.
-
-```py
-from ibm_cloud_sdk_core.authenticators import BearerTokenAuthenticator
-
-authenticator = BearerTokenAuthenticator(<your_bearer_token>)
-```
-
-### No Authentication
-This indicates that no authentication is needed when sending requests to the service
-
-```py
-from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
-
-authenticator = NoAuthAuthenticator()
-```
+For more information about the various authentication types and how to use them with your services, click [here](Authentication.md)
 
 ## Issues
 
