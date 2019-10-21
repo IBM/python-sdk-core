@@ -409,7 +409,7 @@ def test_files_dict():
     assert file1[0] == 'ibm-credentials-iam.env'
     string1 = filesDict['string1']
     assert string1[0] is None
-    
+
 def test_files_list():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
@@ -428,7 +428,7 @@ def test_files_list():
     assert file1[0] == 'ibm-credentials-iam.env'
     string1 = filesDict['string1']
     assert string1[0] is None
-    
+
 def test_files_duplicate_parts():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
