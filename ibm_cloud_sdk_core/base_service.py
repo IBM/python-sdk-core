@@ -15,16 +15,17 @@
 # limitations under the License.
 
 from os.path import basename
-import platform
 import json as json_import
-import sys
+import platform
 import requests
 from requests.structures import CaseInsensitiveDict
+import sys
+from typing import Dict, List, Optional, Tuple, Union
 from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
-from .authenticators import Authenticator
+from ibm_cloud_sdk_core.authenticators import Authenticator
 from .jwt_token_manager import JWTTokenManager
 from http.cookiejar import CookieJar
 import logging
@@ -33,23 +34,39 @@ import logging
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 1
 
-
 class BaseService(object):
+    """Common functionality shared by generated service classes.
 
+    The base service authenticates requests via its authenticator, stores cookies, and
+    wraps responses from the service endpoint in DetailedResponse or APIException objects.
+
+    Keyword Arguments:
+        service_url: Url to the service endpoint. Defaults to None.
+        authenticator: Adds authentication data to service requests. Defaults to None.
+        disable_ssl_verification: A flag that indicates whether verification of the server's SSL
+            certificate should be disabled or not. Defaults to False.
+
+    Attributes:
+        service_url (str): Url to the service endpoint.
+        authenticator (Authenticator): Adds authentication data to service requests.
+        disable_ssl_verification (bool): A flag that indicates whether verification of
+            the server's SSL certificate should be disabled or not.
+        default_headers (dict): A dictionary of headers to be sent with every HTTP request to the service endpoint.
+        jar (http.cookiejar.CookieJar): Stores cookies received from the service.
+        http_config (dict): The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
+
+    Raises:
+        ValueError: If Authenticator is not provided or invalid type.
+    """
     SDK_NAME = 'ibm-python-sdk-core'
     ERROR_MSG_DISABLE_SSL = 'The connection failed because the SSL certificate is not valid. To use a self-signed certificate, '\
                             'disable verification of the server\'s SSL certificate by invoking the set_disable_ssl_verification(True) '\
                             'on your service instance and/ or use the disable_ssl_verification option of the authenticator.'
 
     def __init__(self,
-                 service_url=None,
-                 authenticator=None,
-                 disable_ssl_verification=False):
-        """
-        :attr str service_url: The url for service api calls
-        :attr Authenticator authenticator: The authenticator for authentication
-        :attr bool disable_ssl_verification: enables/ disables ssl verification
-        """
+                 service_url: str = None,
+                 authenticator: Authenticator = None,
+                 disable_ssl_verification: bool = False):
         self.service_url = service_url
         self.http_config = {}
         self.jar = CookieJar()
@@ -79,9 +96,16 @@ class BaseService(object):
     def _set_user_agent_header(self, user_agent_string=None):
         self.user_agent_header = {'User-Agent': user_agent_string}
 
-    def set_http_config(self, http_config):
-        """
-        Sets the http client config like timeout, proxies, etc.
+    def set_http_config(self, http_config: dict):
+        """Sets the http config dictionary.
+
+        The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
+
+        Arguments:
+            http_config: Configuration values to customize HTTP behaviors.
+
+        Raises:
+            TypeError: http_config is not a dict.
         """
         if isinstance(http_config, dict):
             self.http_config = http_config
@@ -90,15 +114,23 @@ class BaseService(object):
         else:
             raise TypeError("http_config parameter must be a dictionary")
 
-    def set_disable_ssl_verification(self, status=False):
-        """
-        Sets the ssl verification to enabled or disabled
+    def set_disable_ssl_verification(self, status: bool = False):
+        """Set the flag that indicates whether verification of
+        the server's SSL certificate should be disabled or not.
+
+        Keyword Arguments:
+            status: set to true to disable ssl verification (default: {False})
         """
         self.disable_ssl_verification = status
 
-    def set_service_url(self, service_url):
-        """
-        Sets the service url
+    def set_service_url(self, service_url: str):
+        """Set the url the service will make HTTP requests too.
+
+        Arguments:
+            service_url: The WHATWG URL standard origin ex. https://example.service.com
+
+        Raises:
+            ValueError: Improperly formatted service_url
         """
         if has_bad_first_or_last_char(service_url):
             raise ValueError(
@@ -107,23 +139,37 @@ class BaseService(object):
             )
         self.service_url = service_url
 
-    def get_authenticator(self):
-        """
-        Returns the authenticator
+    def get_authenticator(self) -> Authenticator:
+        """Get the authenticator currently used by the service.
+
+        Returns:
+            The authenticator currently used by the service.
         """
         return self.authenticator
 
-    def set_default_headers(self, headers):
-        """
-        Set http headers to be sent in every request.
-        :param headers: A dictionary of header names and values
+    def set_default_headers(self, headers: Dict[str, str]):
+        """Set http headers to be sent in every request.
+
+        Arguments:
+            headers: A dictionary of headers
         """
         if isinstance(headers, dict):
             self.default_headers = headers
         else:
             raise TypeError("headers parameter must be a dictionary")
 
-    def send(self, request, **kwargs):
+    def send(self, request: requests.Request, **kwargs) -> DetailedResponse:
+        """Send a request and wrap the response in a DetailedResponse or APIException.
+
+        Args:
+            request: The request to send to the service endpoint.
+
+        Raises:
+            ApiException: The exception from the API.
+
+        Returns:
+            The response from the request.
+        """
         # Use a one minute timeout when our caller doesn't give a timeout.
         # http://docs.python-requests.org/en/master/user/quickstart/#timeouts
         kwargs = dict({"timeout": 60}, **kwargs)
@@ -166,8 +212,39 @@ class BaseService(object):
             raise
 
 
-    def prepare_request(self, method, url, headers=None,
-                        params=None, data=None, files=None, **kwargs):
+    def prepare_request(self,
+                        method: str,
+                        url: str,
+                        headers: Optional[dict] = None,
+                        params: Optional[dict] = None,
+                        data: Optional[Union[str, dict]] = None,
+                        files: Optional[Union[
+                            Dict[str, Tuple[str]],
+                            List[Tuple[str, Tuple[str, ...]]]
+                        ]] = None,
+                        **kwargs) -> dict:
+        """Build a dict that represents an HTTP service request.
+
+        Clean up headers, add default http configuration, convert data
+        into json, process files, and merge all into a single request dict.
+
+        Args:
+            method: The HTTP method of the request ex. GET, POST, etc.
+            url: The origin + pathname according to WHATWG spec.
+
+        Keyword Arguments:
+            headers: Headers of the request.
+            params: Querystring data to be appended to the url.
+            data: The request body. Converted to json if a dict.
+            files: 'files' can be a dictionary (i.e { '<part-name>': (<tuple>)}),
+                or a list of tuples [ (<part-name>, (<tuple>))... ]
+
+        Raises:
+            ValueError: If service_url is not specified.
+
+        Returns:
+            Prepared request dictionary.
+        """
         request = {'method': method}
 
         # validate the service url is set
@@ -201,7 +278,7 @@ class BaseService(object):
             self.authenticator.authenticate(request)
 
         # Next, we need to process the 'files' argument to try to fill in
-        # any missing filenames where possible.  
+        # any missing filenames where possible.
         # 'files' can be a dictionary (i.e { '<part-name>': (<tuple>)} )
         # or a list of tuples [ (<part-name>, (<tuple>))... ]
         # If 'files' is a dictionary we'll convert it to a list of tuples.

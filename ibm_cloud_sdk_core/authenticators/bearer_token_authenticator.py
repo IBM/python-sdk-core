@@ -15,34 +15,57 @@
 # limitations under the License.
 
 from .authenticator import Authenticator
-
+from requests import Request
 
 class BearerTokenAuthenticator(Authenticator):
+    """The BearerTokenAuthenticator will add a user-supplied bearer token
+    to requests.
+
+    The bearer token will be sent as an Authorization header in the form:
+
+         Authorization: Bearer <bearer-token>
+
+    Args:
+        bearer_token: The user supplied bearer token.
+
+    Raises:
+        ValueError: Bearer token is none.
+    """
     authentication_type = 'bearerToken'
 
-    def __init__(self, bearer_token):
-        """
-        :attr str bearer_token: User managed bearer token
-        """
+    def __init__(self, bearer_token: str):
         self.bearer_token = bearer_token
         self.validate()
 
     def validate(self):
-        """
-        Performs validation on input params
+        """Validate the bearer token.
+
+        Ensures the bearer token is valid for service operations.
+
+        Raises:
+            ValueError: The bearer token is not valid for service operations.
         """
         if self.bearer_token is None:
             raise ValueError('The bearer token shouldn\'t be None.')
 
-    def authenticate(self, req):
-        """
-        Adds the Authorization header, if applicable
+    def authenticate(self, req: Request):
+        """Adds bearer authentication information to the request.
+
+        The bearer token will be added to the request's headers in the form:
+
+            Authorization: Bearer <bearer-token>
+
+        Args:
+            req: The request to add bearer authentication information too. Must contain a key to a dictionary
+            called headers.
         """
         headers = req.get('headers')
         headers['Authorization'] = 'Bearer {0}'.format(self.bearer_token)
 
-    def set_bearer_token(self, bearer_token):
-        """
-        Sets the bearer token
+    def set_bearer_token(self, bearer_token: str):
+        """Set a new bearer token to be sent in subsequent service operations.
+
+        Args:
+            bearer_token: The bearer token that will be sent in service requests.
         """
         self.bearer_token = bearer_token

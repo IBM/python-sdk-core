@@ -50,12 +50,12 @@ def test_iam_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
         IAMAuthenticator('my_apikey', client_id='my_client_id')
     assert str(
-        err.value) == 'Both client id and client secret should be initialized.'
+        err.value) == 'Both client_id and client_secret should be initialized.'
 
     with pytest.raises(ValueError) as err:
         IAMAuthenticator('my_apikey', client_secret='my_client_secret')
     assert str(
-        err.value) == 'Both client id and client secret should be initialized.'
+        err.value) == 'Both client_id and client_secret should be initialized.'
 
 
 @responses.activate

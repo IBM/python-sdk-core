@@ -14,10 +14,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Dict, Optional
 from .jwt_token_manager import JWTTokenManager
 
-
 class IAMTokenManager(JWTTokenManager):
+    """The IAMTokenManager takes an api key and performs the necessary interactions with
+    the IAM token service to obtain and store a suitable bearer token. Additionally, the IAMTokenManager
+    will retrieve bearer tokens via basic auth using a supplied client_id and client_secret pair.
+
+    If the current stored bearer token has expired a new bearer token will be retrieved.
+
+    Attributes:
+        apikey: A generated API key from ibmcloud.
+        url (str): The IAM endpoint to token requests.
+        client_id (str): The client_id and client_secret fields are used to form
+            a "basic auth" Authorization header for interactions with the IAM token server.
+        client_secret (str): The client_id and client_secret fields are used to form
+            a "basic auth" Authorization header for interactions with the IAM token server.
+        headers (dict): Default headers to be sent with every IAM token request.
+        proxies (dict): Proxies to use for communicating with IAM.
+        proxies.http (str): The proxy endpoint to use for HTTP requests.
+        proxies.https (str): The proxy endpoint to use for HTTPS requests.
+        http_config (dict): The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
+
+    Args:
+        apikey: A generated APIKey from ibmcloud.
+
+    Keyword Args:
+        url: The IAM endpoint to token requests. Defaults to None.
+        client_id: The client_id and client_secret fields are used to form
+            a "basic auth" Authorization header for interactions with the IAM token server.
+            Defaults to None.
+        client_secret: The client_id and client_secret fields are used to form
+            a "basic auth" Authorization header for interactions with the IAM token server.
+            Defaults to None.
+        disable_ssl_verification: A flag that indicates whether verification of
+            the server's SSL certificate should be disabled or not. Defaults to False.
+        headers: Default headers to be sent with every IAM token request. Defaults to None.
+        proxies: Proxies to use for communicating with IAM. Defaults to None.
+        proxies.http: The proxy endpoint to use for HTTP requests.
+        proxies.https: The proxy endpoint to use for HTTPS requests.
+    """
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com/identity/token'
     CONTENT_TYPE = 'application/x-www-form-urlencoded'
     REQUEST_TOKEN_GRANT_TYPE = 'urn:ibm:params:oauth:grant-type:apikey'
@@ -25,22 +62,13 @@ class IAMTokenManager(JWTTokenManager):
     TOKEN_NAME = 'access_token'
 
     def __init__(self,
-                 apikey,
-                 url=None,
-                 client_id=None,
-                 client_secret=None,
-                 disable_ssl_verification=False,
-                 headers=None,
-                 proxies=None):
-        """
-        :attr str apikey: The apikey
-        :attr str url: The url for authentication
-        :attr str client_id: The client id for rate limiting
-        :attr str client_secret: The client secret for rate limiting
-        :attr bool disable_ssl_verification: enables/ disabled ssl verification
-        :attr dict headers: user-defined headers
-        :attr dict proxies: user-defined proxies
-        """
+                 apikey: str,
+                 url: Optional[str] = None,
+                 client_id: Optional[str] = None,
+                 client_secret: Optional[str] = None,
+                 disable_ssl_verification: Optional[str] = False,
+                 headers: Optional[Dict[str, str]] = None,
+                 proxies: Optional[Dict[str, str]] = None):
         self.apikey = apikey
         self.url = url if url else self.DEFAULT_IAM_URL
         self.client_id = client_id
@@ -50,9 +78,13 @@ class IAMTokenManager(JWTTokenManager):
         super(IAMTokenManager, self).__init__(
             self.url, disable_ssl_verification, self.TOKEN_NAME)
 
-    def request_token(self):
-        """
-        Request an IAM token using an API key
+    def request_token(self) -> dict:
+        """Request an IAM OAuth token given an API Key.
+
+        If client_id and client_secret are specified use their values as a user and pass auth set according to WHATWG url spec.
+
+        Returns:
+             A dictionary containing the bearer token to be subsequently used service requests.
         """
         headers = {
             'Content-type': self.CONTENT_TYPE,
@@ -68,7 +100,7 @@ class IAMTokenManager(JWTTokenManager):
         }
 
         auth_tuple = None
-        # If both the clientId and secret were specified by the user, then use them
+        # If both the client_id and secret were specified by the user, then use them
         if self.client_id and self.client_secret:
             auth_tuple = (self.client_id, self.client_secret)
 
@@ -81,28 +113,34 @@ class IAMTokenManager(JWTTokenManager):
             proxies=self.proxies)
         return response
 
-    def set_client_id_and_secret(self, client_id, client_secret):
-        """
-        Set the IAM authorization information.
-        This consists of the client_id and secret.
-        These values are used to form the basic authorization header that
-        is used when interacting with the IAM token server.
+    def set_client_id_and_secret(self, client_id: str, client_secret: str):
+        """Set the client_id and client_secret.
+
+        Args:
+            client_id: The client id to be used for token requests.
+            client_secret: The client secret to be used for token requests.
         """
         self.client_id = client_id
         self.client_secret = client_secret
 
-    def set_headers(self, headers):
-        """
-        Sets user-defined headers
+    def set_headers(self, headers: Dict[str, str]):
+        """Headers to be sent with every CP4D token request.
+
+        Args:
+            headers: Headers to be sent with every IAM token request.
         """
         if isinstance(headers, dict):
             self.headers = headers
         else:
             raise TypeError('headers must be a dictionary')
 
-    def set_proxies(self, proxies):
-        """
-        Sets proxies
+    def set_proxies(self, proxies: Dict[str, str]):
+        """Sets the proxies the token manager will use to communicate with IAM on behalf of the host.
+
+        Args:
+            proxies: Proxies to use for communicating with IAM.
+            proxies.http (str, optional): The proxy endpoint to use for HTTP requests.
+            proxies.https (str, optional): The proxy endpoint to use for HTTPS requests.
         """
         if isinstance(proxies, dict):
             self.proxies = proxies

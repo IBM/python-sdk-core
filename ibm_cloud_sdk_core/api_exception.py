@@ -13,17 +13,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from requests import Response
+from typing import Optional
+
 
 class ApiException(Exception):
-    """
-    Custom exception class for errors returned from APIs.
+    """Custom exception class for errors returned from operations.
 
-    :param int code: The HTTP status code returned.
-    :param str message: A message describing the error.
-    :param dict info: A dictionary of additional information about the error.
-    :param response http_response: response
+    Args:
+        code: HTTP status code of the error response.
+        message: The error response body. Defaults to None.
+        http_response: The HTTP response of the failed request. Defaults to None.
+
+    Attributes:
+        code (int): HTTP status code of the error response.
+        message (str): The error response body.
+        http_response (requests.Response): The HTTP response of the failed request.
+        global_transaction_id (str, optional): Globally unique id the service endpoint has given a transaction.
     """
-    def __init__(self, code, message=None, info=None, http_response=None):
+
+    def __init__(self, code: int, message: Optional[str] = None, http_response: Optional[Response] = None):
         # Call the base class constructor with the parameters it needs
         super(ApiException, self).__init__(message)
         self.message = message
@@ -40,12 +49,7 @@ class ApiException(Exception):
             msg += ' , X-global-transaction-id: ' + str(self.global_transaction_id)
         return  msg
 
-    def _get_error_message(self, response):
-        """
-        Gets the error message from a JSON response.
-        :return: the error message
-        :rtype: string
-        """
+    def _get_error_message(self, response: Response):
         error_message = 'Unknown error'
         try:
             error_json = response.json()
