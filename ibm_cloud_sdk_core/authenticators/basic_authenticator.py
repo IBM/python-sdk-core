@@ -40,6 +40,7 @@ class BasicAuthenticator(Authenticator):
         self.username = username
         self.password = password
         self.authorization_header = None
+        self.validate()
 
 
     def validate(self):
@@ -79,7 +80,6 @@ class BasicAuthenticator(Authenticator):
         """
 
         if self.authorization_header is None:
-            self.validate()
             self.authorization_header = self.__construct_basic_auth_header()
         headers = req.get('headers')
         headers['Authorization'] = self.authorization_header

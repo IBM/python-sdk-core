@@ -13,17 +13,17 @@ def test_basic_authenticator():
 
 def test_basic_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
-        BasicAuthenticator('my_username', None).authenticate({})
+        BasicAuthenticator('my_username', None)
     assert str(err.value) == 'The username and password shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        BasicAuthenticator(None, 'my_password').authenticate({})
+        BasicAuthenticator(None, 'my_password')
     assert str(err.value) == 'The username and password shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        BasicAuthenticator('{my_username}', 'my_password').authenticate({})
+        BasicAuthenticator('{my_username}', 'my_password')
     assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
-        BasicAuthenticator('my_username', '{my_password}').authenticate({})
+        BasicAuthenticator('my_username', '{my_password}')
     assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'

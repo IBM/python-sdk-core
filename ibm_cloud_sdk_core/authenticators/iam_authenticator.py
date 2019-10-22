@@ -64,6 +64,7 @@ class IAMAuthenticator(Authenticator):
         self.token_manager = IAMTokenManager(
             apikey, url, client_id, client_secret, disable_ssl_verification,
             headers, proxies)
+        self.validate()
 
     def validate(self):
         """Validates the apikey, client_id, and client_secret for IAM token requests.
@@ -100,7 +101,6 @@ class IAMAuthenticator(Authenticator):
             req: The request to add IAM authentication information too. Must contain a key to a dictionary
             called headers.
         """
-        self.validate()
         headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)

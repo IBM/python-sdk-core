@@ -35,6 +35,7 @@ class BearerTokenAuthenticator(Authenticator):
 
     def __init__(self, bearer_token: str):
         self.bearer_token = bearer_token
+        self.validate()
 
     def validate(self):
         """Validate the bearer token.
@@ -58,7 +59,6 @@ class BearerTokenAuthenticator(Authenticator):
             req: The request to add bearer authentication information too. Must contain a key to a dictionary
             called headers.
         """
-        self.validate()
         headers = req.get('headers')
         headers['Authorization'] = 'Bearer {0}'.format(self.bearer_token)
 

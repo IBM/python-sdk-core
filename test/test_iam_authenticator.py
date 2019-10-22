@@ -38,22 +38,22 @@ def test_iam_authenticator():
 
 def test_iam_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
-        IAMAuthenticator(None).authenticate({})
+        IAMAuthenticator(None)
     assert str(err.value) == 'The apikey shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        IAMAuthenticator('{apikey}').authenticate({})
+        IAMAuthenticator('{apikey}')
     assert str(
         err.value
     ) == 'The apikey shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
-        IAMAuthenticator('my_apikey', client_id='my_client_id').authenticate({})
+        IAMAuthenticator('my_apikey', client_id='my_client_id')
     assert str(
         err.value) == 'Both client_id and client_secret should be initialized.'
 
     with pytest.raises(ValueError) as err:
-        IAMAuthenticator('my_apikey', client_secret='my_client_secret').authenticate({})
+        IAMAuthenticator('my_apikey', client_secret='my_client_secret')
     assert str(
         err.value) == 'Both client_id and client_secret should be initialized.'
 
