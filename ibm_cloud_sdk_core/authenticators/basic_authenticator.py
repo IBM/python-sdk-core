@@ -39,7 +39,6 @@ class BasicAuthenticator(Authenticator):
     def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
-        self.authorization_header = None
         self.validate()
         self.authorization_header = self.__construct_basic_auth_header()
 

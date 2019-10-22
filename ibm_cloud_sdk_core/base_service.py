@@ -23,7 +23,6 @@ import sys
 from typing import Dict, List, Optional, Tuple, Union
 from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
-from .get_authenticator import get_authenticator_from_environment
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from ibm_cloud_sdk_core.authenticators import Authenticator
@@ -74,8 +73,12 @@ class BaseService(object):
         self.authenticator = authenticator
         self.disable_ssl_verification = disable_ssl_verification
         self.default_headers = None
-
         self._set_user_agent_header(self._build_user_agent())
+        if not self.authenticator:
+            raise ValueError('authenticator must be provided')
+        if not isinstance(self.authenticator, Authenticator):
+            raise ValueError(
+                'authenticator should be of type Authenticator')
 
     def _get_system_info(self):
         return '{0} {1} {2}'.format(
@@ -89,7 +92,7 @@ class BaseService(object):
                                     self._get_system_info())
 
     def configure_service(self, service_name: str):
-        """Look for external configuration of a service.
+        """Look for external configuration of a service. Set service properties.
 
         Try to get config from external sources, with the following priority:
         1. Credentials file(ibm-credentials.env)
@@ -98,9 +101,6 @@ class BaseService(object):
 
         Args:
             service_name: The service name
-
-        Returns:
-            A dictionary containing relevant configuration for the service if found.
 
         Raises:
             ValueError: If service_name is not a string.
@@ -115,9 +115,6 @@ class BaseService(object):
             self.set_disable_ssl_verification(
                 bool(config.get('DISABLE_SSL'))
             )
-        authenticator = get_authenticator_from_environment(service_name)
-        if authenticator is not None:
-            self.authenticator = authenticator
 
     def _set_user_agent_header(self, user_agent_string=None):
         self.user_agent_header = {'User-Agent': user_agent_string}
@@ -265,19 +262,9 @@ class BaseService(object):
             files: 'files' can be a dictionary (i.e { '<part-name>': (<tuple>)}),
                 or a list of tuples [ (<part-name>, (<tuple>))... ]
 
-        Raises:
-            ValueError: If service_url is not specified, or authenticator is invalid.
-
         Returns:
             Prepared request dictionary.
         """
-        if not self.authenticator:
-            raise ValueError('authenticator must be provided')
-
-        if not isinstance(self.authenticator, Authenticator):
-            raise ValueError(
-                'authenticator should be of type Authenticator')
-
         request = {'method': method}
 
         # validate the service url is set

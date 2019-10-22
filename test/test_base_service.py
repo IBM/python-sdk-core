@@ -495,12 +495,6 @@ def test_service_url_not_set():
         service.prepare_request('POST', url='')
     assert str(err.value) == 'The service_url is required'
 
-def test_authenticator_none():
-    service = BaseService('test', authenticator=None)
-    with pytest.raises(ValueError) as err:
-        service.prepare_request('POST', url='')
-    assert str(err.value) == 'authenticator must be provided'
-
 def test_setting_proxy():
     service = BaseService('test', authenticator=IAMAuthenticator('wonder woman'))
     assert service.authenticator is not None
@@ -525,7 +519,8 @@ def test_configure_service():
     service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://externallyconfigured.com/api'
     assert service.disable_ssl_verification is True
-    assert isinstance(service.get_authenticator(), IAMAuthenticator)
+    # The authenticator should not be changed as a result of configure_service()
+    assert isinstance(service.get_authenticator(), NoAuthAuthenticator)
 
 def test_configure_service_error():
     service = BaseService('v1', authenticator=NoAuthAuthenticator())
