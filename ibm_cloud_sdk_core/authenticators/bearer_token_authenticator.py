@@ -67,5 +67,9 @@ class BearerTokenAuthenticator(Authenticator):
 
         Args:
             bearer_token: The bearer token that will be sent in service requests.
+
+        Raises:
+            ValueError: The bearer token is not valid for service operations.
         """
         self.bearer_token = bearer_token
+        self.validate()
