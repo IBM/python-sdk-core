@@ -41,6 +41,7 @@ class BasicAuthenticator(Authenticator):
         self.password = password
         self.authorization_header = None
         self.validate()
+        self.authorization_header = self.__construct_basic_auth_header()
 
 
     def validate(self):
@@ -78,8 +79,5 @@ class BasicAuthenticator(Authenticator):
             req: The request to add basic auth information too. Must contain a key to a dictionary
             called headers.
         """
-
-        if self.authorization_header is None:
-            self.authorization_header = self.__construct_basic_auth_header()
         headers = req.get('headers')
         headers['Authorization'] = self.authorization_header
