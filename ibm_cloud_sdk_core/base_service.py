@@ -22,7 +22,8 @@ from requests.structures import CaseInsensitiveDict
 import sys
 from typing import Dict, List, Optional, Tuple, Union
 from .version import __version__
-from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values
+from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
+from .get_authenticator import get_authenticator_from_environment
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from ibm_cloud_sdk_core.authenticators import Authenticator
@@ -76,22 +77,41 @@ class BaseService(object):
 
         self._set_user_agent_header(self._build_user_agent())
 
-        if not self.authenticator:
-            raise ValueError('authenticator must be provided')
-
-        if not isinstance(self.authenticator, Authenticator):
-            raise ValueError(
-                'authenticator should be of type Authenticator')
-
     def _get_system_info(self):
         return '{0} {1} {2}'.format(
             platform.system(),  # OS
             platform.release(),  # OS version
-            platform.python_version())  # Python version
+            platform.python_version()  # Python version
+        )
 
     def _build_user_agent(self):
         return '{0}-{1} {2}'.format(self.SDK_NAME, __version__,
                                     self._get_system_info())
+
+    def configure_service(self, service_name: str):
+        """Look for external configuration of a service.
+
+        Try to get config from external sources, with the following priority:
+        1. Credentials file(ibm-credentials.env)
+        2. Environment variables
+        3. VCAP Services(Cloud Foundry)
+
+        Args:
+            service_name: The service name
+
+        Returns:
+            A dictionary containing relevant configuration for the service if found.
+        """
+        config = read_external_sources(service_name)
+        if config.get('URL'):
+            self.set_service_url(config.get('URL'))
+        if config.get('DISABLE_SSL'):
+            self.set_disable_ssl_verification(
+                bool(config.get('DISABLE_SSL'))
+            )
+        authenticator = get_authenticator_from_environment(service_name)
+        if authenticator is not None:
+            self.authenticator = authenticator
 
     def _set_user_agent_header(self, user_agent_string=None):
         self.user_agent_header = {'User-Agent': user_agent_string}
@@ -245,6 +265,13 @@ class BaseService(object):
         Returns:
             Prepared request dictionary.
         """
+        if not self.authenticator:
+            raise ValueError('authenticator must be provided')
+
+        if not isinstance(self.authenticator, Authenticator):
+            raise ValueError(
+                'authenticator should be of type Authenticator')
+
         request = {'method': method}
 
         # validate the service url is set
@@ -274,8 +301,7 @@ class BaseService(object):
             data = json_import.dumps(data)
         request['data'] = data
 
-        if self.authenticator:
-            self.authenticator.authenticate(request)
+        self.authenticator.authenticate(request)
 
         # Next, we need to process the 'files' argument to try to fill in
         # any missing filenames where possible.

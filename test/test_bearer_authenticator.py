@@ -19,5 +19,5 @@ def test_bearer_authenticator():
 
 def test_bearer_validate_failed():
     with pytest.raises(ValueError) as err:
-        BearerTokenAuthenticator(None)
+        BearerTokenAuthenticator(None).authenticate({})
     assert str(err.value) == 'The bearer token shouldn\'t be None.'

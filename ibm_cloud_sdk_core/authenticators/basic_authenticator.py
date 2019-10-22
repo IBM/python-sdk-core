@@ -39,8 +39,7 @@ class BasicAuthenticator(Authenticator):
     def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
-        self.validate()
-        self.authorization_header = self.__construct_basic_auth_header(username, password)
+        self.authorization_header = None
 
 
     def validate(self):
@@ -61,7 +60,7 @@ class BasicAuthenticator(Authenticator):
                 'Please remove any surrounding {, }, or \" characters.')
 
 
-    def __construct_basic_auth_header(self, username: str, password: str):
+    def __construct_basic_auth_header(self):
         authstring = "{0}:{1}".format(self.username, self.password)
         base64_authorization = base64.b64encode(authstring.encode('utf-8')).decode('utf-8')
         return 'Basic {0}'.format(base64_authorization)
@@ -79,5 +78,8 @@ class BasicAuthenticator(Authenticator):
             called headers.
         """
 
+        if self.authorization_header is None:
+            self.validate()
+            self.authorization_header = self.__construct_basic_auth_header()
         headers = req.get('headers')
         headers['Authorization'] = self.authorization_header

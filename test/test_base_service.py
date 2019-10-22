@@ -12,14 +12,34 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator, NoAuthAuthentica
 from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 
+class IncludeExternalConfigService(BaseService):
+    default_service_url = 'https://servicesthatincludeexternalconfig.com/api'
+    def __init__(
+            self,
+            api_version,
+            authenticator=None,
+            trace_id=None
+        ):
+        BaseService.__init__(
+            self,
+            service_url=self.default_service_url,
+            authenticator=authenticator,
+            disable_ssl_verification=False
+        )
+        self.api_version = api_version
+        self.trace_id = trace_id
+        self.configure_service('include-external-config')
+
 class AnyServiceV1(BaseService):
     default_url = 'https://gateway.watsonplatform.net/test/api'
 
-    def __init__(self,
-                 version,
-                 service_url=default_url,
-                 authenticator=None,
-                 disable_ssl_verification=False):
+    def __init__(
+            self,
+            version,
+            service_url=default_url,
+            authenticator=None,
+            disable_ssl_verification=False
+        ):
         BaseService.__init__(
             self,
             service_url=service_url,
@@ -172,10 +192,18 @@ def test_no_auth():
             self.lazy = 'made up'
 
     with pytest.raises(ValueError) as err:
-        AnyServiceV1('2017-07-07', authenticator=MadeUp())
-    assert str(err.value) == 'authenticator should be of type Authenticator'
+        service = AnyServiceV1('2017-07-07', authenticator=MadeUp())
+        service.prepare_request(
+            responses.GET,
+            url='https://gateway.watsonplatform.net/test/api',
+        )
+        assert str(err.value) == 'authenticator should be of type Authenticator'
 
     service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
+    service.prepare_request(
+        responses.GET,
+        url='https://gateway.watsonplatform.net/test/api',
+    )
     assert service.authenticator is not None
     assert isinstance(service.authenticator, Authenticator)
 
@@ -238,7 +266,10 @@ def test_response_with_no_body():
 def test_has_bad_first_or_last_char():
     with pytest.raises(ValueError) as err:
         basic_authenticator = BasicAuthenticator('{my_username}', 'my_password')
-        AnyServiceV1('2018-11-20', authenticator=basic_authenticator)
+        AnyServiceV1('2018-11-20', authenticator=basic_authenticator).prepare_request(
+            responses.GET,
+            'https://gateway.watsonplatform.net/test/api'
+        )
     assert str(
         err.value
     ) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
@@ -481,3 +512,12 @@ def test_setting_proxy():
     service2 = BaseService('test', authenticator=BasicAuthenticator('marvellous', 'mrs maisel'))
     service2.set_http_config(http_config)
     assert service2.authenticator is not None
+
+def test_configure_services():
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials-external.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
+    assert service.service_url == 'https://externallyconfigured.com/api'
+    assert service.disable_ssl_verification is True
+    assert isinstance(service.get_authenticator(), IAMAuthenticator)

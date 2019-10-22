@@ -36,27 +36,27 @@ def test_iam_authenticator():
 
 def test_iam_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator('my_username', None, 'my_url')
+        CloudPakForDataAuthenticator('my_username', None, 'my_url').authenticate({})
     assert str(err.value) == 'The username and password shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator(None, 'my_password', 'my_url')
+        CloudPakForDataAuthenticator(None, 'my_password', 'my_url').authenticate({})
     assert str(err.value) == 'The username and password shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator('my_username', 'my_password', None)
+        CloudPakForDataAuthenticator('my_username', 'my_password', None).authenticate({})
     assert str(err.value) == 'The url shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator('{my_username}', 'my_password', 'my_url')
+        CloudPakForDataAuthenticator('{my_username}', 'my_password', 'my_url').authenticate({})
     assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator('my_username', '{my_password}', 'my_url')
+        CloudPakForDataAuthenticator('my_username', '{my_password}', 'my_url').authenticate({})
     assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator('my_username', 'my_password', '{my_url}')
+        CloudPakForDataAuthenticator('my_username', 'my_password', '{my_url}').authenticate({})
     assert str(err.value) == 'The url shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
 
 

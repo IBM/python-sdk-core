@@ -59,7 +59,6 @@ class CloudPakForDataAuthenticator(Authenticator):
                  proxies: Optional[Dict[str, str]] = None):
         self.token_manager = CP4DTokenManager(
             username, password, url, disable_ssl_verification, headers, proxies)
-        self.validate()
 
     def validate(self):
         """Validate username, password, and url for token requests.
@@ -98,6 +97,7 @@ class CloudPakForDataAuthenticator(Authenticator):
             req:  The request to add CP4D authentication information too. Must contain a key to a dictionary
             called headers.
         """
+        self.validate()
         headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
