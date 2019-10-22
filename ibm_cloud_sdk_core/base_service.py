@@ -260,7 +260,7 @@ class BaseService(object):
                 or a list of tuples [ (<part-name>, (<tuple>))... ]
 
         Raises:
-            ValueError: If service_url is not specified.
+            ValueError: If service_url is not specified, or authenticator is invalid.
 
         Returns:
             Prepared request dictionary.
