@@ -101,7 +101,13 @@ class BaseService(object):
 
         Returns:
             A dictionary containing relevant configuration for the service if found.
+
+        Raises:
+            ValueError: If service_name is not a string.
         """
+        if not isinstance(service_name, str):
+            raise ValueError('Service_name must be of type string.')
+
         config = read_external_sources(service_name)
         if config.get('URL'):
             self.set_service_url(config.get('URL'))

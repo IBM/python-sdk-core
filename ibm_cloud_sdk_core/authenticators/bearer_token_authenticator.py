@@ -69,3 +69,4 @@ class BearerTokenAuthenticator(Authenticator):
             bearer_token: The bearer token that will be sent in service requests.
         """
         self.bearer_token = bearer_token
+        self.validate()

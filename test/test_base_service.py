@@ -518,7 +518,7 @@ def test_setting_proxy():
     service2.set_http_config(http_config)
     assert service2.authenticator is not None
 
-def test_configure_services():
+def test_configure_service():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-external.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
@@ -526,3 +526,9 @@ def test_configure_services():
     assert service.service_url == 'https://externallyconfigured.com/api'
     assert service.disable_ssl_verification is True
     assert isinstance(service.get_authenticator(), IAMAuthenticator)
+
+def test_configure_service_error():
+    service = BaseService('v1', authenticator=NoAuthAuthenticator())
+    with pytest.raises(ValueError) as err:
+        service.configure_service(None)
+    assert str(err.value) == 'Service_name must be of type string.'
