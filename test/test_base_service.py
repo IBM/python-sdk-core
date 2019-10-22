@@ -495,6 +495,11 @@ def test_service_url_not_set():
         service.prepare_request('POST', url='')
     assert str(err.value) == 'The service_url is required'
 
+def test_authenticator_none():
+    service = BaseService('test', authenticator=None)
+    with pytest.raises(ValueError) as err:
+        service.prepare_request('POST', url='')
+    assert str(err.value) == 'authenticator must be provided'
 
 def test_setting_proxy():
     service = BaseService('test', authenticator=IAMAuthenticator('wonder woman'))
