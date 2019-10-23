@@ -1,20 +1,26 @@
 language: python
+
 matrix:
   include:
     - python: 3.5
     - python: 3.6
     - python: 3.7
       dist: xenial
+
 cache: pip
+
 before_install:
 - npm install npm@latest -g
+
 install:
 - pip install tox-travis
 - pip install bumpversion
 - npm install @semantic-release/exec
 - npm install @semantic-release/git
+
 script:
 - tox
+
 before_deploy:
 - sudo apt-get update
 - pip install -r requirements.txt
@@ -22,6 +28,7 @@ before_deploy:
 - pip install pypandoc
 - sudo apt-get install pandoc
 - pip install --editable .
+
 deploy:
   - provider: script
     script: npx semantic-release
