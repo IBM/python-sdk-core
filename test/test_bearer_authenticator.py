@@ -1,8 +1,6 @@
+# pylint: disable=missing-docstring
 import pytest
-import responses
-import time
-import jwt
-import json
+
 from ibm_cloud_sdk_core.authenticators import BearerTokenAuthenticator
 
 def test_bearer_authenticator():

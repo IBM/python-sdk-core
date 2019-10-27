@@ -35,7 +35,7 @@ class IAMTokenManager(JWTTokenManager):
         proxies (dict): Proxies to use for communicating with IAM.
         proxies.http (str): The proxy endpoint to use for HTTP requests.
         proxies.https (str): The proxy endpoint to use for HTTPS requests.
-        http_config (dict): The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
+        http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
 
     Args:
         apikey: A generated APIKey from ibmcloud.
@@ -81,7 +81,8 @@ class IAMTokenManager(JWTTokenManager):
     def request_token(self) -> dict:
         """Request an IAM OAuth token given an API Key.
 
-        If client_id and client_secret are specified use their values as a user and pass auth set according to WHATWG url spec.
+        If client_id and client_secret are specified use their values as a user and pass auth set
+        according to WHATWG url spec.
 
         Returns:
              A dictionary containing the bearer token to be subsequently used service requests.

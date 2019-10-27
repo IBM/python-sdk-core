@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .authenticators import Authenticator, BasicAuthenticator, BearerTokenAuthenticator, CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator
+from .authenticators import (Authenticator, BasicAuthenticator, BearerTokenAuthenticator,
+                             CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator)
 from .utils import read_external_sources
 
 def get_authenticator_from_environment(service_name: str) -> Authenticator:

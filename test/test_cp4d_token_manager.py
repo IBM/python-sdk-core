@@ -1,6 +1,8 @@
+# pylint: disable=missing-docstring
+import json
+
 import responses
 import jwt
-import json
 from ibm_cloud_sdk_core import CP4DTokenManager
 
 @responses.activate

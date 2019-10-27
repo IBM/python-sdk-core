@@ -17,7 +17,7 @@
 classes:
     BaseService: Abstract class for common functionality between each service.
     DetailedResponse: The object returned from successful service operations.
-    IAMTokenManager: Requests and refreshes IAM tokens using an apikey, and optionally a client_id and client_secret pair.
+    IAMTokenManager: Requests and refreshes IAM tokens using an apikey, and optionally a client_id and client_secret.
     JWTTokenManager: Abstract class for common functionality between each JWT token manager.
     CP4DTokenManager: Requests and refreshes CP4D tokens given a username and password.
     ApiException: Custom exception class for errors returned from service operations.
@@ -25,6 +25,8 @@ classes:
 functions:
     datetime_to_string: Serializes a datetime to a string.
     string_to_datetime: De-serializes a string to a datetime.
+    convert_model: Convert a model object into an equivalent dict.
+    convert_list: Convert a list of strings into comma-separated string.
     read_external_sources: Get config object from external sources.
     get_authenticator_from_environment: Get authenticator from external sources.
 """
@@ -36,4 +38,5 @@ from .jwt_token_manager import JWTTokenManager
 from .cp4d_token_manager import CP4DTokenManager
 from .api_exception import ApiException
 from .utils import datetime_to_string, string_to_datetime, read_external_sources
+from .utils import convert_model, convert_list
 from .get_authenticator import get_authenticator_from_environment

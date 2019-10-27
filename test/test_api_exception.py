@@ -1,11 +1,12 @@
 # coding=utf-8
+import json
 import responses
 import requests
-import json
 from ibm_cloud_sdk_core import ApiException
 
 @responses.activate
 def test_api_exception():
+    """Test APIException class"""
     responses.add(responses.GET,
                   'https://test.com',
                   status=500,

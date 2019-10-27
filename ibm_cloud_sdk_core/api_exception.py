@@ -13,8 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from requests import Response
 from typing import Optional
+from requests import Response
 
 
 class ApiException(Exception):
@@ -49,7 +49,8 @@ class ApiException(Exception):
             msg += ' , X-global-transaction-id: ' + str(self.global_transaction_id)
         return  msg
 
-    def _get_error_message(self, response: Response):
+    @staticmethod
+    def _get_error_message(response: Response):
         error_message = 'Unknown error'
         try:
             error_json = response.json()

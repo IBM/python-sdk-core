@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 import pytest
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator
 
@@ -22,8 +23,10 @@ def test_basic_authenticator_validate_failed():
 
     with pytest.raises(ValueError) as err:
         BasicAuthenticator('{my_username}', 'my_password')
-    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
+    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. '\
+                             'Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
         BasicAuthenticator('my_username', '{my_password}')
-    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
+    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. '\
+                             'Please remove any surrounding {, }, or \" characters.'

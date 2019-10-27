@@ -14,14 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import jwt
-import requests
 import time
 from typing import Optional
+
+import jwt
+import requests
 from .api_exception import ApiException
 
 
-class JWTTokenManager(object):
+class JWTTokenManager:
     """An abstract class to contain functionality for parsing, storing, and requesting JWT tokens.
 
     get_token will retrieve a new token from the url in case the that there is no existing token,
@@ -43,7 +44,7 @@ class JWTTokenManager(object):
         token_name (str): The key used of the token in the dict returned from request_token.
         token_info (dict): The most token_response from request_token.
         time_for_new_token (int): The time in epoch seconds when the current token within token_info will expire.
-        http_config (dict): The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
+        http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
     """
 
     def __init__(self, url: str, disable_ssl_verification: bool = False, token_name: Optional[str] = None):
@@ -89,7 +90,8 @@ class JWTTokenManager(object):
             'request_token MUST be overridden by a subclass of JWTTokenManager.'
         )
 
-    def _get_current_time(self):
+    @staticmethod
+    def _get_current_time():
         return int(time.time())
 
     def _is_token_expired(self):
@@ -160,5 +162,5 @@ class JWTTokenManager(object):
             **kwargs)
         if 200 <= response.status_code <= 299:
             return response.json()
-        else:
-            raise ApiException(response.status_code, http_response=response)
+
+        raise ApiException(response.status_code, http_response=response)

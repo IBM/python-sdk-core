@@ -1,8 +1,10 @@
+# pylint: disable=missing-docstring
+import json
+
 import pytest
 import responses
-import time
 import jwt
-import json
+
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 
@@ -45,7 +47,8 @@ def test_iam_authenticator_validate_failed():
         IAMAuthenticator('{apikey}')
     assert str(
         err.value
-    ) == 'The apikey shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
+    ) == 'The apikey shouldn\'t start or end with curly brackets or quotes. '\
+         'Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
         IAMAuthenticator('my_apikey', client_id='my_client_id')

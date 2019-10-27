@@ -1,8 +1,10 @@
-import responses
-from ibm_cloud_sdk_core import IAMTokenManager
+# pylint: disable=missing-docstring
 import time
+
+import responses
 import jwt
-import json
+
+from ibm_cloud_sdk_core import IAMTokenManager
 
 def get_access_token():
     access_token_layout = {
@@ -20,7 +22,8 @@ def get_access_token():
         "exp": int(time.time())
     }
 
-    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256',
+                              headers={'kid': '230498151c214b788dd97f22b85410a5'})
     return access_token.decode('utf-8')
 
 @responses.activate
