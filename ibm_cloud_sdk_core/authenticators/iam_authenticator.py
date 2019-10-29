@@ -14,12 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Dict, Optional
+
+from requests import Request
+
 from .authenticator import Authenticator
 from ..iam_token_manager import IAMTokenManager
 from ..utils import has_bad_first_or_last_char
-from requests import Request
-from typing import Dict, Optional
-
 
 class IAMAuthenticator(Authenticator):
     """The IAMAuthenticator utilizes an apikey, or client_id and client_secret pair to

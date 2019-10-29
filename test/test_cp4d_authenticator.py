@@ -1,8 +1,10 @@
+# pylint: disable=missing-docstring
+import json
+
 import pytest
 import responses
-import time
 import jwt
-import json
+
 from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
 
 def test_iam_authenticator():
@@ -49,15 +51,18 @@ def test_iam_authenticator_validate_failed():
 
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator('{my_username}', 'my_password', 'my_url')
-    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
+    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. '\
+                             'Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator('my_username', '{my_password}', 'my_url')
-    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
+    assert str(err.value) == 'The username and password shouldn\'t start or end with curly brackets or quotes. '\
+                             'Please remove any surrounding {, }, or \" characters.'
 
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator('my_username', 'my_password', '{my_url}')
-    assert str(err.value) == 'The url shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
+    assert str(err.value) == 'The url shouldn\'t start or end with curly brackets or quotes. '\
+                             'Please remove any surrounding {, }, or \" characters.'
 
 
 @responses.activate

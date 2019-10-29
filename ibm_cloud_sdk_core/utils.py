@@ -15,21 +15,23 @@
 # limitations under the License.
 # from ibm_cloud_sdk_core.authenticators import Authenticator
 import datetime
-import dateutil.parser as date_parser
-from os.path import dirname, isfile, join, expanduser, abspath
-from os import getenv, environ
 import json as json_import
+from os import getenv, environ
+from os.path import dirname, isfile, join, expanduser, abspath
+from typing import List, Union
 
-def has_bad_first_or_last_char(s: str) -> bool:
+import dateutil.parser as date_parser
+
+def has_bad_first_or_last_char(val: str) -> bool:
     """Returns true if a string starts with any of: {," ; or ends with any of: },".
 
     Args:
-        str: The string to be tested.
+        val: The string to be tested.
 
     Returns:
         Whether or not the string starts or ends with bad characters.
     """
-    return s is not None and (s.startswith('{') or s.startswith('"') or s.endswith('}') or s.endswith('"'))
+    return val is not None and (val.startswith('{') or val.startswith('"') or val.endswith('}') or val.endswith('"'))
 
 def remove_null_values(dictionary: dict) -> dict:
     """Create a new dictionary without keys mapped to null values.
@@ -41,7 +43,7 @@ def remove_null_values(dictionary: dict) -> dict:
         A dict with no keys mapped to None.
     """
     if isinstance(dictionary, dict):
-        return dict([(k, v) for k, v in dictionary.items() if v is not None])
+        return {k: v for (k, v) in dictionary.items() if v is not None}
     return dictionary
 
 def cleanup_values(dictionary: dict) -> dict:
@@ -57,25 +59,25 @@ def cleanup_values(dictionary: dict) -> dict:
         The dictionary with certain keys mapped to s and not booleans.
     """
     if isinstance(dictionary, dict):
-        return dict(
-            [(k, cleanup_value(v)) for k, v in dictionary.items()])
+        return {k: cleanup_value(v) for (k, v) in dictionary.items()}
     return dictionary
 
 def cleanup_value(value: any) -> any:
+    """Convert a boolean value to string."""
     if isinstance(value, bool):
         return 'true' if value else 'false'
     return value
 
-def datetime_to_string(dt: datetime.datetime) -> str:
+def datetime_to_string(val: datetime.datetime) -> str:
     """Convert a datetime object to string.
 
     Args:
-        datetime: The datetime object.
+        val: The datetime object.
 
     Returns:
         datetime serialized to iso8601 format.
     """
-    return dt.isoformat().replace('+00:00', 'Z')
+    return val.isoformat().replace('+00:00', 'Z')
 
 def string_to_datetime(string: str) -> datetime.datetime:
     """De-serializes string to datetime.
@@ -87,6 +89,38 @@ def string_to_datetime(string: str) -> datetime.datetime:
         the de-serialized string as a datetime object.
     """
     return date_parser.parse(string)
+
+def convert_model(val: any) -> dict:
+    """Convert a model object into an equivalent dict.
+
+    Arguments:
+        val: A dict or a model object
+
+    Returns:
+        A dict representation of the input object.
+    """
+    if isinstance(val, dict):
+        return val
+    if hasattr(val, "to_dict"):
+        return val.to_dict()
+    # Consider raising a ValueError here in the next major release
+    return val
+
+def convert_list(val: Union[str, List[str]]) -> str:
+    """Convert a list of strings into comma-separated string.
+
+    Arguments:
+        val: A string or list of strings
+
+    Returns:
+        A comma-separated string of the items in the input list.
+    """
+    if isinstance(val, str):
+        return val
+    if isinstance(val, list) and all(isinstance(x, str) for x in val):
+        return ",".join(val)
+    # Consider raising a ValueError here in the next major release
+    return val
 
 def read_external_sources(service_name: str) -> dict:
     """Look for external configuration of a service.
@@ -140,7 +174,7 @@ def __read_from_credential_file(service_name: str, separator: str = '=') -> dict
     Returns:
         A set of service configuration key-value pairs.
     """
-    DEFAULT_CREDENTIALS_FILE_NAME = 'ibm-credentials.env'
+    default_credentials_file_name = 'ibm-credentials.env'
 
     # File path specified by an env variable
     credential_file_path = getenv('IBM_CREDENTIALS_FILE')
@@ -148,20 +182,20 @@ def __read_from_credential_file(service_name: str, separator: str = '=') -> dict
     # Current working directory
     if credential_file_path is None:
         file_path = join(
-            dirname(dirname(abspath(__file__))), DEFAULT_CREDENTIALS_FILE_NAME)
+            dirname(dirname(abspath(__file__))), default_credentials_file_name)
         if isfile(file_path):
             credential_file_path = file_path
 
     # Home directory
     if credential_file_path is None:
-        file_path = join(expanduser('~'), DEFAULT_CREDENTIALS_FILE_NAME)
+        file_path = join(expanduser('~'), default_credentials_file_name)
         if isfile(file_path):
             credential_file_path = file_path
 
     config = {}
     if credential_file_path is not None:
-        with open(credential_file_path, 'r') as fp:
-            for line in fp:
+        with open(credential_file_path, 'r') as fobj:
+            for line in fobj:
                 key_val = line.strip().split(separator)
                 if len(key_val) == 2:
                     key = key_val[0]

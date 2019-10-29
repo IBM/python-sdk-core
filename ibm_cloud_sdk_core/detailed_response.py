@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import requests
 from typing import Dict, Optional
 
-class DetailedResponse(object):
+import json
+import requests
+
+class DetailedResponse:
     """Custom class for detailed response returned from APIs.
 
     Keyword Args:

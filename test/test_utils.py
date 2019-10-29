@@ -1,11 +1,60 @@
-from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
+# pylint: disable=missing-docstring
 import os
+
+from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
+from ibm_cloud_sdk_core import convert_model, convert_list
 
 def test_datetime_conversion():
     date = string_to_datetime('2017-03-06 16:00:04.159338')
     assert date.day == 6
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338'
+
+def test_convert_model():
+
+    class MockModel:
+
+        def __init__(self, xyz=None):
+            self.xyz = xyz
+
+        def to_dict(self):
+            _dict = {}
+            if hasattr(self, 'xyz') and self.xyz is not None:
+                _dict['xyz'] = self.xyz
+            return _dict
+
+        @classmethod
+        def from_dict(cls, _dict):
+            pass
+
+    mock1 = MockModel('foo')
+    mock1_dict = convert_model(mock1)
+    assert mock1_dict == {'xyz': 'foo'}
+
+    mock2 = {'foo': 'bar', 'baz': 'qux'}
+    mock2_dict = convert_model(mock2)
+    assert mock2_dict == mock2
+
+    mock3 = 'this is not a model'
+    mock3_dict = convert_model(mock3)
+    assert mock3_dict == mock3
+
+def test_convert_list():
+    temp = ['default', '123']
+    res_str = convert_list(temp)
+    assert res_str == 'default,123'
+
+    mock2 = 'default,123'
+    mock2_str = convert_list(mock2)
+    assert mock2_str == mock2
+
+    mock3 = {'not': 'a list'}
+    mock3_str = convert_list(mock3)
+    assert mock3_str == mock3
+
+    mock4 = ['not', 0, 'list of str']
+    mock4_str = convert_list(mock4)
+    assert mock4_str == mock4
 
 def test_get_authenticator_from_credential_file():
     file_path = os.path.join(

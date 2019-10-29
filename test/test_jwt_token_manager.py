@@ -1,7 +1,9 @@
-from ibm_cloud_sdk_core import JWTTokenManager
+# pylint: disable=missing-docstring,protected-access
 import time
 import jwt
 import pytest
+
+from ibm_cloud_sdk_core import JWTTokenManager
 
 class JWTTokenManagerMockImpl(JWTTokenManager):
     def __init__(self, url=None, access_token=None):
@@ -28,7 +30,8 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
             "exp": current_time + 3600
         }
 
-        access_token = jwt.encode(token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+        access_token = jwt.encode(token_layout, 'secret', algorithm='HS256',
+                                  headers={'kid': '230498151c214b788dd97f22b85410a5'})
         response = {"access_token": access_token,
                     "token_type": "Bearer",
                     "expires_in": 3600,
@@ -37,6 +40,9 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
                     "from_token_manager": True
                    }
         return response
+
+def _get_current_time():
+    return int(time.time())
 
 def test_get_token():
     url = "https://iam.cloud.ibm.com/identity/token"
@@ -55,7 +61,7 @@ def test_get_token():
     assert token == "old_dummy"
 
     # expired token:
-    token_manager.time_for_new_token = token_manager._get_current_time() - 300
+    token_manager.time_for_new_token = _get_current_time() - 300
     token = token_manager.get_token()
     assert token != "old_dummy"
     assert token_manager.request_count == 2
@@ -63,9 +69,9 @@ def test_get_token():
 def test_is_token_expired():
     token_manager = JWTTokenManagerMockImpl(None, None)
     assert token_manager._is_token_expired() is True
-    token_manager.time_for_new_token = token_manager._get_current_time() + 3600
+    token_manager.time_for_new_token = _get_current_time() + 3600
     assert token_manager._is_token_expired() is False
-    token_manager.time_for_new_token = token_manager._get_current_time() - 3600
+    token_manager.time_for_new_token = _get_current_time() - 3600
     assert token_manager._is_token_expired()
 
 def test_not_implemented_error():

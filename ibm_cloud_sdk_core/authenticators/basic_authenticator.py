@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .authenticator import Authenticator
-from ..utils import has_bad_first_or_last_char
 import base64
 from requests import Request
+
+from .authenticator import Authenticator
+from ..utils import has_bad_first_or_last_char
 
 
 class BasicAuthenticator(Authenticator):

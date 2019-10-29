@@ -14,11 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Dict, Optional
+
+from requests import Request
+
 from .authenticator import Authenticator
 from ..cp4d_token_manager import CP4DTokenManager
 from ..utils import has_bad_first_or_last_char
-from requests import Request
-from typing import Dict, Optional
 
 
 class CloudPakForDataAuthenticator(Authenticator):

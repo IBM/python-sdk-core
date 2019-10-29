@@ -1,8 +1,5 @@
-import pytest
-import responses
-import time
-import jwt
-import json
+# pylint: disable=missing-docstring
+
 from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 
 def test_no_auth_authenticator():

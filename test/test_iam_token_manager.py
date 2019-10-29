@@ -1,8 +1,11 @@
-import responses
-from ibm_cloud_sdk_core import IAMTokenManager
+# pylint: disable=missing-docstring
 import time
+
+import responses
 import jwt
-import json
+import pytest
+
+from ibm_cloud_sdk_core import IAMTokenManager, ApiException
 
 def get_access_token():
     access_token_layout = {
@@ -20,7 +23,8 @@ def get_access_token():
         "exp": int(time.time())
     }
 
-    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256',
+                              headers={'kid': '230498151c214b788dd97f22b85410a5'})
     return access_token.decode('utf-8')
 
 @responses.activate
@@ -62,6 +66,38 @@ def test_request_token_auth_in_ctor():
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
     assert responses.calls[0].request.headers['Authorization'] != default_auth_header
+    assert responses.calls[0].response.text == response
+
+@responses.activate
+def test_request_token_unsuccessful():
+    iam_url = "https://iam.cloud.ibm.com/identity/token"
+    response = """{
+        "context": {
+            "requestId": "38a0e9c226d94764820d92aa623eb0f6",
+            "requestType": "incoming.Identity_Token",
+            "userAgent": "ibm-python-sdk-core-1.0.0",
+            "url": "https://iam.cloud.ibm.com",
+            "instanceId": "iamid-4.5-6788-90b137c-75f48695b5-kl4wx",
+            "threadId": "169de5",
+            "host": "iamid-4.5-6788-90b137c-75f48695b5-kl4wx",
+            "startTime": "29.10.2019 12:31:00:300 GMT",
+            "endTime": "29.10.2019 12:31:00:381 GMT",
+            "elapsedTime": "81",
+            "locale": "en_US",
+            "clusterName": "iam-id-prdal12-8brn"
+        },
+        "errorCode": "BXNIM0415E",
+        "errorMessage": "Provided API key could not be found"
+    }
+    """
+    responses.add(responses.POST, url=iam_url, body=response, status=400)
+
+    token_manager = IAMTokenManager("apikey")
+    with pytest.raises(ApiException):
+        token_manager.request_token()
+
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.url == iam_url
     assert responses.calls[0].response.text == response
 
 @responses.activate

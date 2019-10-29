@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .authenticator import Authenticator
 from requests import Request
+
+from .authenticator import Authenticator
 
 class BearerTokenAuthenticator(Authenticator):
     """The BearerTokenAuthenticator will add a user-supplied bearer token

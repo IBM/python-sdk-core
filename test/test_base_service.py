@@ -1,14 +1,16 @@
 # coding=utf-8
+# pylint: disable=missing-docstring,protected-access,too-few-public-methods
 import json
-import pytest
 import time
 import os
+import pytest
 import responses
 import jwt
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator, NoAuthAuthenticator, Authenticator, BasicAuthenticator, CloudPakForDataAuthenticator
+from ibm_cloud_sdk_core.authenticators import (IAMAuthenticator, NoAuthAuthenticator, Authenticator,
+                                               BasicAuthenticator, CloudPakForDataAuthenticator)
 from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 
@@ -61,17 +63,17 @@ class AnyServiceV1(BaseService):
 
     def with_http_config(self, http_config):
         self.set_http_config(http_config)
-        request = self.prepare_request(method='GET', url='', accept_json=True)
+        request = self.prepare_request(method='GET', url='')
         response = self.send(request)
         return response
 
     def any_service_call(self):
-        request = self.prepare_request(method='GET', url='', accept_json=True)
+        request = self.prepare_request(method='GET', url='')
         response = self.send(request)
         return response
 
     def head_request(self):
-        request = self.prepare_request(method='HEAD', url='', accept_json=True)
+        request = self.prepare_request(method='HEAD', url='')
         response = self.send(request)
         return response
 
@@ -187,7 +189,7 @@ def test_iam():
     assert "grant-type%3Aapikey" in responses.calls[0].request.body
 
 def test_no_auth():
-    class MadeUp(object):
+    class MadeUp:
         def __init__(self):
             self.lazy = 'made up'
 
@@ -237,19 +239,19 @@ def test_disable_ssl_verification():
 @responses.activate
 def test_http_head():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
-    expectedHeaders = {'Test-Header1': 'value1', 'Test-Header2': 'value2'}
+    expected_headers = {'Test-Header1': 'value1', 'Test-Header2': 'value2'}
     responses.add(
         responses.HEAD,
         service.default_url,
         status=200,
-        headers=expectedHeaders,
+        headers=expected_headers,
         content_type=None)
 
     response = service.head_request()
     assert response is not None
     assert len(responses.calls) == 1
     assert response.headers is not None
-    assert response.headers == expectedHeaders
+    assert response.headers == expected_headers
 
 
 @responses.activate
@@ -272,7 +274,8 @@ def test_has_bad_first_or_last_char():
         )
     assert str(
         err.value
-    ) == 'The username and password shouldn\'t start or end with curly brackets or quotes. Please remove any surrounding {, }, or \" characters.'
+    ) == 'The username and password shouldn\'t start or end with curly brackets or quotes. '\
+         'Please remove any surrounding {, }, or \" characters.'
 
 @responses.activate
 def test_request_server_error():
@@ -347,32 +350,32 @@ def test_request_fail_401():
 
 def test_misc_methods():
 
-    class MockModel(object):
+    class MockModel:
 
-        def __init__(self, x=None):
-            self.x = x
+        def __init__(self, xyz=None):
+            self.xyz = xyz
 
         def _to_dict(self):
             _dict = {}
-            if hasattr(self, 'x') and self.x is not None:
-                _dict['x'] = self.x
+            if hasattr(self, 'xyz') and self.xyz is not None:
+                _dict['xyz'] = self.xyz
             return _dict
 
         @classmethod
         def _from_dict(cls, _dict):
             args = {}
-            if 'x' in _dict:
-                args['x'] = _dict.get('x')
+            if 'xyz' in _dict:
+                args['xyz'] = _dict.get('xyz')
             return cls(**args)
 
     mock = MockModel('foo')
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     model1 = service._convert_model(mock)
-    assert model1 == {'x': 'foo'}
+    assert model1 == {'xyz': 'foo'}
 
-    model2 = service._convert_model("{\"x\": \"foo\"}")
+    model2 = service._convert_model("{\"xyz\": \"foo\"}")
     assert model2 is not None
-    assert model2['x'] == 'foo'
+    assert model2['xyz'] == 'foo'
 
     temp = ['default', '123']
     res_str = service._convert_list(temp)
@@ -389,7 +392,8 @@ def test_set_service_url():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     with pytest.raises(ValueError) as err:
         service.set_service_url('{url}')
-    assert str(err.value) == 'The service url shouldn\'t start or end with curly brackets or quotes. Be sure to remove any {} and \" characters surrounding your service url'
+    assert str(err.value) == 'The service url shouldn\'t start or end with curly brackets or quotes. '\
+                             'Be sure to remove any {} and \" characters surrounding your service url'
 
     service.set_service_url('my_url')
 
@@ -435,10 +439,10 @@ def test_files_dict():
     files = request['files']
     assert isinstance(files, list)
     assert len(files) == 2
-    filesDict = dict(files)
-    file1 = filesDict['file1']
+    files_dict = dict(files)
+    file1 = files_dict['file1']
     assert file1[0] == 'ibm-credentials-iam.env'
-    string1 = filesDict['string1']
+    string1 = files_dict['string1']
     assert string1[0] is None
 
 def test_files_list():
@@ -454,10 +458,10 @@ def test_files_list():
     files = request['files']
     assert isinstance(files, list)
     assert len(files) == 2
-    filesDict = dict(files)
-    file1 = filesDict['file1']
+    files_dict = dict(files)
+    file1 = files_dict['file1']
     assert file1[0] == 'ibm-credentials-iam.env'
-    string1 = filesDict['string1']
+    string1 = files_dict['string1']
     assert string1[0] is None
 
 def test_files_duplicate_parts():
@@ -480,9 +484,9 @@ def test_files_duplicate_parts():
     files = request['files']
     assert isinstance(files, list)
     assert len(files) == 3
-    for part_name, tuple in files:
+    for part_name, file_tuple in files:
         assert part_name == 'creds_file'
-        assert tuple[0] is not None
+        assert file_tuple[0] is not None
 
 def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())

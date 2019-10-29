@@ -14,27 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from os.path import basename
+import logging
+from http.cookiejar import CookieJar
 import json as json_import
+from os.path import basename
 import platform
-import requests
-from requests.structures import CaseInsensitiveDict
 import sys
 from typing import Dict, List, Optional, Tuple, Union
+
+import requests
+from requests.structures import CaseInsensitiveDict
+from ibm_cloud_sdk_core.authenticators import Authenticator
 from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
-from ibm_cloud_sdk_core.authenticators import Authenticator
 from .jwt_token_manager import JWTTokenManager
-from http.cookiejar import CookieJar
-import logging
 
 # Uncomment this to enable http debugging
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 1
 
-class BaseService(object):
+class BaseService:
     """Common functionality shared by generated service classes.
 
     The base service authenticates requests via its authenticator, stores cookies, and
@@ -53,15 +54,15 @@ class BaseService(object):
             the server's SSL certificate should be disabled or not.
         default_headers (dict): A dictionary of headers to be sent with every HTTP request to the service endpoint.
         jar (http.cookiejar.CookieJar): Stores cookies received from the service.
-        http_config (dict): The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
-
+        http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
     Raises:
         ValueError: If Authenticator is not provided or invalid type.
     """
     SDK_NAME = 'ibm-python-sdk-core'
-    ERROR_MSG_DISABLE_SSL = 'The connection failed because the SSL certificate is not valid. To use a self-signed certificate, '\
-                            'disable verification of the server\'s SSL certificate by invoking the set_disable_ssl_verification(True) '\
-                            'on your service instance and/ or use the disable_ssl_verification option of the authenticator.'
+    ERROR_MSG_DISABLE_SSL = 'The connection failed because the SSL certificate is not valid. To use a self-signed '\
+                            'certificate, disable verification of the server\'s SSL certificate by invoking the '\
+                            'set_disable_ssl_verification(True) on your service instance and/ or use the '\
+                            'disable_ssl_verification option of the authenticator.'
 
     def __init__(self,
                  service_url: str = None,
@@ -80,7 +81,8 @@ class BaseService(object):
             raise ValueError(
                 'authenticator should be of type Authenticator')
 
-    def _get_system_info(self):
+    @staticmethod
+    def _get_system_info():
         return '{0} {1} {2}'.format(
             platform.system(),  # OS
             platform.release(),  # OS version
@@ -132,7 +134,8 @@ class BaseService(object):
         """
         if isinstance(http_config, dict):
             self.http_config = http_config
-            if self.authenticator and hasattr(self.authenticator, 'token_manager') and isinstance(self.authenticator.token_manager, JWTTokenManager):
+            if (self.authenticator and hasattr(self.authenticator, 'token_manager') and
+                    isinstance(self.authenticator.token_manager, JWTTokenManager)):
                 self.authenticator.token_manager.http_config = http_config
         else:
             raise TypeError("http_config parameter must be a dictionary")
@@ -217,13 +220,13 @@ class BaseService(object):
                         result = response
                 return DetailedResponse(result, response.headers,
                                         response.status_code)
-            else:
-                error_message = None
-                if response.status_code == 401:
-                    error_message = 'Unauthorized: Access is denied due to ' \
-                                    'invalid credentials'
-                raise ApiException(
-                    response.status_code, error_message, http_response=response)
+
+            error_message = None
+            if response.status_code == 401:
+                error_message = 'Unauthorized: Access is denied due to ' \
+                                'invalid credentials'
+            raise ApiException(
+                response.status_code, error_message, http_response=response)
         except requests.exceptions.SSLError:
             logging.exception(self.ERROR_MSG_DISABLE_SSL)
             raise
@@ -265,6 +268,7 @@ class BaseService(object):
         Returns:
             Prepared request dictionary.
         """
+        # pylint: disable=unused-argument; necessary for kwargs
         request = {'method': method}
 
         # validate the service url is set
@@ -308,16 +312,32 @@ class BaseService(object):
                 files = remove_null_values(files)
                 files = files.items()
             # Next, fill in any missing filenames from file tuples.
-            for part_name, tuple in files:
-                if tuple and len(tuple) == 3 and tuple[0] is None:
-                    file = tuple[1]
+            for part_name, file_tuple in files:
+                if file_tuple and len(file_tuple) == 3 and file_tuple[0] is None:
+                    file = file_tuple[1]
                     if file and hasattr(file, 'name'):
                         filename = basename(file.name)
-                        tuple = (filename, tuple[1], tuple[2])
-                new_files.append((part_name, tuple))
+                        file_tuple = (filename, file_tuple[1], file_tuple[2])
+                new_files.append((part_name, file_tuple))
         request['files'] = new_files
         return request
 
+    @staticmethod
+    def encode_path_vars(*args: str) -> List[str]:
+        """Encode path variables to be substituted into a URL path.
+
+        Arguments:
+            args: A list of strings to be URL path encoded
+
+        Returns:
+            A list of encoded strings that are safe to substitute into a URL path.
+        """
+        return (requests.utils.quote(x, safe='') for x in args)
+
+    # The methods below are kept for compatibility and should be removed
+    # in the next major release.
+
+    # pylint: disable=protected-access
 
     @staticmethod
     def _convert_model(val):
