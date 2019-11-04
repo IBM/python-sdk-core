@@ -136,6 +136,69 @@ def test_vcap_credentials():
     assert authenticator is None
     del os.environ['VCAP_SERVICES']
 
+    vcap_services = '{"test":[{"name": "testname",\
+        "credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username", \
+        "password":"bogus password"}}]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('testname')
+    assert authenticator is not None
+    assert authenticator.username == 'bogus username'
+    assert authenticator.password == 'bogus password'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{"name": "testname",\
+        "credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username2", \
+        "password":"bogus password2"}}],\
+        "testname":[{"name": "nottestname",\
+        "credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username", \
+        "password":"bogus password"}}]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('testname')
+    assert authenticator is not None
+    assert authenticator.username == 'bogus username2'
+    assert authenticator.password == 'bogus password2'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{\
+            "credentials":{ \
+            "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+            "username":"bogus username", \
+            "password":"bogus password"}},\
+            {"credentials":{ \
+            "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+            "username":"bogus username2", \
+            "password":"bogus password2"}}\
+        ]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('test')
+    assert authenticator is not None
+    assert authenticator.username == 'bogus username'
+    assert authenticator.password == 'bogus password'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"first":[],\
+        "test":[{"credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username", \
+        "password":"bogus password"}}]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('test')
+    assert authenticator is not None
+    assert authenticator.username == 'bogus username'
+    assert authenticator.password == 'bogus password'
+    del os.environ['VCAP_SERVICES']
+
+
 def test_multi_word_service_name():
     os.environ['PERSONALITY_INSIGHTS_APIKEY'] = '5678efgh'
     authenticator = get_authenticator_from_environment('personality-insights')
