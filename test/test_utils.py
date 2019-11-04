@@ -189,7 +189,8 @@ def test_vcap_credentials():
         "test":[{"credentials":{ \
         "url":"https://gateway.watsonplatform.net/compare-comply/api",\
         "username":"bogus username", \
-        "password":"bogus password"}}]}'
+        "password":"bogus password"}}],\
+        "last":[]}'
 
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
