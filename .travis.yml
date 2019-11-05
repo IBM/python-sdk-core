@@ -5,7 +5,8 @@ matrix:
     - python: 3.5
     - python: 3.6
     - python: 3.7
-      dist: xenial
+    
+dist: xenial
 
 cache: pip3
 
@@ -14,20 +15,23 @@ before_install:
 
 install:
 - pip3 install tox-travis
-- pip3 install bumpversion
-- npm install @semantic-release/exec
-- npm install @semantic-release/git
+
+before_script:
+- sudo apt-get update
+- pip3 install pypandoc
+- sudo apt-get install pandoc
 
 script:
 - tox
 
 before_deploy:
-- sudo apt-get update
-- pip3 install -r requirements.txt
-- pip3 install -r requirements-dev.txt
-- pip3 install pypandoc
-- sudo apt-get install pandoc
 - pip3 install --editable .
+- pip3 install bumpversion
+- nvm install 12
+- npm install @semantic-release/changelog
+- npm install @semantic-release/exec
+- npm install @semantic-release/git
+- npm install @semantic-release/github
 
 deploy:
   - provider: script
