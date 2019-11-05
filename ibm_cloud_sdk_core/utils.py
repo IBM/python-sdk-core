@@ -23,7 +23,7 @@ from typing import List, Union
 
 import dateutil.parser as date_parser
 
-VCAP_SERVICES_FILENAME = "vcap_services.json"
+VCAP_SERVICES_FILE = "vcap_services.json"
 
 def has_bad_first_or_last_char(val: str) -> bool:
     """Returns true if a string starts with any of: {," ; or ends with any of: },".
