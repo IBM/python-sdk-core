@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/IBM/python-sdk-core/compare/v1.1.2...v1.1.3) (2019-11-05)
+
+
+### Bug Fixes
+
+* perform semrel steps in correct order ([545f13e](https://github.com/IBM/python-sdk-core/commit/545f13ebba37578f3cf5f1a7abba28ae159c7faa))
+
 ## [1.1.2](https://github.com/IBM/python-sdk-core/compare/v1.1.1...v1.1.2) (2019-11-05)
 
 
