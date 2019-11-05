@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # from ibm_cloud_sdk_core.authenticators import Authenticator
+import os
 import datetime
 import json as json_import
 from os import getenv, environ
@@ -21,6 +22,8 @@ from os.path import dirname, isfile, join, expanduser, abspath
 from typing import List, Union
 
 import dateutil.parser as date_parser
+
+VCAP_SERVICES_FILENAME = "vcap_services.json"
 
 def has_bad_first_or_last_char(val: str) -> bool:
     """Returns true if a string starts with any of: {," ; or ends with any of: },".
@@ -218,6 +221,10 @@ def __read_from_vcap_services(service_name: str) -> dict:
         A set of service configuration key-value pairs.
     """
     vcap_services = getenv('VCAP_SERVICES')
+    if not vcap_services:
+        if os.path.exists(VCAP_SERVICES_FILE):
+            with open(VCAP_SERVICES_FILE) as f:
+                vcap_services = f.read()
     vcap_service_credentials = {}
     if vcap_services:
         services = json_import.loads(vcap_services)
