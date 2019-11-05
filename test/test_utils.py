@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 import os
+import json
 
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
 from ibm_cloud_sdk_core import convert_model, convert_list
@@ -204,6 +205,22 @@ def test_vcap_credentials():
     assert authenticator.username == 'bogus username'
     assert authenticator.password == 'bogus password'
     del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{"credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username", \
+        "password":"bogus password"}}]}'
+
+    with open('test_vcap_services.json', 'w') as f:
+        json.dump(vcap_services, f)
+    os.environ['VCAP_SERVICES_FILE'] = 'test_vcap_services.json'
+
+    authenticator = get_authenticator_from_environment('test')
+    assert authenticator is not None
+    assert authenticator.username == 'bogus username'
+    assert authenticator.password == 'bogus password'
+    os.remove(os.environ['VCAP_SERVICES_FILE'])
+    del os.environ['VCAP_SERVICES_FILE']
 
 
 def test_multi_word_service_name():

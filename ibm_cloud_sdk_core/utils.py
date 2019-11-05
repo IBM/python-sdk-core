@@ -23,7 +23,8 @@ from typing import List, Union
 
 import dateutil.parser as date_parser
 
-VCAP_SERVICES_FILE = "vcap_services.json"
+if 'VCAP_SERVICES_FILE' not in os.environ.keys():
+    os.environ['VCAP_SERVICES_FILE'] = "vcap_services.json"
 
 def has_bad_first_or_last_char(val: str) -> bool:
     """Returns true if a string starts with any of: {," ; or ends with any of: },".
@@ -222,13 +223,13 @@ def __read_from_vcap_services(service_name: str) -> dict:
     """
     vcap_services = getenv('VCAP_SERVICES')
     if not vcap_services:
-        if os.path.exists(VCAP_SERVICES_FILE):
-            with open(VCAP_SERVICES_FILE) as f:
-                vcap_services = f.read()
+        vcap_services_file = getenv('VCAP_SERVICES_FILE')
+        if os.path.exists(vcap_services_file):
+            with open(vcap_services_file) as f:
+                vcap_services = json_import.load(f)
     vcap_service_credentials = {}
     if vcap_services:
         services = json_import.loads(vcap_services)
-
         for key in services.keys():
             for i in range(len(services[key])):
                 if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
