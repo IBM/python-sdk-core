@@ -225,8 +225,8 @@ def __read_from_vcap_services(service_name: str) -> dict:
     if not vcap_services:
         vcap_services_file = getenv('VCAP_SERVICES_FILE')
         if os.path.exists(vcap_services_file):
-            with open(vcap_services_file) as f:
-                vcap_services = json_import.load(f)
+            with open(vcap_services_file) as vcap_file:
+                vcap_services = json_import.load(vcap_file)
     vcap_service_credentials = {}
     if vcap_services:
         services = json_import.loads(vcap_services)
