@@ -150,6 +150,7 @@ def test_vcap_credentials():
     assert authenticator.password == 'bogus password'
     del os.environ['VCAP_SERVICES']
 
+def test_vcap_credentials_2():
     vcap_services = '{\
         "test":[{"name": "testname",\
             "credentials":{ \
