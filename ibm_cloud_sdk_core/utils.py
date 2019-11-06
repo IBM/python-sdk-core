@@ -236,8 +236,6 @@ def __read_from_vcap_services(service_name: str) -> dict:
                     break
                 if services[key][i].get('name') == service_name:
                     vcap_service_credentials = services[key][i].get('credentials')
-            if vcap_service_credentials:
-                break
         if not vcap_service_credentials:
             if service_name in services.keys():
                 vcap_service_credentials = services.get(service_name)[0].get('credentials')
