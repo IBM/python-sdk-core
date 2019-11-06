@@ -211,8 +211,8 @@ def test_vcap_credentials():
         "username":"bogus username", \
         "password":"bogus password"}}]}'
 
-    with open('test_vcap_services.json', 'w') as f:
-        json.dump(vcap_services, f)
+    with open('test_vcap_services.json', 'w') as vcap_file:
+        json.dump(vcap_services, vcap_file)
     os.environ['VCAP_SERVICES_FILE'] = 'test_vcap_services.json'
 
     authenticator = get_authenticator_from_environment('test')
