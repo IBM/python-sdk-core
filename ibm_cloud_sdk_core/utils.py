@@ -23,9 +23,6 @@ from typing import List, Union
 
 import dateutil.parser as date_parser
 
-if 'VCAP_SERVICES_FILE' not in os.environ.keys():
-    os.environ['VCAP_SERVICES_FILE'] = "vcap_services.json"
-
 def has_bad_first_or_last_char(val: str) -> bool:
     """Returns true if a string starts with any of: {," ; or ends with any of: },".
 
@@ -222,11 +219,6 @@ def __read_from_vcap_services(service_name: str) -> dict:
         A set of service configuration key-value pairs.
     """
     vcap_services = getenv('VCAP_SERVICES')
-    if not vcap_services:
-        vcap_services_file = getenv('VCAP_SERVICES_FILE')
-        if os.path.exists(vcap_services_file):
-            with open(vcap_services_file) as vcap_file:
-                vcap_services = json_import.load(vcap_file)
     vcap_service_credentials = {}
     if vcap_services:
         services = json_import.loads(vcap_services)
@@ -235,17 +227,22 @@ def __read_from_vcap_services(service_name: str) -> dict:
                 if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
                     break
                 if services[key][i].get('name') == service_name:
-                    vcap_service_credentials = services[key][i].get('credentials')
+                    vcap_service_credentials = services[key][i].get('credentials', {})
         if not vcap_service_credentials:
             if service_name in services.keys():
-                vcap_service_credentials = services.get(service_name)[0].get('credentials')
+                service = services.get(service_name)
+                if service:
+                    vcap_service_credentials = service[0].get('credentials', {})
 
         if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
+            new_vcap_creds = {}
             if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'): # cf
-                vcap_service_credentials['AUTH_TYPE'] = 'basic'
-                vcap_service_credentials['USERNAME'] = vcap_service_credentials.get('username')
-                vcap_service_credentials['PASSWORD'] = vcap_service_credentials.get('password')
+                new_vcap_creds['AUTH_TYPE'] = 'basic'
+                new_vcap_creds['USERNAME'] = vcap_service_credentials.get('username')
+                new_vcap_creds['PASSWORD'] = vcap_service_credentials.get('password')
+                vcap_service_credentials = new_vcap_creds
             elif vcap_service_credentials.get('apikey'):  # rc
-                vcap_service_credentials['AUTH_TYPE'] = 'iam'
-                vcap_service_credentials['APIKEY'] = vcap_service_credentials.get('apikey')
+                new_vcap_creds['AUTH_TYPE'] = 'iam'
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('apikey')
+                vcap_service_credentials = new_vcap_creds
     return vcap_service_credentials
