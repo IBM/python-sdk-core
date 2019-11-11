@@ -135,7 +135,8 @@ def test_vcap_credentials():
 
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
-    assert authenticator is None
+    assert isinstance(authenticator, IAMAuthenticator)
+    assert authenticator.token_manager.apikey == 'bogus apikey'
     del os.environ['VCAP_SERVICES']
 
     vcap_services = '{"test":[{"name": "testname",\
