@@ -241,7 +241,11 @@ def __read_from_vcap_services(service_name: str) -> dict:
                 new_vcap_creds['USERNAME'] = vcap_service_credentials.get('username')
                 new_vcap_creds['PASSWORD'] = vcap_service_credentials.get('password')
                 vcap_service_credentials = new_vcap_creds
-            elif vcap_service_credentials.get('apikey'):  # rc
+            elif vcap_service_credentials.get('iam_apikey'):
+                new_vcap_creds['AUTH_TYPE'] = 'iam'
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('iam_apikey')
+                vcap_service_credentials = new_vcap_creds
+            elif vcap_service_credentials.get('apikey'):
                 new_vcap_creds['AUTH_TYPE'] = 'iam'
                 new_vcap_creds['APIKEY'] = vcap_service_credentials.get('apikey')
                 vcap_service_credentials = new_vcap_creds
