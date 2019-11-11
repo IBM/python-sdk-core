@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
 import os
-import json
 
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
 from ibm_cloud_sdk_core import convert_model, convert_list
