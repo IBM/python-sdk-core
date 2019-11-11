@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # from ibm_cloud_sdk_core.authenticators import Authenticator
-import os
 import datetime
 import json as json_import
 from os import getenv, environ
