@@ -221,18 +221,31 @@ def __read_from_vcap_services(service_name: str) -> dict:
     vcap_service_credentials = {}
     if vcap_services:
         services = json_import.loads(vcap_services)
-
         for key in services.keys():
-            if key == service_name:
-                vcap_service_credentials = services[key][0]['credentials']
-                if vcap_service_credentials is not None and isinstance(vcap_service_credentials, dict):
-                    if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'): # cf
-                        vcap_service_credentials['AUTH_TYPE'] = 'basic'
-                        vcap_service_credentials['USERNAME'] = vcap_service_credentials.get('username')
-                        vcap_service_credentials['PASSWORD'] = vcap_service_credentials.get('password')
-                    elif vcap_service_credentials.get('apikey'):  # rc
-                        vcap_service_credentials['AUTH_TYPE'] = 'iam'
-                        vcap_service_credentials['APIKEY'] = vcap_service_credentials.get('apikey')
-                    else: # no other auth mechanism is supported
-                        vcap_service_credentials = {}
+            for i in range(len(services[key])):
+                if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
+                    break
+                if services[key][i].get('name') == service_name:
+                    vcap_service_credentials = services[key][i].get('credentials', {})
+        if not vcap_service_credentials:
+            if service_name in services.keys():
+                service = services.get(service_name)
+                if service:
+                    vcap_service_credentials = service[0].get('credentials', {})
+
+        if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
+            new_vcap_creds = {}
+            if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'): # cf
+                new_vcap_creds['AUTH_TYPE'] = 'basic'
+                new_vcap_creds['USERNAME'] = vcap_service_credentials.get('username')
+                new_vcap_creds['PASSWORD'] = vcap_service_credentials.get('password')
+                vcap_service_credentials = new_vcap_creds
+            elif vcap_service_credentials.get('iam_apikey'):
+                new_vcap_creds['AUTH_TYPE'] = 'iam'
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('iam_apikey')
+                vcap_service_credentials = new_vcap_creds
+            elif vcap_service_credentials.get('apikey'):
+                new_vcap_creds['AUTH_TYPE'] = 'iam'
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('apikey')
+                vcap_service_credentials = new_vcap_creds
     return vcap_service_credentials

@@ -3,6 +3,7 @@ import os
 
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
 from ibm_cloud_sdk_core import convert_model, convert_list
+from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, IAMAuthenticator
 
 def test_datetime_conversion():
     date = string_to_datetime('2017-03-06 16:00:04.159338')
@@ -112,7 +113,7 @@ def test_vcap_credentials():
 
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
-    assert authenticator is not None
+    assert isinstance(authenticator, BasicAuthenticator)
     assert authenticator.username == 'bogus username'
     assert authenticator.password == 'bogus password'
     del os.environ['VCAP_SERVICES']
@@ -123,7 +124,7 @@ def test_vcap_credentials():
 
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
-    assert authenticator is not None
+    assert isinstance(authenticator, IAMAuthenticator)
     assert authenticator.token_manager.apikey == 'bogus apikey'
     del os.environ['VCAP_SERVICES']
 
@@ -133,8 +134,88 @@ def test_vcap_credentials():
 
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
+    assert isinstance(authenticator, IAMAuthenticator)
+    assert authenticator.token_manager.apikey == 'bogus apikey'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{"name": "testname",\
+        "credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username", \
+        "password":"bogus password"}}]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('testname')
+    assert isinstance(authenticator, BasicAuthenticator)
+    assert authenticator.username == 'bogus username'
+    assert authenticator.password == 'bogus password'
+    del os.environ['VCAP_SERVICES']
+
+def test_vcap_credentials_2():
+    vcap_services = '{\
+        "test":[{"name": "testname",\
+            "credentials":{ \
+            "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+            "username":"bogus username2", \
+            "password":"bogus password2"}},\
+            {"name": "othertestname",\
+            "credentials":{ \
+            "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+            "username":"bogus username3", \
+            "password":"bogus password3"}}],\
+        "testname":[{"name": "nottestname",\
+            "credentials":{ \
+            "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+            "username":"bogus username", \
+            "password":"bogus password"}}]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('testname')
+    assert isinstance(authenticator, BasicAuthenticator)
+    assert authenticator.username == 'bogus username2'
+    assert authenticator.password == 'bogus password2'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[{\
+            "credentials":{ \
+            "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+            "username":"bogus username", \
+            "password":"bogus password"}},\
+            {"credentials":{ \
+            "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+            "username":"bogus username2", \
+            "password":"bogus password2"}}\
+        ]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('test')
+    assert isinstance(authenticator, BasicAuthenticator)
+    assert authenticator.username == 'bogus username'
+    assert authenticator.password == 'bogus password'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"first":[],\
+        "test":[{"credentials":{ \
+        "url":"https://gateway.watsonplatform.net/compare-comply/api",\
+        "username":"bogus username", \
+        "password":"bogus password"}}],\
+        "last":[]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('test')
+    assert isinstance(authenticator, BasicAuthenticator)
+    assert authenticator.username == 'bogus username'
+    assert authenticator.password == 'bogus password'
+    del os.environ['VCAP_SERVICES']
+
+    vcap_services = '{"test":[],\
+        "last":[]}'
+
+    os.environ['VCAP_SERVICES'] = vcap_services
+    authenticator = get_authenticator_from_environment('test')
     assert authenticator is None
     del os.environ['VCAP_SERVICES']
+
 
 def test_multi_word_service_name():
     os.environ['PERSONALITY_INSIGHTS_APIKEY'] = '5678efgh'
