@@ -281,7 +281,7 @@ class BaseService:
         headers = CaseInsensitiveDict(headers)
         if self.default_headers is not None:
             headers.update(self.default_headers)
-        if not any(key in headers for key in ['user-agent', 'User-Agent']):
+        if 'user-agent' not in headers:
             headers.update(self.user_agent_header)
         request['headers'] = headers
 
