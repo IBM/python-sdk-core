@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/IBM/python-sdk-core/compare/v1.2.0...v1.3.0) (2019-11-20)
+
+
+### Features
+
+* re-order semrel steps ([525a3fd](https://github.com/IBM/python-sdk-core/commit/525a3fd126a12cb8938c88f89a18f9347394e398))
+
 # [1.2.0](https://github.com/IBM/python-sdk-core/compare/v1.1.3...v1.2.0) (2019-11-20)
 
 
