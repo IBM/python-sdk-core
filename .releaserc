@@ -3,12 +3,21 @@
   "verifyConditions": ["@semantic-release/changelog", "@semantic-release/github"],
   "debug": true,
   "prepare": [
-    "@semantic-release/changelog",
     {
       "path": "@semantic-release/exec",
       "cmd": "bumpversion --allow-dirty --current-version ${lastRelease.version} --new-version ${nextRelease.version} patch"
     },
+    "@semantic-release/changelog",
     "@semantic-release/git"
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    ["@semantic-release/git", {
+      "message": "chore(release): ${nextRelease.version} release notes\n\n${nextRelease.notes}"
+    }],
+    "@semantic-release/github"
   ],
   "publish": [
     {
