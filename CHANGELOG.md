@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/IBM/python-sdk-core/compare/v1.3.0...v1.4.0) (2019-11-20)
+
+
+### Features
+
+* configure release commit message format ([3d9cbda](https://github.com/IBM/python-sdk-core/commit/3d9cbda0ae2e263d0faf747dac5a99efb090e995))
+
 # [1.3.0](https://github.com/IBM/python-sdk-core/compare/v1.2.0...v1.3.0) (2019-11-20)
 
 
