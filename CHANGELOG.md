@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/IBM/python-sdk-core/compare/v1.1.3...v1.2.0) (2019-11-20)
+
+
+### Features
+
+* expand vcap credential loading to support user-defined service names ([32954fa](https://github.com/IBM/python-sdk-core/commit/32954fa1aa6d59416dd4b4c07ea91f51024e7d8f))
+
 ## [1.1.3](https://github.com/IBM/python-sdk-core/compare/v1.1.2...v1.1.3) (2019-11-05)
 
 
