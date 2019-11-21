@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/IBM/python-sdk-core/compare/v1.5.0...v1.5.1) (2019-11-21)
+
+
+### Bug Fixes
+
+* more semantic-release config changes ([7b20aea](https://github.com/IBM/python-sdk-core/commit/7b20aea08a01df0c5079cb1281c265f31c444d2b))
+
 # [1.5.0](https://github.com/IBM/python-sdk-core/compare/v1.4.0...v1.5.0) (2019-11-21)
 
 
