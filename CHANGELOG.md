@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/IBM/python-sdk-core/compare/v1.4.0...v1.5.0) (2019-11-21)
+
+
+### Features
+
+* use new semantic-release config ([040c6a7](https://github.com/IBM/python-sdk-core/commit/040c6a7bb458c109c99e1a9e496b788d24ff12bf))
+
 # [1.4.0](https://github.com/IBM/python-sdk-core/compare/v1.3.0...v1.4.0) (2019-11-20)
 
 
