@@ -3,10 +3,10 @@
 import json
 import time
 import os
+from shutil import copyfile
 import pytest
 import responses
 import jwt
-from shutil import copyfile
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
@@ -160,12 +160,16 @@ def test_fail_http_config():
 def test_iam():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
+    # Try changing working directories to test getting creds from cwd
+    cwd = os.getcwd()
+    os.chdir(os.path.dirname(file_path))
     temp_env_path = os.getcwd() + '/ibm-credentials.env'
     copyfile(file_path, temp_env_path)
     iam_authenticator = get_authenticator_from_environment('ibm-watson')
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
     assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
     assert service.authenticator is not None
+    os.chdir(cwd)
     os.remove(temp_env_path)
 
     response = {
@@ -521,12 +525,16 @@ def test_setting_proxy():
 def test_configure_service():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-external.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    # Copy credentials file to cwd to test loading from current working directory
+    temp_env_path = os.getcwd() + '/ibm-credentials.env'
+    copyfile(file_path, temp_env_path)
     service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://externallyconfigured.com/api'
     assert service.disable_ssl_verification is True
     # The authenticator should not be changed as a result of configure_service()
     assert isinstance(service.get_authenticator(), NoAuthAuthenticator)
+    os.remove(temp_env_path)
+
 
 def test_configure_service_error():
     service = BaseService('v1', authenticator=NoAuthAuthenticator())
