@@ -155,22 +155,38 @@ def test_fail_http_config():
     with pytest.raises(TypeError):
         service.with_http_config(None)
 
+@responses.activate
+def test_cwd():
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials.env')
+    # Try changing working directories to test getting creds from cwd
+    cwd = os.getcwd()
+    os.chdir(os.path.dirname(file_path))
+    iam_authenticator = get_authenticator_from_environment('ibm-watson')
+    os.chdir(cwd)
+    service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
+    assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
+    assert service.authenticator is not None
+
+    # Copy credentials file to cwd to test loading from current working directory
+    temp_env_path = os.getcwd() + '/ibm-credentials.env'
+    copyfile(file_path, temp_env_path)
+    iam_authenticator = get_authenticator_from_environment('ibm-watson')
+    os.remove(temp_env_path)
+    service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
+    assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
+    assert service.authenticator is not None
 
 @responses.activate
 def test_iam():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
-    # Try changing working directories to test getting creds from cwd
-    cwd = os.getcwd()
-    os.chdir(os.path.dirname(file_path))
-    temp_env_path = os.getcwd() + '/ibm-credentials.env'
-    copyfile(file_path, temp_env_path)
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path  
     iam_authenticator = get_authenticator_from_environment('ibm-watson')
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
     assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
+    del os.environ['IBM_CREDENTIALS_FILE']
     assert service.authenticator is not None
-    os.chdir(cwd)
-    os.remove(temp_env_path)
 
     response = {
         "access_token": get_access_token(),
@@ -525,15 +541,12 @@ def test_setting_proxy():
 def test_configure_service():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-external.env')
-    # Copy credentials file to cwd to test loading from current working directory
-    temp_env_path = os.getcwd() + '/ibm-credentials.env'
-    copyfile(file_path, temp_env_path)
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
     service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://externallyconfigured.com/api'
     assert service.disable_ssl_verification is True
     # The authenticator should not be changed as a result of configure_service()
     assert isinstance(service.get_authenticator(), NoAuthAuthenticator)
-    os.remove(temp_env_path)
 
 
 def test_configure_service_error():
