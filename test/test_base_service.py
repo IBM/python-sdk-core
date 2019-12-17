@@ -6,6 +6,7 @@ import os
 import pytest
 import responses
 import jwt
+from shutil import copyfile
 from ibm_cloud_sdk_core import BaseService
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
@@ -157,14 +158,14 @@ def test_fail_http_config():
 
 @responses.activate
 def test_iam():
-    file_path = os.path.join(
-        os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
-    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    file_path = os.getcwd() + '/resources/ibm-credentials-iam.env'
+    temp_env_path = os.getcwd() + '/ibm-credentials.env'
+    copyfile(file_path, temp_env_path)
     iam_authenticator = get_authenticator_from_environment('ibm-watson')
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
     assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
-    del os.environ['IBM_CREDENTIALS_FILE']
     assert service.authenticator is not None
+    os.remove(temp_env_path)
 
     response = {
         "access_token": get_access_token(),
