@@ -17,7 +17,7 @@
 import datetime
 import json as json_import
 from os import getenv, environ, getcwd
-from os.path import isfile, join, expanduser, abspath
+from os.path import isfile, join, expanduser
 from typing import List, Union
 
 import dateutil.parser as date_parser
