@@ -158,7 +158,8 @@ def test_fail_http_config():
 
 @responses.activate
 def test_iam():
-    file_path = os.getcwd() + '/resources/ibm-credentials-iam.env'
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     temp_env_path = os.getcwd() + '/ibm-credentials.env'
     copyfile(file_path, temp_env_path)
     iam_authenticator = get_authenticator_from_environment('ibm-watson')
