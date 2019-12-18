@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/IBM/python-sdk-core/compare/v1.5.1...v1.5.2) (2019-12-18)
+
+
+### Bug Fixes
+
+* Update credential file path check to current working directory ([e1ad677](https://github.com/IBM/python-sdk-core/commit/e1ad67781c8bd85739903271deb4ce7a2ea1659a))
+
 ## [1.5.1](https://github.com/IBM/python-sdk-core/compare/v1.5.0...v1.5.1) (2019-11-21)
 
 
