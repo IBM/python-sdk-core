@@ -3,6 +3,7 @@
 import json
 import time
 import os
+from shutil import copyfile
 import pytest
 import responses
 import jwt
@@ -154,6 +155,29 @@ def test_fail_http_config():
     with pytest.raises(TypeError):
         service.with_http_config(None)
 
+@responses.activate
+def test_cwd():
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials.env')
+    # Try changing working directories to test getting creds from cwd
+    cwd = os.getcwd()
+    os.chdir(os.path.dirname(file_path))
+    iam_authenticator = get_authenticator_from_environment('ibm_watson')
+    service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
+    service.configure_service('ibm_watson')
+    os.chdir(cwd)
+    assert service.service_url == 'https://cwdserviceurl'
+    assert service.authenticator is not None
+
+    # Copy credentials file to cwd to test loading from current working directory
+    temp_env_path = os.getcwd() + '/ibm-credentials.env'
+    copyfile(file_path, temp_env_path)
+    iam_authenticator = get_authenticator_from_environment('ibm_watson')
+    service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
+    service.configure_service('ibm_watson')
+    os.remove(temp_env_path)
+    assert service.service_url == 'https://cwdserviceurl'
+    assert service.authenticator is not None
 
 @responses.activate
 def test_iam():

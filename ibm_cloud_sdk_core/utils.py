@@ -16,8 +16,8 @@
 # from ibm_cloud_sdk_core.authenticators import Authenticator
 import datetime
 import json as json_import
-from os import getenv, environ
-from os.path import dirname, isfile, join, expanduser, abspath
+from os import getenv, environ, getcwd
+from os.path import isfile, join, expanduser
 from typing import List, Union
 
 import dateutil.parser as date_parser
@@ -182,7 +182,7 @@ def __read_from_credential_file(service_name: str, separator: str = '=') -> dict
     # Current working directory
     if credential_file_path is None:
         file_path = join(
-            dirname(dirname(abspath(__file__))), default_credentials_file_name)
+            getcwd(), default_credentials_file_name)
         if isfile(file_path):
             credential_file_path = file_path
 
