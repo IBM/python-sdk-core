@@ -162,19 +162,21 @@ def test_cwd():
     # Try changing working directories to test getting creds from cwd
     cwd = os.getcwd()
     os.chdir(os.path.dirname(file_path))
-    iam_authenticator = get_authenticator_from_environment('ibm-watson')
-    os.chdir(cwd)
+    iam_authenticator = get_authenticator_from_environment('ibm_watson')
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
-    assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
+    service.configure_service('ibm_watson')
+    os.chdir(cwd)
+    assert service.service_url == 'https://cwdserviceurl'
     assert service.authenticator is not None
 
     # Copy credentials file to cwd to test loading from current working directory
     temp_env_path = os.getcwd() + '/ibm-credentials.env'
     copyfile(file_path, temp_env_path)
-    iam_authenticator = get_authenticator_from_environment('ibm-watson')
-    os.remove(temp_env_path)
+    iam_authenticator = get_authenticator_from_environment('ibm_watson')
     service = AnyServiceV1('2017-07-07', authenticator=iam_authenticator)
-    assert service.service_url == 'https://gateway.watsonplatform.net/test/api'
+    service.configure_service('ibm_watson')
+    os.remove(temp_env_path)
+    assert service.service_url == 'https://cwdserviceurl'
     assert service.authenticator is not None
 
 @responses.activate
