@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/IBM/python-sdk-core/compare/v1.5.2...v1.6.0) (2019-12-19)
+
+
+### Features
+
+* Add date_to_string and string_to_date utility methods ([6dbfff9](https://github.com/IBM/python-sdk-core/commit/6dbfff92a7758e7cbf78e5cb949dd15beb0dec7f))
+
 ## [1.5.2](https://github.com/IBM/python-sdk-core/compare/v1.5.1...v1.5.2) (2019-12-18)
 
 
