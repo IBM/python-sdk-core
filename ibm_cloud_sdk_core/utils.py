@@ -90,6 +90,28 @@ def string_to_datetime(string: str) -> datetime.datetime:
     """
     return date_parser.parse(string)
 
+def date_to_string(val: datetime.date) -> str:
+    """Convert a date object to string.
+
+    Args:
+        val: The date object.
+
+    Returns:
+        date serialized to `YYYY-MM-DD` format.
+    """
+    return str(val)
+
+def string_to_date(string: str) -> datetime.date:
+    """De-serializes string to date.
+
+    Args:
+        string: string containing date in 'YYYY-MM-DD' format.
+
+    Returns:
+        the de-serialized string as a date object.
+    """
+    return date_parser.parse(string).date()
+
 def convert_model(val: any) -> dict:
     """Convert a model object into an equivalent dict.
 

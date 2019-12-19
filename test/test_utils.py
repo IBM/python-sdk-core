@@ -2,6 +2,7 @@
 import os
 
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
+from ibm_cloud_sdk_core import string_to_date, date_to_string
 from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, IAMAuthenticator
 
@@ -10,6 +11,12 @@ def test_datetime_conversion():
     assert date.day == 6
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338'
+
+def test_date_conversion():
+    date = string_to_date('2017-03-06')
+    assert date.day == 6
+    res = date_to_string(date)
+    assert res == '2017-03-06'
 
 def test_convert_model():
 

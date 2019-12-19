@@ -25,6 +25,8 @@ classes:
 functions:
     datetime_to_string: Serializes a datetime to a string.
     string_to_datetime: De-serializes a string to a datetime.
+    date_to_string: Serializes a date to a string.
+    string_to_date: De-serializes a string to a date.
     convert_model: Convert a model object into an equivalent dict.
     convert_list: Convert a list of strings into comma-separated string.
     read_external_sources: Get config object from external sources.
@@ -38,5 +40,6 @@ from .jwt_token_manager import JWTTokenManager
 from .cp4d_token_manager import CP4DTokenManager
 from .api_exception import ApiException
 from .utils import datetime_to_string, string_to_datetime, read_external_sources
+from .utils import date_to_string, string_to_date
 from .utils import convert_model, convert_list
 from .get_authenticator import get_authenticator_from_environment
