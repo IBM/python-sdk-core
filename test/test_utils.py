@@ -11,12 +11,14 @@ def test_datetime_conversion():
     assert date.day == 6
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338'
+    assert datetime_to_string(None) is None
 
 def test_date_conversion():
     date = string_to_date('2017-03-06')
     assert date.day == 6
     res = date_to_string(date)
     assert res == '2017-03-06'
+    assert date_to_string(None) is None
 
 def test_convert_model():
 

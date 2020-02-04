@@ -77,7 +77,9 @@ def datetime_to_string(val: datetime.datetime) -> str:
     Returns:
         datetime serialized to iso8601 format.
     """
-    return val.isoformat().replace('+00:00', 'Z')
+    if isinstance(val, datetime.datetime):
+        return val.isoformat().replace('+00:00', 'Z')
+    return val
 
 def string_to_datetime(string: str) -> datetime.datetime:
     """De-serializes string to datetime.
@@ -99,7 +101,9 @@ def date_to_string(val: datetime.date) -> str:
     Returns:
         date serialized to `YYYY-MM-DD` format.
     """
-    return str(val)
+    if isinstance(val, datetime.date):
+        return str(val)
+    return val
 
 def string_to_date(string: str) -> datetime.date:
     """De-serializes string to date.
