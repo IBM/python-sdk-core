@@ -71,6 +71,9 @@ def cleanup_value(value: any) -> any:
 def datetime_to_string(val: datetime.datetime) -> str:
     """Convert a datetime object to string.
 
+    If the supplied datetime does not specify a timezone,
+    it is assumed to be UTC.
+
     Args:
         val: The datetime object.
 
@@ -78,6 +81,9 @@ def datetime_to_string(val: datetime.datetime) -> str:
         datetime serialized to iso8601 format.
     """
     if isinstance(val, datetime.datetime):
+        if val.tzinfo is None:
+            return val.isoformat() + 'Z'
+        val = val.astimezone(datetime.timezone.utc)
         return val.isoformat().replace('+00:00', 'Z')
     return val
 
@@ -90,7 +96,10 @@ def string_to_datetime(string: str) -> datetime.datetime:
     Returns:
         the de-serialized string as a datetime object.
     """
-    return date_parser.parse(string)
+    val = date_parser.parse(string)
+    if val.tzinfo is not None:
+        return val
+    return val.replace(tzinfo=datetime.timezone.utc)
 
 def date_to_string(val: datetime.date) -> str:
     """Convert a date object to string.

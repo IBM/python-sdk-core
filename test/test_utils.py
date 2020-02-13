@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+import datetime
 import os
 
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
@@ -6,12 +7,39 @@ from ibm_cloud_sdk_core import string_to_date, date_to_string
 from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, IAMAuthenticator
 
-def test_datetime_conversion():
+def test_string_to_datetime():
+    # If the specified string does not include a timezone, it is assumed to be UTC
     date = string_to_datetime('2017-03-06 16:00:04.159338')
     assert date.day == 6
-    res = datetime_to_string(date)
-    assert res == '2017-03-06T16:00:04.159338'
+    assert date.hour == 16
+    assert date.tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    # Test date string with TZ specified as '+xxxx'
+    date = string_to_datetime('2017-03-06 16:00:04.159338+0600')
+    assert date.day == 6
+    assert date.hour == 16
+    assert date.tzinfo.utcoffset(None).total_seconds() == 6*60*60
+    # Test date string with TZ specified as 'Z'
+    date = string_to_datetime('2017-03-06 16:00:04.159338Z')
+    assert date.day == 6
+    assert date.hour == 16
+    assert date.tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+
+def test_datetime_to_string():
+    # If specified date is None, return None
     assert datetime_to_string(None) is None
+    # If the specified date is "naive", it is interpreted as a UTC date
+    date = datetime.datetime(2017, 3, 6, 16, 0, 4, 159338)
+    res = datetime_to_string(date)
+    assert res == '2017-03-06T16:00:04.159338Z'
+    # Test date with UTC timezone
+    date = datetime.datetime(2017, 3, 6, 16, 0, 4, 159338, datetime.timezone.utc)
+    res = datetime_to_string(date)
+    assert res == '2017-03-06T16:00:04.159338Z'
+    # Test date with non-UTC timezone
+    tzn = datetime.timezone(datetime.timedelta(hours=-6))
+    date = datetime.datetime(2017, 3, 6, 10, 0, 4, 159338, tzn)
+    res = datetime_to_string(date)
+    assert res == '2017-03-06T16:00:04.159338Z'
 
 def test_date_conversion():
     date = string_to_date('2017-03-06')
