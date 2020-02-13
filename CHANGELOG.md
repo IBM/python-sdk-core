@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/IBM/python-sdk-core/compare/v1.6.1...v1.6.2) (2020-02-13)
+
+
+### Bug Fixes
+
+* Handle conversions for naive datetime values ([f1149fa](https://github.com/IBM/python-sdk-core/commit/f1149fa815f3f1585b3e02da278dd075b9a1f836))
+
 ## [1.6.1](https://github.com/IBM/python-sdk-core/compare/v1.6.0...v1.6.1) (2020-02-04)
 
 
