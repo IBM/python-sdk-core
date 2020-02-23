@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring,protected-access
 import time
+import threading
 import jwt
 import pytest
 
@@ -35,10 +36,11 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
         response = {"access_token": access_token,
                     "token_type": "Bearer",
                     "expires_in": 3600,
-                    "expiration": current_time,
+                    "expiration": current_time + 3600,
                     "refresh_token": "jy4gl91BQ",
                     "from_token_manager": True
                    }
+        time.sleep(0.5)
         return response
 
 def _get_current_time():
@@ -61,17 +63,29 @@ def test_get_token():
     assert token == "old_dummy"
 
     # expired token:
-    token_manager.time_for_new_token = _get_current_time() - 300
+    token_manager.expire_time = _get_current_time() - 300
     token = token_manager.get_token()
     assert token != "old_dummy"
     assert token_manager.request_count == 2
 
+def test_paced_get_token():
+    url = "https://iam.cloud.ibm.com/identity/token"
+    token_manager = JWTTokenManagerMockImpl(url)
+    threads = []
+    for _ in range(10):
+        thread = threading.Thread(target=token_manager.get_token)
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
+    assert token_manager.request_count == 1
+
 def test_is_token_expired():
     token_manager = JWTTokenManagerMockImpl(None, None)
     assert token_manager._is_token_expired() is True
-    token_manager.time_for_new_token = _get_current_time() + 3600
+    token_manager.expire_time = _get_current_time() + 3600
     assert token_manager._is_token_expired() is False
-    token_manager.time_for_new_token = _get_current_time() - 3600
+    token_manager.expire_time = _get_current_time() - 3600
     assert token_manager._is_token_expired()
 
 def test_not_implemented_error():
