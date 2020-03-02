@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/IBM/python-sdk-core/compare/v1.6.2...v1.7.0) (2020-03-02)
+
+
+### Features
+
+* Pace requests to token server for new auth tokens ([1dea212](https://github.com/IBM/python-sdk-core/commit/1dea212b8720849370eb8a05d95d74a469a38ab7))
+
 ## [1.6.2](https://github.com/IBM/python-sdk-core/compare/v1.6.1...v1.6.2) (2020-02-13)
 
 
