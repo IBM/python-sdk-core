@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import time
+from threading import Lock
 from typing import Optional
 
 import jwt
@@ -43,30 +44,41 @@ class JWTTokenManager:
         the server's SSL certificate should be disabled or not.
         token_name (str): The key used of the token in the dict returned from request_token.
         token_info (dict): The most token_response from request_token.
-        time_for_new_token (int): The time in epoch seconds when the current token within token_info will expire.
+        expire_time (int): The time in epoch seconds when the current token within token_info will expire.
+        refresh_time (int): The time in epoch seconds when the current token within token_info should be refreshed.
+        request_time (int): The time the last outstanding token request was issued
+        lock (Lock): Lock variable to serialize access to refresh/request times
         http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
     """
+
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, url: str, disable_ssl_verification: bool = False, token_name: Optional[str] = None):
         self.url = url
         self.disable_ssl_verification = disable_ssl_verification
         self.token_name = token_name
         self.token_info = {}
-        self.time_for_new_token = None
+        self.expire_time = 0
+        self.refresh_time = 0
+        self.request_time = 0
+        self.lock = Lock()
         self.http_config = {}
 
     def get_token(self) -> str:
         """Get a token to be used for authentication.
 
         The source of the token is determined by the following logic:
-        1.  a) If this class does not yet have one, make a request for one
-            b) If this class token has expired, request a new one
-        2. If this class is managing tokens and has a valid token stored, send it
+        1.  a) If the current token is expired (or never fetched), make a request for one
+            b) If the curent token should be refreshed, issue a refresh request
+        2. After any requests initiated above complete, return the stored token
 
         Returns:
             str: A valid access token
         """
-        if not self.token_info or self._is_token_expired():
+        if self._is_token_expired():
+            self.paced_request_token()
+
+        if self._token_needs_refresh():
             token_response = self.request_token()
             self._save_token_info(token_response)
 
@@ -79,6 +91,42 @@ class JWTTokenManager:
             status: the flag to be used for determining status.
         """
         self.disable_ssl_verification = status
+
+    def paced_request_token(self):
+        """
+        Paces requests to request_token.
+
+        This method pseudo-serializes requests for an access_token
+        when the current token is expired (or has never been fetched).
+        The first caller into this method records its `request_time` and
+        then issues the token request. Subsequent callers will check the
+        `request_time` to see if a request is active (has been issued within
+        the past 60 seconds), and if so will sleep for a short time interval
+        (currently 0.5 seconds) before checking again. The check for an active
+        request and update of `request_time` are serailized by the `lock`
+        variable so that only one caller can become the active requester
+        with a 60 second interval.
+
+        Threads that sleep waiting for the active request to complete will
+        eventually find a newly valid token and return, or 60 seconds will
+        elapse and a new thread will assume the role of the active request.
+        """
+        while self._is_token_expired():
+            current_time = self._get_current_time()
+
+            with self.lock:
+                request_active = self.request_time > (current_time - 60)
+                if not request_active:
+                    self.request_time = current_time
+
+            if not request_active:
+                token_response = self.request_token()
+                self._save_token_info(token_response)
+                self.request_time = 0
+                return
+
+            time.sleep(0.5)  # Sleep for 0.5 seconds before checking token again
+
 
     def request_token(self):
         """Should be overridden by child classes.
@@ -98,45 +146,56 @@ class JWTTokenManager:
         """
         Check if currently stored token is expired.
 
-        Using a buffer to prevent the edge case of the
-        token expiring before the request could be made.
+        Returns
+        -------
+        bool
+            True if token is expired; False otherwise
+        """
+        current_time = self._get_current_time()
+        return self.expire_time < current_time
 
-        The buffer will be a fraction of the total TTL. Using 80%.
+    def _token_needs_refresh(self):
+        """
+        Check if currently stored token needs refresh.
 
         Returns
         -------
         bool
-            If token expired or not
+            True if token needs refresh; False otherwise
         """
-        if not self.time_for_new_token:
-            return True
-
         current_time = self._get_current_time()
-        return self.time_for_new_token < current_time
+
+        with self.lock:
+            needs_refresh = self.refresh_time < current_time
+            if needs_refresh:
+                self.refresh_time = current_time + 60
+
+        return needs_refresh
 
     def _save_token_info(self, token_response):
         """
         Decode the access token and save the response from the JWT service to the object's state
+
+        Refresh time is set to approximately 80% of the token's TTL to ensure that
+        the token refresh completes before the current token expires.
 
         Parameters
         ----------
         token_response : str
             Response from token service
         """
+        self.token_info = token_response
         access_token = token_response.get(self.token_name)
 
         # The time of expiration is found by decoding the JWT access token
         decoded_response = jwt.decode(access_token, verify=False)
+        # exp is the time of expire and iat is the time of token retrieval
         exp = decoded_response.get('exp')
         iat = decoded_response.get('iat')
 
-        # exp is the time of expire and iat is the time of token retrieval
-        time_to_live = exp - iat
-        expire_time = exp
-        fraction_of_ttl = 0.8
-        self.time_for_new_token = expire_time - (time_to_live *
-                                                 (1.0 - fraction_of_ttl))
-        self.token_info = token_response
+        self.expire_time = exp
+        buffer = (exp - iat) * 0.2
+        self.refresh_time = self.expire_time - buffer
 
     def _request(self,
                  method,
