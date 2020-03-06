@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/IBM/python-sdk-core/compare/v1.7.0...v1.7.1) (2020-03-06)
+
+
+### Bug Fixes
+
+* update README to trigger patch release ([bd389b4](https://github.com/IBM/python-sdk-core/commit/bd389b4e0c4451710c6e12d5325cadcabd6c8289))
+
 # [1.7.0](https://github.com/IBM/python-sdk-core/compare/v1.6.2...v1.7.0) (2020-03-02)
 
 
