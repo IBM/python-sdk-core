@@ -64,6 +64,8 @@ class ApiException(Exception):
                 error_message = error_json['message']
             elif 'errorMessage' in error_json:
                 error_message = error_json['errorMessage']
+            elif response.status_code == 401:
+                error_message = 'Unauthorized: Access is denied due to invalid credentials'
             return error_message
         except:
             return response.text or error_message
