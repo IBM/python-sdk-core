@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/IBM/python-sdk-core.svg?branch=master)](https://travis-ci.com/IBM/python-sdk-core)
-[![codecov](https://codecov.io/gh/IBM/python-sdk-core/branch/master/graph/badge.svg)](https://codecov.io/gh/IBM/python-sdk-core)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)[![codecov](https://codecov.io/gh/IBM/python-sdk-core/branch/master/graph/badge.svg)](https://codecov.io/gh/IBM/python-sdk-core)
 [![Latest Stable Version](https://img.shields.io/pypi/v/ibm-cloud-sdk-core.svg)](https://pypi.python.org/pypi/ibm-cloud-sdk-core)
 [![CLA assistant](https://cla-assistant.io/readme/badge/ibm/python-sdk-core)](https://cla-assistant.io/ibm/python-sdk-core)
 
