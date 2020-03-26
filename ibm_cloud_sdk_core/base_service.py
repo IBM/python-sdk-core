@@ -65,6 +65,7 @@ class BaseService:
                             'disable_ssl_verification option of the authenticator.'
 
     def __init__(self,
+                 *,
                  service_url: str = None,
                  authenticator: Authenticator = None,
                  disable_ssl_verification: bool = False):
@@ -237,6 +238,7 @@ class BaseService:
     def prepare_request(self,
                         method: str,
                         url: str,
+                        *,
                         headers: Optional[dict] = None,
                         params: Optional[dict] = None,
                         data: Optional[Union[str, dict]] = None,

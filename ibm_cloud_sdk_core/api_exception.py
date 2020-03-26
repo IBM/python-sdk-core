@@ -32,7 +32,7 @@ class ApiException(Exception):
         global_transaction_id (str, optional): Globally unique id the service endpoint has given a transaction.
     """
 
-    def __init__(self, code: int, message: Optional[str] = None, http_response: Optional[Response] = None):
+    def __init__(self, code: int, *, message: Optional[str] = None, http_response: Optional[Response] = None):
         # Call the base class constructor with the parameters it needs
         super(ApiException, self).__init__(message)
         self.message = message

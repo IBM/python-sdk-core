@@ -52,6 +52,7 @@ class CP4DTokenManager(JWTTokenManager):
                  username: str,
                  password: str,
                  url: str,
+                 *,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None):
