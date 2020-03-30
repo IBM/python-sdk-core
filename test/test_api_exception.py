@@ -48,7 +48,7 @@ def test_api_exception():
                   content_type='application/json')
     mock_response = requests.get('https://test-msg.com')
     exception = ApiException(500, http_response=mock_response)
-    assert exception.message == 'Unknown error'
+    assert exception.message == 'Internal Server Error'
 
     responses.add(responses.GET,
                   'https://test-errormessage.com',
