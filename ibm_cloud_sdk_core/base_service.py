@@ -290,7 +290,8 @@ class BaseService:
 
         if data and isinstance(data, dict):
             data = remove_null_values(data)
-            headers.update({'content-type': 'application/json'})
+            if headers.get('content-type') is None:
+                headers.update({'content-type': 'application/json'})
             data = json_import.dumps(data)
         request['data'] = data
 
