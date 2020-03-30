@@ -61,7 +61,8 @@ class CloudPakForDataAuthenticator(Authenticator):
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None):
         self.token_manager = CP4DTokenManager(
-            username, password, url, disable_ssl_verification, headers, proxies)
+            username, password, url, disable_ssl_verification=disable_ssl_verification,
+            headers=headers, proxies=proxies)
         self.validate()
 
     def validate(self):

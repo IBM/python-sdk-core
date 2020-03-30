@@ -19,7 +19,8 @@ def test_detailed_response_dict():
                   content_type='application/json')
 
     mock_response = requests.get('https://test.com')
-    detailed_response = DetailedResponse(mock_response.json(), mock_response.headers, mock_response.status_code)
+    detailed_response = DetailedResponse(response=mock_response.json(), headers=mock_response.headers,
+                                         status_code=mock_response.status_code)
     assert detailed_response is not None
     assert detailed_response.get_result() == {'foobar': 'baz'}
     assert detailed_response.get_headers() == {u'Content-Type': 'application/json'}
@@ -39,7 +40,8 @@ def test_detailed_response_list():
                   content_type='application/json')
 
     mock_response = requests.get('https://test.com')
-    detailed_response = DetailedResponse(mock_response.json(), mock_response.headers, mock_response.status_code)
+    detailed_response = DetailedResponse(response=mock_response.json(), headers=mock_response.headers,
+                                         status_code=mock_response.status_code)
     assert detailed_response is not None
     assert detailed_response.get_result() == ['foobar', 'baz']
     assert detailed_response.get_headers() == {u'Content-Type': 'application/json'}

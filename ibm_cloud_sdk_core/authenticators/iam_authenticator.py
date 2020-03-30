@@ -64,8 +64,9 @@ class IAMAuthenticator(Authenticator):
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None):
         self.token_manager = IAMTokenManager(
-            apikey, url, client_id, client_secret, disable_ssl_verification,
-            headers, proxies)
+            apikey, url=url, client_id=client_id, client_secret=client_secret,
+            disable_ssl_verification=disable_ssl_verification,
+            headers=headers, proxies=proxies)
         self.validate()
 
     def validate(self):

@@ -219,8 +219,8 @@ class BaseService:
                         result = response.json()
                     except:
                         result = response
-                return DetailedResponse(result, response.headers,
-                                        response.status_code)
+                return DetailedResponse(response=result, headers=response.headers,
+                                        status_code=response.status_code)
 
             raise ApiException(
                 response.status_code, http_response=response)
