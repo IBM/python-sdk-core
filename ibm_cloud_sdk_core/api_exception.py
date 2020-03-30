@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from typing import Optional
-from requests import Response
 from http import HTTPStatus
+from requests import Response
 
 
 class ApiException(Exception):
