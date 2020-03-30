@@ -61,7 +61,7 @@ class CP4DTokenManager(JWTTokenManager):
             url = url + '/v1/preauth/validateAuth'
         self.headers = headers
         self.proxies = proxies
-        super(CP4DTokenManager, self).__init__(url, disable_ssl_verification,
+        super().__init__(url, disable_ssl_verification,
                                                self.TOKEN_NAME)
 
     def request_token(self) -> dict:

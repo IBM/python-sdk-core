@@ -34,7 +34,7 @@ class ApiException(Exception):
 
     def __init__(self, code: int, message: Optional[str] = None, http_response: Optional[Response] = None):
         # Call the base class constructor with the parameters it needs
-        super(ApiException, self).__init__(message)
+        super().__init__(message)
         self.message = message
         self.code = code
         self.http_response = http_response
