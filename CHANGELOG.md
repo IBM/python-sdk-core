@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/IBM/python-sdk-core/compare/v1.7.2...v1.7.3) (2020-03-31)
+
+
+### Bug Fixes
+
+* update classifiers in setup.py ([8b042a8](https://github.com/IBM/python-sdk-core/commit/8b042a831f923f8f09812560f8f0085c7431ce83))
+
 ## [1.7.2](https://github.com/IBM/python-sdk-core/compare/v1.7.1...v1.7.2) (2020-03-31)
 
 
