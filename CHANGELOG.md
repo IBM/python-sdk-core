@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/IBM/python-sdk-core/compare/v1.7.1...v1.7.2) (2020-03-31)
+
+
+### Bug Fixes
+
+* update setup.py info for pypi ([1e0d63a](https://github.com/IBM/python-sdk-core/commit/1e0d63aa5b07544b0588fe211dea5b162fe67c49))
+
 ## [1.7.1](https://github.com/IBM/python-sdk-core/compare/v1.7.0...v1.7.1) (2020-03-06)
 
 
