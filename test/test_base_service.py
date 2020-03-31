@@ -4,6 +4,7 @@ import json
 import time
 import os
 from shutil import copyfile
+from typing import Optional
 import pytest
 import responses
 import jwt
@@ -13,7 +14,6 @@ from ibm_cloud_sdk_core import CP4DTokenManager
 from ibm_cloud_sdk_core.authenticators import (IAMAuthenticator, NoAuthAuthenticator, Authenticator,
                                                BasicAuthenticator, CloudPakForDataAuthenticator)
 from ibm_cloud_sdk_core import get_authenticator_from_environment
-from typing import Optional
 
 
 class IncludeExternalConfigService(BaseService):

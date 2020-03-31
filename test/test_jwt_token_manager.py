@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring,protected-access
 import time
 import threading
+from typing import Optional
 import jwt
 import pytest
 
 from ibm_cloud_sdk_core import JWTTokenManager, DetailedResponse
-from typing import Optional
 
 class JWTTokenManagerMockImpl(JWTTokenManager):
     def __init__(self, url: Optional[str] = None, access_token: Optional[str] = None) -> None:
