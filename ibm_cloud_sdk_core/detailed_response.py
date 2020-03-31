@@ -37,7 +37,7 @@ class DetailedResponse:
                  *,
                  response: Optional[requests.Response] = None,
                  headers: Optional[Dict[str, str]] = None,
-                 status_code: Optional[int] = None):
+                 status_code: Optional[int] = None) -> None:
         self.result = response
         self.headers = headers
         self.status_code = status_code
@@ -66,7 +66,7 @@ class DetailedResponse:
         """
         return self.status_code
 
-    def _to_dict(self):
+    def _to_dict(self) -> dict:
         _dict = {}
         if hasattr(self, 'result') and self.result is not None:
             _dict['result'] = self.result if isinstance(self.result, (dict, list)) else 'HTTP response'
@@ -76,5 +76,5 @@ class DetailedResponse:
             _dict['status_code'] = self.status_code
         return _dict
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps(self._to_dict(), indent=4, default=lambda o: o.__dict__)

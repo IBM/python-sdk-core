@@ -68,7 +68,7 @@ class BaseService:
                  *,
                  service_url: str = None,
                  authenticator: Authenticator = None,
-                 disable_ssl_verification: bool = False):
+                 disable_ssl_verification: bool = False) -> None:
         self.service_url = service_url
         self.http_config = {}
         self.jar = CookieJar()
@@ -83,18 +83,18 @@ class BaseService:
                 'authenticator should be of type Authenticator')
 
     @staticmethod
-    def _get_system_info():
+    def _get_system_info() -> str:
         return '{0} {1} {2}'.format(
             platform.system(),  # OS
             platform.release(),  # OS version
             platform.python_version()  # Python version
         )
 
-    def _build_user_agent(self):
+    def _build_user_agent(self) -> str:
         return '{0}-{1} {2}'.format(self.SDK_NAME, __version__,
                                     self._get_system_info())
 
-    def configure_service(self, service_name: str):
+    def configure_service(self, service_name: str) -> None:
         """Look for external configuration of a service. Set service properties.
 
         Try to get config from external sources, with the following priority:
@@ -119,10 +119,10 @@ class BaseService:
                 bool(config.get('DISABLE_SSL'))
             )
 
-    def _set_user_agent_header(self, user_agent_string=None):
+    def _set_user_agent_header(self, user_agent_string=None) -> None:
         self.user_agent_header = {'User-Agent': user_agent_string}
 
-    def set_http_config(self, http_config: dict):
+    def set_http_config(self, http_config: dict) -> None:
         """Sets the http config dictionary.
 
         The dictionary can contain values that control the timeout, proxies, and etc of HTTP requests.
@@ -141,7 +141,7 @@ class BaseService:
         else:
             raise TypeError("http_config parameter must be a dictionary")
 
-    def set_disable_ssl_verification(self, status: bool = False):
+    def set_disable_ssl_verification(self, status: bool = False) -> None:
         """Set the flag that indicates whether verification of
         the server's SSL certificate should be disabled or not.
 
@@ -150,7 +150,7 @@ class BaseService:
         """
         self.disable_ssl_verification = status
 
-    def set_service_url(self, service_url: str):
+    def set_service_url(self, service_url: str) -> None:
         """Set the url the service will make HTTP requests too.
 
         Arguments:
@@ -174,7 +174,7 @@ class BaseService:
         """
         return self.authenticator
 
-    def set_default_headers(self, headers: Dict[str, str]):
+    def set_default_headers(self, headers: Dict[str, str]) -> None:
         """Set http headers to be sent in every request.
 
         Arguments:
@@ -338,7 +338,7 @@ class BaseService:
     # pylint: disable=protected-access
 
     @staticmethod
-    def _convert_model(val):
+    def _convert_model(val: str) -> None:
         if isinstance(val, str):
             val = json_import.loads(val)
         if hasattr(val, "_to_dict"):
@@ -346,11 +346,11 @@ class BaseService:
         return val
 
     @staticmethod
-    def _convert_list(val):
+    def _convert_list(val: list) -> None:
         if isinstance(val, list):
             return ",".join(val)
         return val
 
     @staticmethod
-    def _encode_path_vars(*args):
+    def _encode_path_vars(*args) -> None:
         return (requests.utils.quote(x, safe='') for x in args)

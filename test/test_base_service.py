@@ -7,22 +7,23 @@ from shutil import copyfile
 import pytest
 import responses
 import jwt
-from ibm_cloud_sdk_core import BaseService
+from ibm_cloud_sdk_core import BaseService, DetailedResponse
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
 from ibm_cloud_sdk_core.authenticators import (IAMAuthenticator, NoAuthAuthenticator, Authenticator,
                                                BasicAuthenticator, CloudPakForDataAuthenticator)
 from ibm_cloud_sdk_core import get_authenticator_from_environment
+from typing import Optional
 
 
 class IncludeExternalConfigService(BaseService):
     default_service_url = 'https://servicesthatincludeexternalconfig.com/api'
     def __init__(
             self,
-            api_version,
-            authenticator=None,
-            trace_id=None
-        ):
+            api_version: str,
+            authenticator: Optional[Authenticator] = None,
+            trace_id: Optional[str] = None
+        ) -> None:
         BaseService.__init__(
             self,
             service_url=self.default_service_url,
@@ -38,11 +39,11 @@ class AnyServiceV1(BaseService):
 
     def __init__(
             self,
-            version,
-            service_url=default_url,
-            authenticator=None,
-            disable_ssl_verification=False
-        ):
+            version: str,
+            service_url: Optional[str] = default_url,
+            authenticator: Optional[Authenticator] = None,
+            disable_ssl_verification: Optional[bool] = False
+        ) -> None:
         BaseService.__init__(
             self,
             service_url=service_url,
@@ -50,7 +51,7 @@ class AnyServiceV1(BaseService):
             disable_ssl_verification=disable_ssl_verification)
         self.version = version
 
-    def op_with_path_params(self, path0, path1):
+    def op_with_path_params(self, path0: str, path1: str) -> DetailedResponse:
         if path0 is None:
             raise ValueError('path0 must be provided')
         if path1 is None:
@@ -62,24 +63,24 @@ class AnyServiceV1(BaseService):
         response = self.send(request)
         return response
 
-    def with_http_config(self, http_config):
+    def with_http_config(self, http_config: dict) -> DetailedResponse:
         self.set_http_config(http_config)
         request = self.prepare_request(method='GET', url='')
         response = self.send(request)
         return response
 
-    def any_service_call(self):
+    def any_service_call(self) -> DetailedResponse:
         request = self.prepare_request(method='GET', url='')
         response = self.send(request)
         return response
 
-    def head_request(self):
+    def head_request(self) -> DetailedResponse:
         request = self.prepare_request(method='HEAD', url='')
         response = self.send(request)
         return response
 
 
-def get_access_token():
+def get_access_token() -> str:
     access_token_layout = {
         "username": "dummy",
         "role": "Admin",

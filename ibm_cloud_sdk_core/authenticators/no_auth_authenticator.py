@@ -20,8 +20,8 @@ class NoAuthAuthenticator(Authenticator):
     """Performs no authentication."""
     authentication_type = 'noAuth'
 
-    def validate(self):
+    def validate(self) -> None:
         pass
 
-    def authenticate(self, req):
+    def authenticate(self, req) -> None:
         pass

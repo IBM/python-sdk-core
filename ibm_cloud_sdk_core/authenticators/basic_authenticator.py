@@ -37,14 +37,14 @@ class BasicAuthenticator(Authenticator):
     """
     authentication_type = 'basic'
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str) -> None:
         self.username = username
         self.password = password
         self.validate()
         self.authorization_header = self.__construct_basic_auth_header()
 
 
-    def validate(self):
+    def validate(self) -> None:
         """Validate username and password.
 
         Ensure the username and password are valid for service operations.
@@ -62,13 +62,13 @@ class BasicAuthenticator(Authenticator):
                 'Please remove any surrounding {, }, or \" characters.')
 
 
-    def __construct_basic_auth_header(self):
+    def __construct_basic_auth_header(self) -> None:
         authstring = "{0}:{1}".format(self.username, self.password)
         base64_authorization = base64.b64encode(authstring.encode('utf-8')).decode('utf-8')
         return 'Basic {0}'.format(base64_authorization)
 
 
-    def authenticate(self, req: Request):
+    def authenticate(self, req: Request) -> None:
         """Add basic authentication information to a request.
 
         Basic Authorization will be added to the request's headers in the form:

@@ -6,6 +6,7 @@ from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authe
 from ibm_cloud_sdk_core import string_to_date, date_to_string
 from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, IAMAuthenticator
+from typing import Optional
 
 def test_string_to_datetime():
     # If the specified string does not include a timezone, it is assumed to be UTC
@@ -52,10 +53,10 @@ def test_convert_model():
 
     class MockModel:
 
-        def __init__(self, xyz=None):
+        def __init__(self, xyz: Optional[str] = None) -> None:
             self.xyz = xyz
 
-        def to_dict(self):
+        def to_dict(self) -> dict:
             _dict = {}
             if hasattr(self, 'xyz') and self.xyz is not None:
                 _dict['xyz'] = self.xyz
