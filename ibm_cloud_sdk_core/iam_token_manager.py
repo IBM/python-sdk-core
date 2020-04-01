@@ -63,6 +63,7 @@ class IAMTokenManager(JWTTokenManager):
 
     def __init__(self,
                  apikey: str,
+                 *,
                  url: Optional[str] = None,
                  client_id: Optional[str] = None,
                  client_secret: Optional[str] = None,
@@ -76,7 +77,7 @@ class IAMTokenManager(JWTTokenManager):
         self.headers = headers
         self.proxies = proxies
         super(IAMTokenManager, self).__init__(
-            self.url, disable_ssl_verification, self.TOKEN_NAME)
+            self.url, disable_ssl_verification=disable_ssl_verification, token_name=self.TOKEN_NAME)
 
     def request_token(self) -> dict:
         """Request an IAM OAuth token given an API Key.
