@@ -197,7 +197,7 @@ def __read_from_env_variables(service_name: str) -> dict:
         _parse_key_and_update_config(config, service_name, key, value)
     return config
 
-def __read_from_credential_file(service_name: str, separator: str = '=') -> dict:
+def __read_from_credential_file(service_name: str, *, separator: str = '=') -> dict:
     """Return a config object based on credentials file for a service.
 
     Args:
