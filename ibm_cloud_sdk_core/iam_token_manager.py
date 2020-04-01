@@ -76,7 +76,7 @@ class IAMTokenManager(JWTTokenManager):
         self.client_secret = client_secret
         self.headers = headers
         self.proxies = proxies
-        super(IAMTokenManager, self).__init__(
+        super().__init__(
             self.url, disable_ssl_verification=disable_ssl_verification, token_name=self.TOKEN_NAME)
 
     def request_token(self) -> dict:
