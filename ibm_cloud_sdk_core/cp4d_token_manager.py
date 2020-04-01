@@ -63,7 +63,7 @@ class CP4DTokenManager(JWTTokenManager):
         self.headers = headers
         self.proxies = proxies
         super().__init__(url, disable_ssl_verification=disable_ssl_verification,
-                                               token_name=self.TOKEN_NAME)
+                         token_name=self.TOKEN_NAME)
 
     def request_token(self) -> dict:
         """Makes a request for a token.

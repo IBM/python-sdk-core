@@ -12,7 +12,7 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
         self.access_token = access_token
         self.request_count = 0 # just for tests to see how  many times request was called
         super().__init__(url, disable_ssl_verification=access_token,
-                                                      token_name='access_token')
+                         token_name='access_token')
 
     def request_token(self):
         self.request_count += 1
