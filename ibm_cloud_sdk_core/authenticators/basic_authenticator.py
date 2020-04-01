@@ -62,7 +62,7 @@ class BasicAuthenticator(Authenticator):
                 'Please remove any surrounding {, }, or \" characters.')
 
 
-    def __construct_basic_auth_header(self) -> None:
+    def __construct_basic_auth_header(self) -> str:
         authstring = "{0}:{1}".format(self.username, self.password)
         base64_authorization = base64.b64encode(authstring.encode('utf-8')).decode('utf-8')
         return 'Basic {0}'.format(base64_authorization)

@@ -119,7 +119,7 @@ class BaseService:
                 bool(config.get('DISABLE_SSL'))
             )
 
-    def _set_user_agent_header(self, user_agent_string=None) -> None:
+    def _set_user_agent_header(self, user_agent_string: str) -> None:
         self.user_agent_header = {'User-Agent': user_agent_string}
 
     def set_http_config(self, http_config: dict) -> None:

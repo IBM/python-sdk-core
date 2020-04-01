@@ -22,6 +22,9 @@ class Authenticator(ABC):
     def authenticate(self, req: dict) -> None:
         """Perform the necessary authentication steps for the specified request.
 
+        Attributes:
+            req (dict): Will be modified to contain the appropriate authentication information.
+
         To be implemented by subclasses.
         """
         pass
@@ -29,6 +32,9 @@ class Authenticator(ABC):
     @abstractmethod
     def validate(self) -> None:
         """Validates the current set of configuration information in the Authenticator.
+
+        Raises:
+            ValueError: The configuration information is not valid for service operations.
 
         To be implemented by subclasses.
         """

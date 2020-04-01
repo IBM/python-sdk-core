@@ -60,7 +60,7 @@ class IAMAuthenticator(Authenticator):
                  url: Optional[str] = None,
                  client_id: Optional[str] = None,
                  client_secret: Optional[str] = None,
-                 disable_ssl_verification: Optional[bool] = False,
+                 disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None) -> None:
         self.token_manager = IAMTokenManager(
