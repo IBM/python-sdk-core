@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from typing import Optional
+from http import HTTPStatus
 from requests import Response
 
 
@@ -66,6 +67,8 @@ class ApiException(Exception):
                 error_message = error_json['errorMessage']
             elif response.status_code == 401:
                 error_message = 'Unauthorized: Access is denied due to invalid credentials'
+            else:
+                error_message = HTTPStatus(response.status_code).phrase
             return error_message
         except:
             return response.text or error_message
