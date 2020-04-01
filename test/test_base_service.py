@@ -524,7 +524,7 @@ def test_service_url_not_set():
     assert str(err.value) == 'The service_url is required'
 
 def test_setting_proxy():
-    service = BaseService('test', authenticator=IAMAuthenticator('wonder woman'))
+    service = BaseService(service_url='test', authenticator=IAMAuthenticator('wonder woman'))
     assert service.authenticator is not None
     assert service.authenticator.token_manager.http_config == {}
 
@@ -536,7 +536,7 @@ def test_setting_proxy():
     service.set_http_config(http_config)
     assert service.authenticator.token_manager.http_config == http_config
 
-    service2 = BaseService('test', authenticator=BasicAuthenticator('marvellous', 'mrs maisel'))
+    service2 = BaseService(service_url='test', authenticator=BasicAuthenticator('marvellous', 'mrs maisel'))
     service2.set_http_config(http_config)
     assert service2.authenticator is not None
 
@@ -551,7 +551,7 @@ def test_configure_service():
     assert isinstance(service.get_authenticator(), NoAuthAuthenticator)
 
 def test_configure_service_error():
-    service = BaseService('v1', authenticator=NoAuthAuthenticator())
+    service = BaseService(service_url='v1', authenticator=NoAuthAuthenticator())
     with pytest.raises(ValueError) as err:
         service.configure_service(None)
     assert str(err.value) == 'Service_name must be of type string.'

@@ -65,6 +65,7 @@ class BaseService:
                             'disable_ssl_verification option of the authenticator.'
 
     def __init__(self,
+                 *,
                  service_url: str = None,
                  authenticator: Authenticator = None,
                  disable_ssl_verification: bool = False):
@@ -218,8 +219,8 @@ class BaseService:
                         result = response.json()
                     except:
                         result = response
-                return DetailedResponse(result, response.headers,
-                                        response.status_code)
+                return DetailedResponse(response=result, headers=response.headers,
+                                        status_code=response.status_code)
 
             raise ApiException(
                 response.status_code, http_response=response)
@@ -237,6 +238,7 @@ class BaseService:
     def prepare_request(self,
                         method: str,
                         url: str,
+                        *,
                         headers: Optional[dict] = None,
                         params: Optional[dict] = None,
                         data: Optional[Union[str, dict]] = None,

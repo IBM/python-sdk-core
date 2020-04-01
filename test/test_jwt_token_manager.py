@@ -11,7 +11,8 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
         self.url = url
         self.access_token = access_token
         self.request_count = 0 # just for tests to see how  many times request was called
-        super(JWTTokenManagerMockImpl, self).__init__(url, access_token, 'access_token')
+        super(JWTTokenManagerMockImpl, self).__init__(url, disable_ssl_verification=access_token,
+                                                      token_name='access_token')
 
     def request_token(self):
         self.request_count += 1
@@ -81,7 +82,7 @@ def test_paced_get_token():
     assert token_manager.request_count == 1
 
 def test_is_token_expired():
-    token_manager = JWTTokenManagerMockImpl(None, None)
+    token_manager = JWTTokenManagerMockImpl(None, access_token=None)
     assert token_manager._is_token_expired() is True
     token_manager.expire_time = _get_current_time() + 3600
     assert token_manager._is_token_expired() is False
@@ -90,7 +91,7 @@ def test_is_token_expired():
 
 def test_not_implemented_error():
     with pytest.raises(NotImplementedError) as err:
-        token_manager = JWTTokenManager(None, None)
+        token_manager = JWTTokenManager(None, disable_ssl_verification=None)
         token_manager.request_token()
     assert str(err.value) == 'request_token MUST be overridden by a subclass of JWTTokenManager.'
 

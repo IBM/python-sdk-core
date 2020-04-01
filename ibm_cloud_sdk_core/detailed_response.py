@@ -34,6 +34,7 @@ class DetailedResponse:
 
     """
     def __init__(self,
+                 *,
                  response: Optional[requests.Response] = None,
                  headers: Optional[Dict[str, str]] = None,
                  status_code: Optional[int] = None):
