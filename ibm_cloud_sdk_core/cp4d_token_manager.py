@@ -52,6 +52,7 @@ class CP4DTokenManager(JWTTokenManager):
                  username: str,
                  password: str,
                  url: str,
+                 *,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None):
@@ -61,8 +62,8 @@ class CP4DTokenManager(JWTTokenManager):
             url = url + '/v1/preauth/validateAuth'
         self.headers = headers
         self.proxies = proxies
-        super().__init__(url, disable_ssl_verification,
-                         self.TOKEN_NAME)
+        super().__init__(url, disable_ssl_verification=disable_ssl_verification,
+                                               token_name=self.TOKEN_NAME)
 
     def request_token(self) -> dict:
         """Makes a request for a token.

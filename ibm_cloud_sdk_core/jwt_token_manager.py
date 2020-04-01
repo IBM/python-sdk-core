@@ -53,7 +53,7 @@ class JWTTokenManager:
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, url: str, disable_ssl_verification: bool = False, token_name: Optional[str] = None):
+    def __init__(self, url: str, *, disable_ssl_verification: bool = False, token_name: Optional[str] = None):
         self.url = url
         self.disable_ssl_verification = disable_ssl_verification
         self.token_name = token_name
@@ -200,6 +200,7 @@ class JWTTokenManager:
     def _request(self,
                  method,
                  url,
+                 *,
                  headers=None,
                  params=None,
                  data=None,

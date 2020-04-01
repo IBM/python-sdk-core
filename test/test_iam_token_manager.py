@@ -60,7 +60,7 @@ def test_request_token_auth_in_ctor():
     default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager("apikey", iam_url, 'foo', 'bar')
+    token_manager = IAMTokenManager("apikey", url=iam_url, client_id='foo', client_secret='bar')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -112,7 +112,7 @@ def test_request_token_auth_in_ctor_client_id_only():
     }"""
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager("iam_apikey", iam_url, 'foo')
+    token_manager = IAMTokenManager("iam_apikey", url=iam_url, client_id='foo')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -132,7 +132,7 @@ def test_request_token_auth_in_ctor_secret_only():
     }"""
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager("iam_apikey", iam_url, None, 'bar')
+    token_manager = IAMTokenManager("iam_apikey", url=iam_url, client_id=None, client_secret='bar')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
