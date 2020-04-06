@@ -40,7 +40,7 @@ class AnyServiceV1(BaseService):
     def __init__(
             self,
             version: str,
-            service_url: Optional[str] = default_url,
+            service_url: str = default_url,
             authenticator: Optional[Authenticator] = None,
             disable_ssl_verification: bool = False
         ) -> None:
