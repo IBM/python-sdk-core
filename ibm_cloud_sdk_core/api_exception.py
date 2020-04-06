@@ -33,7 +33,7 @@ class ApiException(Exception):
         global_transaction_id (str, optional): Globally unique id the service endpoint has given a transaction.
     """
 
-    def __init__(self, code: int, *, message: Optional[str] = None, http_response: Optional[Response] = None):
+    def __init__(self, code: int, *, message: Optional[str] = None, http_response: Optional[Response] = None) -> None:
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
         self.message = message
@@ -44,14 +44,14 @@ class ApiException(Exception):
             self.global_transaction_id = http_response.headers.get('X-Global-Transaction-ID')
             self.message = self.message if self.message else self._get_error_message(http_response)
 
-    def __str__(self):
+    def __str__(self) -> str:
         msg = 'Error: ' + str(self.message) + ', Code: ' + str(self.code)
         if self.global_transaction_id is not None:
             msg += ' , X-global-transaction-id: ' + str(self.global_transaction_id)
         return  msg
 
     @staticmethod
-    def _get_error_message(response: Response):
+    def _get_error_message(response: Response) -> str:
         error_message = 'Unknown error'
         try:
             error_json = response.json()

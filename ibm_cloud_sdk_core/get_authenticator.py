@@ -38,7 +38,7 @@ def get_authenticator_from_environment(service_name: str) -> Authenticator:
         authenticator = __construct_authenticator(config)
     return authenticator
 
-def __construct_authenticator(config):
+def __construct_authenticator(config: dict) -> Authenticator:
     auth_type = config.get('AUTH_TYPE').lower() if config.get('AUTH_TYPE') else 'iam'
     authenticator = None
 

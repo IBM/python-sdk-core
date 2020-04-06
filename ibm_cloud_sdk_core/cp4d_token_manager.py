@@ -55,7 +55,7 @@ class CP4DTokenManager(JWTTokenManager):
                  *,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None):
+                 proxies: Optional[Dict[str, str]] = None) -> None:
         self.username = username
         self.password = password
         if url and not self.VALIDATE_AUTH_PATH in url:
@@ -78,7 +78,7 @@ class CP4DTokenManager(JWTTokenManager):
             proxies=self.proxies)
         return response
 
-    def set_headers(self, headers: Dict[str, str]):
+    def set_headers(self, headers: Dict[str, str]) -> None:
         """Headers to be sent with every CP4D token request.
 
         Args:
@@ -89,7 +89,7 @@ class CP4DTokenManager(JWTTokenManager):
         else:
             raise TypeError('headers must be a dictionary')
 
-    def set_proxies(self, proxies: Dict[str, str]):
+    def set_proxies(self, proxies: Dict[str, str]) -> None:
         """Sets the proxies the token manager will use to communicate with CP4D on behalf of the host.
 
         Args:

@@ -59,13 +59,13 @@ class CloudPakForDataAuthenticator(Authenticator):
                  *,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None):
+                 proxies: Optional[Dict[str, str]] = None) -> None:
         self.token_manager = CP4DTokenManager(
             username, password, url, disable_ssl_verification=disable_ssl_verification,
             headers=headers, proxies=proxies)
         self.validate()
 
-    def validate(self):
+    def validate(self) -> None:
         """Validate username, password, and url for token requests.
 
         Ensures the username, password, and url are not None. Additionally, ensures they do not contain invalid
@@ -91,7 +91,7 @@ class CloudPakForDataAuthenticator(Authenticator):
                 'The url shouldn\'t start or end with curly brackets or quotes. '
                 'Please remove any surrounding {, }, or \" characters.')
 
-    def authenticate(self, req: Request):
+    def authenticate(self, req: Request) -> None:
         """Adds CP4D authentication information to the request.
 
         The CP4D bearer token will be added to the request's headers in the form:
@@ -106,7 +106,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
 
-    def set_disable_ssl_verification(self, status: bool = False):
+    def set_disable_ssl_verification(self, status: bool = False) -> None:
         """Set the flag that indicates whether verification of the server's SSL certificate should be
         disabled or not. Defaults to False.
 
@@ -115,7 +115,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         """
         self.token_manager.set_disable_ssl_verification(status)
 
-    def set_headers(self, headers: Dict[str, str]):
+    def set_headers(self, headers: Dict[str, str]) -> None:
         """Default headers to be sent with every CP4D token request.
 
         Args:
@@ -123,7 +123,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         """
         self.token_manager.set_headers(headers)
 
-    def set_proxies(self, proxies: Dict[str, str]):
+    def set_proxies(self, proxies: Dict[str, str]) -> None:
         """Sets the proxies the token manager will use to communicate with CP4D on behalf of the host.
 
         Args:

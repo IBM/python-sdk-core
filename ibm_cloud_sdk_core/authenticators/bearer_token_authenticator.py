@@ -34,11 +34,11 @@ class BearerTokenAuthenticator(Authenticator):
     """
     authentication_type = 'bearerToken'
 
-    def __init__(self, bearer_token: str):
+    def __init__(self, bearer_token: str) -> None:
         self.bearer_token = bearer_token
         self.validate()
 
-    def validate(self):
+    def validate(self) -> None:
         """Validate the bearer token.
 
         Ensures the bearer token is valid for service operations.
@@ -49,7 +49,7 @@ class BearerTokenAuthenticator(Authenticator):
         if self.bearer_token is None:
             raise ValueError('The bearer token shouldn\'t be None.')
 
-    def authenticate(self, req: Request):
+    def authenticate(self, req: Request) -> None:
         """Adds bearer authentication information to the request.
 
         The bearer token will be added to the request's headers in the form:
@@ -63,7 +63,7 @@ class BearerTokenAuthenticator(Authenticator):
         headers = req.get('headers')
         headers['Authorization'] = 'Bearer {0}'.format(self.bearer_token)
 
-    def set_bearer_token(self, bearer_token: str):
+    def set_bearer_token(self, bearer_token: str) -> None:
         """Set a new bearer token to be sent in subsequent service operations.
 
         Args:

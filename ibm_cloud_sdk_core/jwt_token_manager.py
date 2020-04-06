@@ -53,7 +53,7 @@ class JWTTokenManager:
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, url: str, *, disable_ssl_verification: bool = False, token_name: Optional[str] = None):
+    def __init__(self, url: str, *, disable_ssl_verification: bool = False, token_name: Optional[str] = None) -> None:
         self.url = url
         self.disable_ssl_verification = disable_ssl_verification
         self.token_name = token_name
@@ -84,7 +84,7 @@ class JWTTokenManager:
 
         return self.token_info.get(self.token_name)
 
-    def set_disable_ssl_verification(self, status: bool = False):
+    def set_disable_ssl_verification(self, status: bool = False) -> None:
         """Sets the ssl verification to enabled or disabled.
 
         Args:
@@ -92,7 +92,7 @@ class JWTTokenManager:
         """
         self.disable_ssl_verification = status
 
-    def paced_request_token(self):
+    def paced_request_token(self) -> None:
         """
         Paces requests to request_token.
 
@@ -128,7 +128,7 @@ class JWTTokenManager:
             time.sleep(0.5)  # Sleep for 0.5 seconds before checking token again
 
 
-    def request_token(self):
+    def request_token(self) -> None:
         """Should be overridden by child classes.
 
         Raises:
@@ -139,10 +139,10 @@ class JWTTokenManager:
         )
 
     @staticmethod
-    def _get_current_time():
+    def _get_current_time() -> int:
         return int(time.time())
 
-    def _is_token_expired(self):
+    def _is_token_expired(self) -> bool:
         """
         Check if currently stored token is expired.
 
@@ -154,7 +154,7 @@ class JWTTokenManager:
         current_time = self._get_current_time()
         return self.expire_time < current_time
 
-    def _token_needs_refresh(self):
+    def _token_needs_refresh(self) -> bool:
         """
         Check if currently stored token needs refresh.
 
@@ -172,7 +172,7 @@ class JWTTokenManager:
 
         return needs_refresh
 
-    def _save_token_info(self, token_response):
+    def _save_token_info(self, token_response: dict) -> None:
         """
         Decode the access token and save the response from the JWT service to the object's state
 
@@ -181,7 +181,7 @@ class JWTTokenManager:
 
         Parameters
         ----------
-        token_response : str
+        token_response : dict
             Response from token service
         """
         self.token_info = token_response
