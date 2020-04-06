@@ -60,16 +60,16 @@ class IAMAuthenticator(Authenticator):
                  url: Optional[str] = None,
                  client_id: Optional[str] = None,
                  client_secret: Optional[str] = None,
-                 disable_ssl_verification: Optional[bool] = False,
+                 disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None):
+                 proxies: Optional[Dict[str, str]] = None) -> None:
         self.token_manager = IAMTokenManager(
             apikey, url=url, client_id=client_id, client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
             headers=headers, proxies=proxies)
         self.validate()
 
-    def validate(self):
+    def validate(self) -> None:
         """Validates the apikey, client_id, and client_secret for IAM token requests.
 
         Ensure the apikey is not none, and has no bad characters. Additionally, ensure the
@@ -93,7 +93,7 @@ class IAMAuthenticator(Authenticator):
             raise ValueError(
                 'Both client_id and client_secret should be initialized.')
 
-    def authenticate(self, req: Request):
+    def authenticate(self, req: Request) -> None:
         """Adds IAM authentication information to the request.
 
         The IAM bearer token will be added to the request's headers in the form:
@@ -108,7 +108,7 @@ class IAMAuthenticator(Authenticator):
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
 
-    def set_client_id_and_secret(self, client_id: str, client_secret: str):
+    def set_client_id_and_secret(self, client_id: str, client_secret: str) -> None:
         """Set the client_id and client_secret pair the token manager will use for IAM token requests.
 
         Args:
@@ -121,7 +121,7 @@ class IAMAuthenticator(Authenticator):
         self.token_manager.set_client_id_and_secret(client_id, client_secret)
         self.validate()
 
-    def set_disable_ssl_verification(self, status: bool = False):
+    def set_disable_ssl_verification(self, status: bool = False) -> None:
         """Set the flag that indicates whether verification of the server's SSL certificate should be
         disabled or not. Defaults to False.
 
@@ -130,7 +130,7 @@ class IAMAuthenticator(Authenticator):
         """
         self.token_manager.set_disable_ssl_verification(status)
 
-    def set_headers(self, headers: Dict[str, str]):
+    def set_headers(self, headers: Dict[str, str]) -> None:
         """Headers to be sent with every IAM token request.
 
         Args:
@@ -138,7 +138,7 @@ class IAMAuthenticator(Authenticator):
         """
         self.token_manager.set_headers(headers)
 
-    def set_proxies(self, proxies: Dict[str, str]):
+    def set_proxies(self, proxies: Dict[str, str]) -> None:
         """Sets the proxies the token manager will use to communicate with IAM on behalf of the host.
 
         Args:

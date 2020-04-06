@@ -67,9 +67,9 @@ class IAMTokenManager(JWTTokenManager):
                  url: Optional[str] = None,
                  client_id: Optional[str] = None,
                  client_secret: Optional[str] = None,
-                 disable_ssl_verification: Optional[str] = False,
+                 disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None):
+                 proxies: Optional[Dict[str, str]] = None) -> None:
         self.apikey = apikey
         self.url = url if url else self.DEFAULT_IAM_URL
         self.client_id = client_id
@@ -115,7 +115,7 @@ class IAMTokenManager(JWTTokenManager):
             proxies=self.proxies)
         return response
 
-    def set_client_id_and_secret(self, client_id: str, client_secret: str):
+    def set_client_id_and_secret(self, client_id: str, client_secret: str) -> None:
         """Set the client_id and client_secret.
 
         Args:
@@ -125,7 +125,7 @@ class IAMTokenManager(JWTTokenManager):
         self.client_id = client_id
         self.client_secret = client_secret
 
-    def set_headers(self, headers: Dict[str, str]):
+    def set_headers(self, headers: Dict[str, str]) -> None:
         """Headers to be sent with every CP4D token request.
 
         Args:
@@ -136,7 +136,7 @@ class IAMTokenManager(JWTTokenManager):
         else:
             raise TypeError('headers must be a dictionary')
 
-    def set_proxies(self, proxies: Dict[str, str]):
+    def set_proxies(self, proxies: Dict[str, str]) -> None:
         """Sets the proxies the token manager will use to communicate with IAM on behalf of the host.
 
         Args:

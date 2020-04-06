@@ -1,20 +1,21 @@
 # pylint: disable=missing-docstring,protected-access
 import time
 import threading
+from typing import Optional
 import jwt
 import pytest
 
-from ibm_cloud_sdk_core import JWTTokenManager
+from ibm_cloud_sdk_core import JWTTokenManager, DetailedResponse
 
 class JWTTokenManagerMockImpl(JWTTokenManager):
-    def __init__(self, url=None, access_token=None):
+    def __init__(self, url: Optional[str] = None, access_token: Optional[str] = None) -> None:
         self.url = url
         self.access_token = access_token
         self.request_count = 0 # just for tests to see how  many times request was called
         super().__init__(url, disable_ssl_verification=access_token,
                          token_name='access_token')
 
-    def request_token(self):
+    def request_token(self) -> DetailedResponse:
         self.request_count += 1
         current_time = int(time.time())
         token_layout = {
@@ -44,7 +45,7 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
         time.sleep(0.5)
         return response
 
-def _get_current_time():
+def _get_current_time() -> int:
     return int(time.time())
 
 def test_get_token():

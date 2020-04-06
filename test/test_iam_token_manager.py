@@ -7,7 +7,7 @@ import pytest
 
 from ibm_cloud_sdk_core import IAMTokenManager, ApiException
 
-def get_access_token():
+def get_access_token() -> str:
     access_token_layout = {
         "username": "dummy",
         "role": "Admin",
