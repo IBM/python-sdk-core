@@ -1,3 +1,22 @@
+# [2.0.0](https://github.com/IBM/python-sdk-core/compare/v1.7.3...v2.0.0) (2020-04-10)
+
+
+### Features
+
+* Add type annotations to parameters and return values ([5d4ef81](https://github.com/IBM/python-sdk-core/commit/5d4ef81a7fa85185839b966b80be6d033bc5eed5))
+* Get error status phrase from status code ([d60ae58](https://github.com/IBM/python-sdk-core/commit/d60ae582be18af96c21f1e8a55b707f1d2fa44b4))
+* Only override content-type if it is none ([b1177f2](https://github.com/IBM/python-sdk-core/commit/b1177f284a0c08255a5ceea26aca9570c4f699dc))
+* Require optional parameters to be keyword-specified ([d9aa1d4](https://github.com/IBM/python-sdk-core/commit/d9aa1d4e4bad68961b3c365aaa8b4d5457921c06))
+* Update python super call to newer version ([f038e10](https://github.com/IBM/python-sdk-core/commit/f038e103157afc8ad78d9817b1d233dc507e64db))
+
+
+### BREAKING CHANGES
+
+* Type annotations new in Python3
+* Added super call feature new to Python3
+* HTTPStatus is new in Python3
+* Keyword-specific optional parameters are new in Python3
+
 ## [1.7.3](https://github.com/IBM/python-sdk-core/compare/v1.7.2...v1.7.3) (2020-03-31)
 
 
