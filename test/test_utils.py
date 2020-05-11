@@ -136,12 +136,29 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.bearer_token is not None
     del os.environ['IBM_CREDENTIALS_FILE']
 
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service_1')
+    assert authenticator is not None
+    assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
+    assert authenticator.token_manager.client_id == 'somefake========id'
+    assert authenticator.token_manager.client_secret == '==my-client-secret=='
+    assert authenticator.token_manager.url == 'https://iamhost/iam/api='
+    del os.environ['IBM_CREDENTIALS_FILE']
+
 def test_get_authenticator_from_env_variables():
     os.environ['TEST_APIKEY'] = '5678efgh'
     authenticator = get_authenticator_from_environment('test')
     assert authenticator is not None
     assert authenticator.token_manager.apikey == '5678efgh'
     del os.environ['TEST_APIKEY']
+
+    os.environ['SERVICE_1_APIKEY'] = 'V4HXmoUtMjohnsnow=KotN'
+    authenticator = get_authenticator_from_environment('service_1')
+    assert authenticator is not None
+    assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
+    del os.environ['SERVICE_1_APIKEY']
 
 def test_vcap_credentials():
     vcap_services = '{"test":[{"credentials":{ \
@@ -205,13 +222,26 @@ def test_vcap_credentials_2():
             "credentials":{ \
             "url":"https://gateway.watsonplatform.net/compare-comply/api",\
             "username":"bogus username", \
-            "password":"bogus password"}}]}'
+            "password":"bogus password"}}],\
+        "equals_sign_test":[{"name": "equals_sign_test",\
+            "credentials":{ \
+            "iam_apikey": "V4HXmoUtMjohnsnow=KotN",\
+            "iam_apikey_description": "Auto generated apikey...",\
+            "iam_apikey_name": "auto-generated-apikey-111-222-333",\
+            "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",\
+            "iam_serviceid_crn": "crn:v1:staging:public:iam-identity::a/::serviceid:ServiceID-1234",\
+            "url": "https://gateway.watsonplatform.net/testService",\
+            "auth_url": "https://iamhost/iam/api="}}]}'
 
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('testname')
     assert isinstance(authenticator, BasicAuthenticator)
     assert authenticator.username == 'bogus username2'
     assert authenticator.password == 'bogus password2'
+
+    authenticator = get_authenticator_from_environment('equals_sign_test')
+    assert isinstance(authenticator, IAMAuthenticator)
+    assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
     del os.environ['VCAP_SERVICES']
 
     vcap_services = '{"test":[{\

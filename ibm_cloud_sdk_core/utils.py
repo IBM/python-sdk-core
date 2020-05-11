@@ -231,7 +231,7 @@ def __read_from_credential_file(service_name: str, *, separator: str = '=') -> d
     if credential_file_path is not None:
         with open(credential_file_path, 'r') as fobj:
             for line in fobj:
-                key_val = line.strip().split(separator)
+                key_val = line.strip().split(separator, 1)
                 if len(key_val) == 2:
                     key = key_val[0]
                     value = key_val[1]
