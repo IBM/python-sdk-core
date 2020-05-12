@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/IBM/python-sdk-core/compare/v2.0.0...v2.0.1) (2020-05-12)
+
+
+### Bug Fixes
+
+* allow '=' character in environment config values ([8cf4fc9](https://github.com/IBM/python-sdk-core/commit/8cf4fc945a0f77fccf977bfdd0cc3cd203aac0bb))
+
 # [2.0.0](https://github.com/IBM/python-sdk-core/compare/v1.7.3...v2.0.0) (2020-04-10)
 
 
