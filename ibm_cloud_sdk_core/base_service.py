@@ -164,7 +164,10 @@ class BaseService:
                 'The service url shouldn\'t start or end with curly brackets or quotes. '
                 'Be sure to remove any {} and \" characters surrounding your service url'
             )
-        self.service_url = service_url.rstrip('/') # remove trailing slash
+        if service_url is not None:
+            self.service_url = service_url.rstrip('/') # remove trailing slash
+        else:
+            self.service_url = None
 
     def get_authenticator(self) -> Authenticator:
         """Get the authenticator currently used by the service.
