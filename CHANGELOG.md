@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/IBM/python-sdk-core/compare/v2.0.1...v2.0.2) (2020-05-22)
+
+
+### Bug Fixes
+
+* Strip trailing slash for request url ([47d1d99](https://github.com/IBM/python-sdk-core/commit/47d1d99261767331a2583612ebaf048cf60d1fd3))
+
 ## [2.0.1](https://github.com/IBM/python-sdk-core/compare/v2.0.0...v2.0.1) (2020-05-12)
 
 
