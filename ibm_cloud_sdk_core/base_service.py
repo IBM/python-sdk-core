@@ -69,7 +69,7 @@ class BaseService:
                  service_url: str = None,
                  authenticator: Authenticator = None,
                  disable_ssl_verification: bool = False) -> None:
-        self.service_url = service_url
+        self.set_service_url(service_url)
         self.http_config = {}
         self.jar = CookieJar()
         self.authenticator = authenticator
@@ -164,7 +164,7 @@ class BaseService:
                 'The service url shouldn\'t start or end with curly brackets or quotes. '
                 'Be sure to remove any {} and \" characters surrounding your service url'
             )
-        self.service_url = service_url
+        self.service_url = service_url.rstrip('/') # remove trailing slash
 
     def get_authenticator(self) -> Authenticator:
         """Get the authenticator currently used by the service.
@@ -272,7 +272,7 @@ class BaseService:
         # validate the service url is set
         if not self.service_url:
             raise ValueError('The service_url is required')
-        request['url'] = self.service_url + url
+        request['url'] = self.service_url + url.rstrip('/') # strip trailing slash
 
         headers = remove_null_values(headers) if headers else {}
         headers = cleanup_values(headers)
