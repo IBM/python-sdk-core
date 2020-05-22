@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/IBM/python-sdk-core/compare/v2.0.2...v2.0.3) (2020-05-22)
+
+
+### Bug Fixes
+
+* Don't rstrip slash when service_url is none ([091ecde](https://github.com/IBM/python-sdk-core/commit/091ecde7ab6c8aadc81c71aa35d6a33572856ac8))
+
 ## [2.0.2](https://github.com/IBM/python-sdk-core/compare/v2.0.1...v2.0.2) (2020-05-22)
 
 
