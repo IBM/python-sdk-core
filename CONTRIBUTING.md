@@ -38,8 +38,8 @@ If you want to contribute to the repository, here's a quick guide:
 1. Make the test pass
 1. Check code coverage. Add tests for all new functionality and ensure overall coverage does not decrease.
 1. Commit your changes
-* Commits should follow the [Angular commit message guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-guidelines). This is because our release tool uses this format for determining release versions and generating changelogs. To make this easier, we recommend using the [Commitizen CLI](https://github.com/commitizen/cz-cli) with the `cz-conventional-changelog` adapter.
-1. Push to your fork and submit a pull request to the `dev` branch
+   * Commits should follow the [Angular commit message guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-guidelines). This is because our release tool uses this format for determining release versions and generating changelogs. To make this easier, we recommend using the [Commitizen CLI](https://github.com/commitizen/cz-cli) with the `cz-conventional-changelog` adapter.
+1. Push to your fork and submit a pull request to the `master` branch
 
 # Running the tests
 
