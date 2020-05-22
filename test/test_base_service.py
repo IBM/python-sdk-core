@@ -539,6 +539,9 @@ def test_trailing_slash():
                                   data={'hello': 'world'})
     assert req.get('url') == 'https://trailingSlash.com'
 
+    service.set_service_url(None)
+    assert service.service_url is None
+
     service = AnyServiceV1('2018-11-20', service_url='/', authenticator=NoAuthAuthenticator())
     assert service.service_url == ''
     service.set_service_url('/')
