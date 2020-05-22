@@ -520,37 +520,37 @@ def test_json():
 
 def test_trailing_slash():
     service = AnyServiceV1('2018-11-20', service_url='https://trailingSlash.com/', authenticator=NoAuthAuthenticator())
-    assert service.service_url == 'https://trailingSlash.com'
+    assert service.service_url == 'https://trailingSlash.com/'
     service.set_service_url('https://trailingSlash.com/')
-    assert service.service_url == 'https://trailingSlash.com'
+    assert service.service_url == 'https://trailingSlash.com/'
     req = service.prepare_request('POST',
                                   url='/trailingSlashPath/',
                                   headers={'X-opt-out': True},
                                   data={'hello': 'world'})
-    assert req.get('url') == 'https://trailingSlash.com/trailingSlashPath'
+    assert req.get('url') == 'https://trailingSlash.com//trailingSlashPath'
 
     service = AnyServiceV1('2018-11-20', service_url='https://trailingSlash.com/', authenticator=NoAuthAuthenticator())
-    assert service.service_url == 'https://trailingSlash.com'
+    assert service.service_url == 'https://trailingSlash.com/'
     service.set_service_url('https://trailingSlash.com/')
-    assert service.service_url == 'https://trailingSlash.com'
+    assert service.service_url == 'https://trailingSlash.com/'
     req = service.prepare_request('POST',
                                   url='/',
                                   headers={'X-opt-out': True},
                                   data={'hello': 'world'})
-    assert req.get('url') == 'https://trailingSlash.com'
+    assert req.get('url') == 'https://trailingSlash.com/'
 
     service.set_service_url(None)
     assert service.service_url is None
 
     service = AnyServiceV1('2018-11-20', service_url='/', authenticator=NoAuthAuthenticator())
-    assert service.service_url == ''
+    assert service.service_url == '/'
     service.set_service_url('/')
-    assert service.service_url == ''
-    with pytest.raises(ValueError): # ValueError thrown because service_url is '' and falsey
-        req = service.prepare_request('POST',
-                                      url='/',
-                                      headers={'X-opt-out': True},
-                                      data={'hello': 'world'})
+    assert service.service_url == '/'
+    req = service.prepare_request('POST',
+                                  url='/',
+                                  headers={'X-opt-out': True},
+                                  data={'hello': 'world'})
+    assert req.get('url') == '/'
 
 def test_service_url_not_set():
     service = BaseService(service_url='', authenticator=NoAuthAuthenticator())
