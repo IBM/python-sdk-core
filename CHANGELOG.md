@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/IBM/python-sdk-core/compare/v2.0.3...v2.0.4) (2020-05-23)
+
+
+### Bug Fixes
+
+* Revert service_url slash stripping to work with current generated unit tests ([c960b7d](https://github.com/IBM/python-sdk-core/commit/c960b7dc943ac7d8b1bbe748ee7079aa42497504))
+
 ## [2.0.3](https://github.com/IBM/python-sdk-core/compare/v2.0.2...v2.0.3) (2020-05-22)
 
 
