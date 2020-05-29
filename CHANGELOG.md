@@ -1,3 +1,10 @@
+## [2.0.5](https://github.com/IBM/python-sdk-core/compare/v2.0.4...v2.0.5) (2020-05-29)
+
+
+### Bug Fixes
+
+* Revert stripping request URL trailing slashes ([09a193c](https://github.com/IBM/python-sdk-core/commit/09a193ce6b4f0b54b027df07d767f29df85ab71c))
+
 ## [2.0.4](https://github.com/IBM/python-sdk-core/compare/v2.0.3...v2.0.4) (2020-05-23)
 
 
