@@ -272,7 +272,7 @@ class BaseService:
         # validate the service url is set
         if not self.service_url:
             raise ValueError('The service_url is required')
-        request['url'] = self.service_url + url.rstrip('/') # strip trailing slash
+        request['url'] = self.service_url + url
 
         headers = remove_null_values(headers) if headers else {}
         headers = cleanup_values(headers)
