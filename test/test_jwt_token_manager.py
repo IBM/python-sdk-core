@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,protected-access
+# pylint: disable=missing-docstring,protected-access,abstract-class-instantiated
 import time
 import threading
 from typing import Optional
@@ -51,7 +51,7 @@ def _get_current_time() -> int:
 def test_get_token():
     url = "https://iam.cloud.ibm.com/identity/token"
     token_manager = JWTTokenManagerMockImpl(url)
-    token = token_manager.get_token()
+    old_token = token_manager.get_token()
     assert token_manager.token_info.get('expires_in') == 3600
     assert token_manager._is_token_expired() is False
 
@@ -62,7 +62,7 @@ def test_get_token():
                                 "refresh_token": "jy4gl91BQ"
                                }
     token = token_manager.get_token()
-    assert token == "old_dummy"
+    assert token == old_token
 
     # expired token:
     token_manager.expire_time = _get_current_time() - 300
@@ -90,11 +90,12 @@ def test_is_token_expired():
     token_manager.expire_time = _get_current_time() - 3600
     assert token_manager._is_token_expired()
 
-def test_not_implemented_error():
-    with pytest.raises(NotImplementedError) as err:
-        token_manager = JWTTokenManager(None, disable_ssl_verification=None)
-        token_manager.request_token()
-    assert str(err.value) == 'request_token MUST be overridden by a subclass of JWTTokenManager.'
+def test_abstract_class_instantiation():
+    with pytest.raises(TypeError) as err:
+        JWTTokenManager(None)
+    assert str(err.value) == "Can't instantiate abstract class " \
+                             "JWTTokenManager with abstract methods " \
+                             "request_token"
 
 def test_disable_ssl_verification():
     token_manager = JWTTokenManagerMockImpl('https://iam.cloud.ibm.com/identity/token')

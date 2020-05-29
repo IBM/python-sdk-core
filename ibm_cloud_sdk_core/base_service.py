@@ -29,7 +29,7 @@ from .version import __version__
 from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
-from .jwt_token_manager import JWTTokenManager
+from .token_manager import TokenManager
 
 # Uncomment this to enable http debugging
 # import http.client as http_client
@@ -136,7 +136,7 @@ class BaseService:
         if isinstance(http_config, dict):
             self.http_config = http_config
             if (self.authenticator and hasattr(self.authenticator, 'token_manager') and
-                    isinstance(self.authenticator.token_manager, JWTTokenManager)):
+                    isinstance(self.authenticator.token_manager, TokenManager)):
                 self.authenticator.token_manager.http_config = http_config
         else:
             raise TypeError("http_config parameter must be a dictionary")
