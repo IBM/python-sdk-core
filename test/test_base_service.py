@@ -518,6 +518,7 @@ def test_json():
     req = service.prepare_request('POST', url='', headers={'X-opt-out': True}, data={'hello': 'world'})
     assert req.get('data') == "{\"hello\": \"world\"}"
 
+# For v2.x this test expects to see trailing slashes, this should be changed in v3.x
 def test_trailing_slash():
     service = AnyServiceV1('2018-11-20', service_url='https://trailingSlash.com/', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://trailingSlash.com/'
@@ -527,7 +528,7 @@ def test_trailing_slash():
                                   url='/trailingSlashPath/',
                                   headers={'X-opt-out': True},
                                   data={'hello': 'world'})
-    assert req.get('url') == 'https://trailingSlash.com//trailingSlashPath'
+    assert req.get('url') == 'https://trailingSlash.com//trailingSlashPath/'
 
     service = AnyServiceV1('2018-11-20', service_url='https://trailingSlash.com/', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://trailingSlash.com/'
@@ -537,7 +538,7 @@ def test_trailing_slash():
                                   url='/',
                                   headers={'X-opt-out': True},
                                   data={'hello': 'world'})
-    assert req.get('url') == 'https://trailingSlash.com/'
+    assert req.get('url') == 'https://trailingSlash.com//'
 
     service.set_service_url(None)
     assert service.service_url is None
@@ -550,7 +551,7 @@ def test_trailing_slash():
                                   url='/',
                                   headers={'X-opt-out': True},
                                   data={'hello': 'world'})
-    assert req.get('url') == '/'
+    assert req.get('url') == '//'
 
 def test_service_url_not_set():
     service = BaseService(service_url='', authenticator=NoAuthAuthenticator())
