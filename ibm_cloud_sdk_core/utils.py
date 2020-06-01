@@ -68,6 +68,12 @@ def cleanup_value(value: any) -> any:
         return 'true' if value else 'false'
     return value
 
+def strip_extra_slashes(value: str) -> str:
+    """Combine multiple trailing slashes to a single slash"""
+    if value.endswith('//'):
+        return value.rstrip('/') + '/'
+    return value
+
 def datetime_to_string(val: datetime.datetime) -> str:
     """Convert a datetime object to string.
 
