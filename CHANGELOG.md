@@ -1,3 +1,15 @@
+# [3.0.0](https://github.com/IBM/python-sdk-core/compare/v2.0.5...v3.0.0) (2020-06-01)
+
+
+### Bug Fixes
+
+* Combine multiple ending slashes to one ([5496948](https://github.com/IBM/python-sdk-core/commit/549694867285c2ba1d77187bfba108543a225e33))
+
+
+### BREAKING CHANGES
+
+* Fixing the request URL like this will break compatibility with previous generator versions
+
 ## [2.0.5](https://github.com/IBM/python-sdk-core/compare/v2.0.4...v2.0.5) (2020-05-29)
 
 
