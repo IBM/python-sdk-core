@@ -26,7 +26,13 @@ import requests
 from requests.structures import CaseInsensitiveDict
 from ibm_cloud_sdk_core.authenticators import Authenticator
 from .version import __version__
-from .utils import has_bad_first_or_last_char, remove_null_values, cleanup_values, read_external_sources
+from .utils import (
+    has_bad_first_or_last_char,
+    remove_null_values,
+    cleanup_values,
+    read_external_sources,
+    strip_extra_slashes
+)
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
 from .token_manager import TokenManager
@@ -234,7 +240,6 @@ class BaseService:
             logging.exception('Error in service call')
             raise
 
-
     def prepare_request(self,
                         method: str,
                         url: str,
@@ -272,7 +277,7 @@ class BaseService:
         # validate the service url is set
         if not self.service_url:
             raise ValueError('The service_url is required')
-        request['url'] = self.service_url + url
+        request['url'] = strip_extra_slashes(self.service_url + url)
 
         headers = remove_null_values(headers) if headers else {}
         headers = cleanup_values(headers)
