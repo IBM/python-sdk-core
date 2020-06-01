@@ -18,7 +18,7 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-__version__ = '2.0.5'
+__version__ = '3.0.0'
 
 if sys.argv[-1] == 'publish':
     # test server
