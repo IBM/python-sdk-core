@@ -211,6 +211,9 @@ class BaseService:
         if self.disable_ssl_verification:
             kwargs['verify'] = False
 
+        # Check to see if the caller specified the 'stream' argument.
+        stream_response = kwargs.get('stream') or False
+
         try:
             response = requests.request(**request, cookies=self.jar, **kwargs)
 
@@ -218,6 +221,8 @@ class BaseService:
                 if response.status_code == 204 or request['method'] == 'HEAD':
                     # There is no body content for a HEAD request or a 204 response
                     result = None
+                elif stream_response:
+                    result = response
                 elif not response.text:
                     result = None
                 else:
