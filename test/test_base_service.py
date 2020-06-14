@@ -7,6 +7,7 @@ from shutil import copyfile
 from typing import Optional
 import pytest
 import responses
+import requests
 import jwt
 from ibm_cloud_sdk_core import BaseService, DetailedResponse
 from ibm_cloud_sdk_core import ApiException
@@ -80,6 +81,13 @@ class AnyServiceV1(BaseService):
         response = self.send(request)
         return response
 
+    def get_document_as_stream(self) -> DetailedResponse:
+        params = {'version': self.version}
+        url = '/v1/streamjson'
+        request = self.prepare_request(method='GET', url=url, params=params)
+        response = self.send(request, stream=True)
+        return response
+
 
 def get_access_token() -> str:
     access_token_layout = {
@@ -133,6 +141,45 @@ def test_url_encoding():
     assert len(responses.calls) == 1
     assert path_encoded in responses.calls[0].request.url
     assert 'version=2017-07-07' in responses.calls[0].request.url
+
+
+@responses.activate
+def test_stream_json_response():
+    service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
+
+    path = '/v1/streamjson'
+    test_url = service.default_url + path
+
+    expected_response = json.dumps({"id": 1, "rev": "v1", "content": "this is a document"})
+
+    # print("Expected response: ", expected_response)
+
+    # Simulate a JSON response
+    responses.add(
+        responses.GET,
+        test_url,
+        status=200,
+        body=expected_response,
+        content_type='application/json')
+
+    # Invoke the operation and receive an "iterable" as the response
+    response = service.get_document_as_stream()
+
+    assert response is not None
+    assert len(responses.calls) == 1
+
+    # retrieve the requests.Response object from the DetailedResponse
+    resp = response.get_result()
+    assert isinstance(resp, requests.Response)
+    assert hasattr(resp, "iter_content")
+
+    # Retrieve the response body, one chunk at a time.
+    actual_response = ''
+    for chunk in resp.iter_content(chunk_size=3):
+        actual_response += chunk.decode("utf-8")
+
+    # print("Actual response: ", actual_response)
+    assert actual_response == expected_response
 
 
 @responses.activate
