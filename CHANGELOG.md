@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/IBM/python-sdk-core/compare/v3.0.0...v3.1.0) (2020-06-15)
+
+
+### Features
+
+* **BaseService:** support stream=True in BaseService.send() ([bf4179b](https://github.com/IBM/python-sdk-core/commit/bf4179b54407c94707b24caeab6c4aeeb67ee3e7))
+
 # [3.0.0](https://github.com/IBM/python-sdk-core/compare/v2.0.5...v3.0.0) (2020-06-01)
 
 
