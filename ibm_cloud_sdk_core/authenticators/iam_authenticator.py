@@ -45,6 +45,8 @@ class IAMAuthenticator(Authenticator):
         proxies: Dictionary for mapping request protocol to proxy URL. Defaults to None.
         proxies.http (optional): The proxy endpoint to use for HTTP requests.
         proxies.https (optional): The proxy endpoint to use for HTTPS requests.
+        scope: The "scope" to use when fetching the bearer token from the IAM token server.
+        This can be used to obtain an access token with a specific scope.
 
     Attributes:
         token_manager (IAMTokenManager): Retrives and manages IAM tokens from the endpoint specified by the url.
@@ -62,11 +64,12 @@ class IAMAuthenticator(Authenticator):
                  client_secret: Optional[str] = None,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None) -> None:
+                 proxies: Optional[Dict[str, str]] = None,
+                 scope: Optional[str] = None) -> None:
         self.token_manager = IAMTokenManager(
             apikey, url=url, client_id=client_id, client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
-            headers=headers, proxies=proxies)
+            headers=headers, proxies=proxies, scope=scope)
         self.validate()
 
     def validate(self) -> None:
@@ -147,3 +150,12 @@ class IAMAuthenticator(Authenticator):
             proxies.https (optional): The proxy endpoint to use for HTTPS requests.
         """
         self.token_manager.set_proxies(proxies)
+
+    def set_scope(self, value: str) -> None:
+        """Sets the "scope" parameter to use when fetching the bearer token from the IAM token server.
+        This can be used to obtain an access token with a specific scope.
+
+        Args:
+            value: A space seperated string that makes up the scope parameter.
+        """
+        self.token_manager.set_scope(value)

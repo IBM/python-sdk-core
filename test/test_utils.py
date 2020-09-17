@@ -145,6 +145,20 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.client_id == 'somefake========id'
     assert authenticator.token_manager.client_secret == '==my-client-secret=='
     assert authenticator.token_manager.url == 'https://iamhost/iam/api='
+    assert authenticator.token_manager.scope is None
+    del os.environ['IBM_CREDENTIALS_FILE']
+
+def test_get_authenticator_from_credential_file_scope():
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service_2')
+    assert authenticator is not None
+    assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
+    assert authenticator.token_manager.client_id == 'somefake========id'
+    assert authenticator.token_manager.client_secret == '==my-client-secret=='
+    assert authenticator.token_manager.url == 'https://iamhost/iam/api='
+    assert authenticator.token_manager.scope == 'A B C D'
     del os.environ['IBM_CREDENTIALS_FILE']
 
 def test_get_authenticator_from_env_variables():
@@ -159,6 +173,15 @@ def test_get_authenticator_from_env_variables():
     assert authenticator is not None
     assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
     del os.environ['SERVICE_1_APIKEY']
+
+    os.environ['SERVICE_2_APIKEY'] = 'johnsnow'
+    os.environ['SERVICE_2_SCOPE'] = 'A B C D'
+    authenticator = get_authenticator_from_environment('service_2')
+    assert authenticator is not None
+    assert authenticator.token_manager.apikey == 'johnsnow'
+    assert authenticator.token_manager.scope == 'A B C D'
+    del os.environ['SERVICE_2_APIKEY']
+    del os.environ['SERVICE_2_SCOPE']
 
 def test_vcap_credentials():
     vcap_services = '{"test":[{"credentials":{ \
