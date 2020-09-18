@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/IBM/python-sdk-core/compare/v3.1.0...v3.2.0) (2020-09-18)
+
+
+### Features
+
+* **IAM Authenticator:** add support for optional 'scope' property ([2e776c2](https://github.com/IBM/python-sdk-core/commit/2e776c2ba402c3b2846f5758f64d2776492ae764))
+
 # [3.1.0](https://github.com/IBM/python-sdk-core/compare/v3.0.0...v3.1.0) (2020-06-15)
 
 
