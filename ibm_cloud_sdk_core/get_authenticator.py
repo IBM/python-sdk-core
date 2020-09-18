@@ -61,7 +61,8 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL'))
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL'),
+            scope=config.get('SCOPE'))
     elif auth_type == 'noauth':
         authenticator = NoAuthAuthenticator()
 

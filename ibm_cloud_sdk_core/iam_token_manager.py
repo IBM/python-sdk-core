@@ -36,6 +36,8 @@ class IAMTokenManager(JWTTokenManager):
         proxies.http (str): The proxy endpoint to use for HTTP requests.
         proxies.https (str): The proxy endpoint to use for HTTPS requests.
         http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
+        scope (str): The "scope" to use when fetching the bearer token from the IAM token server.
+        This can be used to obtain an access token with a specific scope.
 
     Args:
         apikey: A generated APIKey from ibmcloud.
@@ -54,12 +56,15 @@ class IAMTokenManager(JWTTokenManager):
         proxies: Proxies to use for communicating with IAM. Defaults to None.
         proxies.http: The proxy endpoint to use for HTTP requests.
         proxies.https: The proxy endpoint to use for HTTPS requests.
+        scope: The "scope" to use when fetching the bearer token from the IAM token server.
+        This can be used to obtain an access token with a specific scope.
     """
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com/identity/token'
     CONTENT_TYPE = 'application/x-www-form-urlencoded'
     REQUEST_TOKEN_GRANT_TYPE = 'urn:ibm:params:oauth:grant-type:apikey'
     REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
     TOKEN_NAME = 'access_token'
+    SCOPE = 'scope'
 
     def __init__(self,
                  apikey: str,
@@ -69,13 +74,15 @@ class IAMTokenManager(JWTTokenManager):
                  client_secret: Optional[str] = None,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None) -> None:
+                 proxies: Optional[Dict[str, str]] = None,
+                 scope: Optional[str] = None) -> None:
         self.apikey = apikey
         self.url = url if url else self.DEFAULT_IAM_URL
         self.client_id = client_id
         self.client_secret = client_secret
         self.headers = headers
         self.proxies = proxies
+        self.scope = scope
         super().__init__(
             self.url, disable_ssl_verification=disable_ssl_verification, token_name=self.TOKEN_NAME)
 
@@ -100,6 +107,9 @@ class IAMTokenManager(JWTTokenManager):
             'apikey': self.apikey,
             'response_type': self.REQUEST_TOKEN_RESPONSE_TYPE
         }
+
+        if self.scope is not None and self.scope:
+            data[self.SCOPE] = self.scope
 
         auth_tuple = None
         # If both the client_id and secret were specified by the user, then use them
@@ -148,3 +158,11 @@ class IAMTokenManager(JWTTokenManager):
             self.proxies = proxies
         else:
             raise TypeError('proxies must be a dictionary')
+
+    def set_scope(self, value: str) -> None:
+        """Sets the "scope" parameter to use when fetching the bearer token from the IAM token server.
+
+        Args:
+            value: A space seperated string that makes up the scope parameter.
+        """
+        self.scope = value

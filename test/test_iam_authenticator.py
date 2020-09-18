@@ -9,7 +9,7 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 
 def test_iam_authenticator():
-    authenticator = IAMAuthenticator('my_apikey')
+    authenticator = IAMAuthenticator(apikey='my_apikey')
     assert authenticator is not None
     assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com/identity/token'
     assert authenticator.token_manager.client_id is None
@@ -18,10 +18,14 @@ def test_iam_authenticator():
     assert authenticator.token_manager.headers is None
     assert authenticator.token_manager.proxies is None
     assert authenticator.token_manager.apikey == 'my_apikey'
+    assert authenticator.token_manager.scope is None
 
     authenticator.set_client_id_and_secret('tom', 'jerry')
     assert authenticator.token_manager.client_id == 'tom'
     assert authenticator.token_manager.client_secret == 'jerry'
+
+    authenticator.set_scope('scope1 scope2 scope3')
+    assert authenticator.token_manager.scope == 'scope1 scope2 scope3'
 
     with pytest.raises(TypeError) as err:
         authenticator.set_headers('dummy')
@@ -36,6 +40,11 @@ def test_iam_authenticator():
 
     authenticator.set_proxies({'dummy': 'proxies'})
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
+
+def test_iam_authenticator_with_scope():
+    authenticator = IAMAuthenticator(apikey='my_apikey', scope='scope1 scope2')
+    assert authenticator is not None
+    assert authenticator.token_manager.scope == 'scope1 scope2'
 
 
 def test_iam_authenticator_validate_failed():
