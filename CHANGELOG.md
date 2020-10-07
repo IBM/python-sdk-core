@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/IBM/python-sdk-core/compare/v3.2.0...v3.3.0) (2020-10-07)
+
+
+### Features
+
+* allow gzip compression on request bodies ([196a407](https://github.com/IBM/python-sdk-core/commit/196a407c40c0c99b2465d19ec8cca1f85b51ee86))
+
 # [3.2.0](https://github.com/IBM/python-sdk-core/compare/v3.1.0...v3.2.0) (2020-09-18)
 
 
