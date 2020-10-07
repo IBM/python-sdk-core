@@ -20,6 +20,7 @@ import json as json_import
 from os.path import basename
 import platform
 import sys
+import zlib
 from typing import Dict, List, Optional, Tuple, Union
 
 import requests
@@ -41,6 +42,8 @@ from .token_manager import TokenManager
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 1
 
+#pylint: disable=too-many-instance-attributes
+#pylint: disable=too-many-locals
 class BaseService:
     """Common functionality shared by generated service classes.
 
@@ -52,6 +55,7 @@ class BaseService:
         authenticator: Adds authentication data to service requests. Defaults to None.
         disable_ssl_verification: A flag that indicates whether verification of the server's SSL
             certificate should be disabled or not. Defaults to False.
+        enable_gzip_compression: A flag that indicates whether to enable gzip compression on request bodies
 
     Attributes:
         service_url (str): Url to the service endpoint.
@@ -61,6 +65,7 @@ class BaseService:
         default_headers (dict): A dictionary of headers to be sent with every HTTP request to the service endpoint.
         jar (http.cookiejar.CookieJar): Stores cookies received from the service.
         http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
+        enable_gzip_compression (bool): A flag that indicates whether to enable gzip compression on request bodies
     Raises:
         ValueError: If Authenticator is not provided or invalid type.
     """
@@ -74,13 +79,15 @@ class BaseService:
                  *,
                  service_url: str = None,
                  authenticator: Authenticator = None,
-                 disable_ssl_verification: bool = False) -> None:
+                 disable_ssl_verification: bool = False,
+                 enable_gzip_compression: bool = False) -> None:
         self.set_service_url(service_url)
         self.http_config = {}
         self.jar = CookieJar()
         self.authenticator = authenticator
         self.disable_ssl_verification = disable_ssl_verification
         self.default_headers = None
+        self.enable_gzip_compression = enable_gzip_compression
         self._set_user_agent_header(self._build_user_agent())
         if not self.authenticator:
             raise ValueError('authenticator must be provided')
@@ -124,6 +131,8 @@ class BaseService:
             self.set_disable_ssl_verification(
                 bool(config.get('DISABLE_SSL'))
             )
+        if config.get('ENABLE_GZIP') is not None:
+            self.set_enable_gzip_compression(config.get('ENABLE_GZIP') == 'True')
 
     def _set_user_agent_header(self, user_agent_string: str) -> None:
         self.user_agent_header = {'User-Agent': user_agent_string}
@@ -245,6 +254,14 @@ class BaseService:
             logging.exception('Error in service call')
             raise
 
+    def set_enable_gzip_compression(self, should_enable_compression: bool = False) -> None:
+        """Set value to enable gzip compression on request bodies"""
+        self.enable_gzip_compression = should_enable_compression
+
+    def get_enable_gzip_compression(self) -> bool:
+        """Get value for enabling gzip compression on request bodies"""
+        return self.enable_gzip_compression
+
     def prepare_request(self,
                         method: str,
                         url: str,
@@ -308,6 +325,16 @@ class BaseService:
         request['data'] = data
 
         self.authenticator.authenticate(request)
+
+        # Compress the request body if applicable
+        if (self.get_enable_gzip_compression() and
+                'content-encoding' not in headers and
+                request['data'] is not None):
+            headers['content-encoding'] = 'gzip'
+            uncompressed_data = request['data']
+            request_body = zlib.compress(uncompressed_data)
+            request['data'] = request_body
+            request['headers'] = headers
 
         # Next, we need to process the 'files' argument to try to fill in
         # any missing filenames where possible.

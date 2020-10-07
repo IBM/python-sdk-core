@@ -5,6 +5,7 @@ import time
 import os
 from shutil import copyfile
 from typing import Optional
+import zlib
 import pytest
 import responses
 import requests
@@ -474,6 +475,46 @@ def test_get_authenticator():
     auth = BasicAuthenticator('my_username', 'my_password')
     service = AnyServiceV1('2018-11-20', authenticator=auth)
     assert service.get_authenticator() is not None
+
+def test_gzip_compression():
+    # Should return uncompressed data when gzip is off
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    assert not service.get_enable_gzip_compression()
+    prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
+    assert prepped['data'] == b'{"foo": "bar"}'
+    assert prepped['headers'].get('content-encoding') != 'gzip'
+
+    # Should return compressed data when gzip is on
+    service.set_enable_gzip_compression(True)
+    assert service.get_enable_gzip_compression()
+    prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
+    assert prepped['data'] == zlib.compress(b'{"foo": "bar"}')
+    assert prepped['headers'].get('content-encoding') == 'gzip'
+
+    # Should return compressed data when gzip is on for non-json data
+    assert service.get_enable_gzip_compression()
+    prepped = service.prepare_request('GET', url='', data=b'rawdata')
+    assert prepped['data'] == zlib.compress(b'rawdata')
+    assert prepped['headers'].get('content-encoding') == 'gzip'
+
+    # Should return uncompressed data when content-encoding is set
+    assert service.get_enable_gzip_compression()
+    prepped = service.prepare_request('GET', url='', headers={"content-encoding": "gzip"},
+                                      data=json.dumps({"foo": "bar"}))
+    assert prepped['data'] == b'{"foo": "bar"}'
+    assert prepped['headers'].get('content-encoding') == 'gzip'
+
+def test_gzip_compression_external():
+    # Should set gzip compression from external config
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials-gzip.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
+    assert service.service_url == 'https://mockurl'
+    assert service.get_enable_gzip_compression() is True
+    prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
+    assert prepped['data'] == zlib.compress(b'{"foo": "bar"}')
+    assert prepped['headers'].get('content-encoding') == 'gzip'
 
 @responses.activate
 def test_user_agent_header():
