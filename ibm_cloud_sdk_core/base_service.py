@@ -20,7 +20,7 @@ import json as json_import
 from os.path import basename
 import platform
 import sys
-import zlib
+import gzip
 from typing import Dict, List, Optional, Tuple, Union
 
 import requests
@@ -332,7 +332,7 @@ class BaseService:
                 request['data'] is not None):
             headers['content-encoding'] = 'gzip'
             uncompressed_data = request['data']
-            request_body = zlib.compress(uncompressed_data)
+            request_body = gzip.compress(uncompressed_data)
             request['data'] = request_body
             request['headers'] = headers
 
