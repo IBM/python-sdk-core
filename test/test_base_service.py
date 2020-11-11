@@ -5,7 +5,8 @@ import time
 import os
 from shutil import copyfile
 from typing import Optional
-import zlib
+import gzip
+import tempfile
 import pytest
 import responses
 import requests
@@ -488,14 +489,36 @@ def test_gzip_compression():
     service.set_enable_gzip_compression(True)
     assert service.get_enable_gzip_compression()
     prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
-    assert prepped['data'] == zlib.compress(b'{"foo": "bar"}')
+    assert prepped['data'] == gzip.compress(b'{"foo": "bar"}')
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
     # Should return compressed data when gzip is on for non-json data
     assert service.get_enable_gzip_compression()
     prepped = service.prepare_request('GET', url='', data=b'rawdata')
-    assert prepped['data'] == zlib.compress(b'rawdata')
+    assert prepped['data'] == gzip.compress(b'rawdata')
     assert prepped['headers'].get('content-encoding') == 'gzip'
+
+    # Should return compressed data when gzip is on for gzip file data
+    assert service.get_enable_gzip_compression()
+    with tempfile.TemporaryFile(mode='w+b') as t_f:
+        with gzip.GzipFile(mode='wb', fileobj=t_f) as gz_f:
+            gz_f.write(json.dumps({"foo": "bar"}).encode())
+        with gzip.GzipFile(mode='rb', fileobj=t_f) as gz_f:
+            gzip_data = gz_f.read()
+        prepped = service.prepare_request('GET', url='', data=gzip_data)
+        assert prepped['data'] == gzip.compress(t_f.read())
+        assert prepped['headers'].get('content-encoding') == 'gzip'
+
+    # Should return compressed json data when gzip is on for gzip file json data
+    assert service.get_enable_gzip_compression()
+    with tempfile.TemporaryFile(mode='w+b') as t_f:
+        with gzip.GzipFile(mode='wb', fileobj=t_f) as gz_f:
+            gz_f.write("rawdata".encode())
+        with gzip.GzipFile(mode='rb', fileobj=t_f) as gz_f:
+            gzip_data = gz_f.read()
+        prepped = service.prepare_request('GET', url='', data=gzip_data)
+        assert prepped['data'] == gzip.compress(t_f.read())
+        assert prepped['headers'].get('content-encoding') == 'gzip'
 
     # Should return uncompressed data when content-encoding is set
     assert service.get_enable_gzip_compression()
@@ -513,7 +536,7 @@ def test_gzip_compression_external():
     assert service.service_url == 'https://mockurl'
     assert service.get_enable_gzip_compression() is True
     prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
-    assert prepped['data'] == zlib.compress(b'{"foo": "bar"}')
+    assert prepped['data'] == gzip.compress(b'{"foo": "bar"}')
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
 @responses.activate
