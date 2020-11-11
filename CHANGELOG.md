@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/IBM/python-sdk-core/compare/v3.3.0...v3.3.1) (2020-11-11)
+
+
+### Bug Fixes
+
+* replace zlib with gzip for gzip compression ([b6a6da3](https://github.com/IBM/python-sdk-core/commit/b6a6da3445e70374b654221340aaebfc7f9d0ecc))
+
 # [3.3.0](https://github.com/IBM/python-sdk-core/compare/v3.2.0...v3.3.0) (2020-10-07)
 
 
