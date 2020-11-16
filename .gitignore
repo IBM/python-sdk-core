@@ -48,7 +48,7 @@ coverage.xml
 .vscode
 
 # virtual env
-venv/
+venv*/
 # python 3 virtual env
 python3/
 
