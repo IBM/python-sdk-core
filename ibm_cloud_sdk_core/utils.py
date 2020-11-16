@@ -22,6 +22,7 @@ from typing import List, Union
 
 import dateutil.parser as date_parser
 
+
 def has_bad_first_or_last_char(val: str) -> bool:
     """Returns true if a string starts with any of: {," ; or ends with any of: },".
 
@@ -31,7 +32,9 @@ def has_bad_first_or_last_char(val: str) -> bool:
     Returns:
         Whether or not the string starts or ends with bad characters.
     """
-    return val is not None and (val.startswith('{') or val.startswith('"') or val.endswith('}') or val.endswith('"'))
+    return val is not None and (val.startswith('{') or val.startswith('"')
+                                or val.endswith('}') or val.endswith('"'))
+
 
 def remove_null_values(dictionary: dict) -> dict:
     """Create a new dictionary without keys mapped to null values.
@@ -45,6 +48,7 @@ def remove_null_values(dictionary: dict) -> dict:
     if isinstance(dictionary, dict):
         return {k: v for (k, v) in dictionary.items() if v is not None}
     return dictionary
+
 
 def cleanup_values(dictionary: dict) -> dict:
     """Create a new dictionary with boolean values converted to strings.
@@ -62,17 +66,20 @@ def cleanup_values(dictionary: dict) -> dict:
         return {k: cleanup_value(v) for (k, v) in dictionary.items()}
     return dictionary
 
+
 def cleanup_value(value: any) -> any:
     """Convert a boolean value to string."""
     if isinstance(value, bool):
         return 'true' if value else 'false'
     return value
 
+
 def strip_extra_slashes(value: str) -> str:
     """Combine multiple trailing slashes to a single slash"""
     if value.endswith('//'):
         return value.rstrip('/') + '/'
     return value
+
 
 def datetime_to_string(val: datetime.datetime) -> str:
     """Convert a datetime object to string.
@@ -93,6 +100,7 @@ def datetime_to_string(val: datetime.datetime) -> str:
         return val.isoformat().replace('+00:00', 'Z')
     return val
 
+
 def string_to_datetime(string: str) -> datetime.datetime:
     """De-serializes string to datetime.
 
@@ -107,6 +115,7 @@ def string_to_datetime(string: str) -> datetime.datetime:
         return val
     return val.replace(tzinfo=datetime.timezone.utc)
 
+
 def date_to_string(val: datetime.date) -> str:
     """Convert a date object to string.
 
@@ -120,6 +129,7 @@ def date_to_string(val: datetime.date) -> str:
         return str(val)
     return val
 
+
 def string_to_date(string: str) -> datetime.date:
     """De-serializes string to date.
 
@@ -130,6 +140,7 @@ def string_to_date(string: str) -> datetime.date:
         the de-serialized string as a date object.
     """
     return date_parser.parse(string).date()
+
 
 def convert_model(val: any) -> dict:
     """Convert a model object into an equivalent dict.
@@ -147,6 +158,7 @@ def convert_model(val: any) -> dict:
     # Consider raising a ValueError here in the next major release
     return val
 
+
 def convert_list(val: Union[str, List[str]]) -> str:
     """Convert a list of strings into comma-separated string.
 
@@ -162,6 +174,7 @@ def convert_list(val: Union[str, List[str]]) -> str:
         return ",".join(val)
     # Consider raising a ValueError here in the next major release
     return val
+
 
 def read_external_sources(service_name: str) -> dict:
     """Look for external configuration of a service.
@@ -189,6 +202,7 @@ def read_external_sources(service_name: str) -> dict:
 
     return config
 
+
 def __read_from_env_variables(service_name: str) -> dict:
     """Return a config object based on environment variables for a service.
 
@@ -203,7 +217,10 @@ def __read_from_env_variables(service_name: str) -> dict:
         _parse_key_and_update_config(config, service_name, key, value)
     return config
 
-def __read_from_credential_file(service_name: str, *, separator: str = '=') -> dict:
+
+def __read_from_credential_file(service_name: str,
+                                *,
+                                separator: str = '=') -> dict:
     """Return a config object based on credentials file for a service.
 
     Args:
@@ -222,8 +239,7 @@ def __read_from_credential_file(service_name: str, *, separator: str = '=') -> d
 
     # Current working directory
     if credential_file_path is None:
-        file_path = join(
-            getcwd(), default_credentials_file_name)
+        file_path = join(getcwd(), default_credentials_file_name)
         if isfile(file_path):
             credential_file_path = file_path
 
@@ -241,13 +257,17 @@ def __read_from_credential_file(service_name: str, *, separator: str = '=') -> d
                 if len(key_val) == 2:
                     key = key_val[0]
                     value = key_val[1]
-                    _parse_key_and_update_config(config, service_name, key, value)
+                    _parse_key_and_update_config(config, service_name, key,
+                                                 value)
     return config
 
-def _parse_key_and_update_config(config: dict, service_name: str, key: str, value: str) -> None:
+
+def _parse_key_and_update_config(config: dict, service_name: str, key: str,
+                                 value: str) -> None:
     service_name = service_name.replace(' ', '_').replace('-', '_').upper()
     if key.startswith(service_name):
         config[key[len(service_name) + 1:]] = value
+
 
 def __read_from_vcap_services(service_name: str) -> dict:
     """Return a config object based on the vcap services environment variable.
@@ -264,29 +284,39 @@ def __read_from_vcap_services(service_name: str) -> dict:
         services = json_import.loads(vcap_services)
         for key in services.keys():
             for i in range(len(services[key])):
-                if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
+                if vcap_service_credentials and isinstance(
+                        vcap_service_credentials, dict):
                     break
                 if services[key][i].get('name') == service_name:
-                    vcap_service_credentials = services[key][i].get('credentials', {})
+                    vcap_service_credentials = services[key][i].get(
+                        'credentials', {})
         if not vcap_service_credentials:
             if service_name in services.keys():
                 service = services.get(service_name)
                 if service:
-                    vcap_service_credentials = service[0].get('credentials', {})
+                    vcap_service_credentials = service[0].get(
+                        'credentials', {})
 
-        if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
+        if vcap_service_credentials and isinstance(vcap_service_credentials,
+                                                   dict):
             new_vcap_creds = {}
-            if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'): # cf
+            # cf
+            if vcap_service_credentials.get(
+                    'username') and vcap_service_credentials.get('password'):
                 new_vcap_creds['AUTH_TYPE'] = 'basic'
-                new_vcap_creds['USERNAME'] = vcap_service_credentials.get('username')
-                new_vcap_creds['PASSWORD'] = vcap_service_credentials.get('password')
+                new_vcap_creds['USERNAME'] = vcap_service_credentials.get(
+                    'username')
+                new_vcap_creds['PASSWORD'] = vcap_service_credentials.get(
+                    'password')
                 vcap_service_credentials = new_vcap_creds
             elif vcap_service_credentials.get('iam_apikey'):
                 new_vcap_creds['AUTH_TYPE'] = 'iam'
-                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('iam_apikey')
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get(
+                    'iam_apikey')
                 vcap_service_credentials = new_vcap_creds
             elif vcap_service_credentials.get('apikey'):
                 new_vcap_creds['AUTH_TYPE'] = 'iam'
-                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('apikey')
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get(
+                    'apikey')
                 vcap_service_credentials = new_vcap_creds
     return vcap_service_credentials
