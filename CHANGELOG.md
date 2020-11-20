@@ -1,3 +1,10 @@
+## [3.3.2](https://github.com/IBM/python-sdk-core/compare/v3.3.1...v3.3.2) (2020-11-20)
+
+
+### Bug Fixes
+
+* update requests version to not include vulnerabilities ([16b2827](https://github.com/IBM/python-sdk-core/commit/16b28271f6c025f8207f2819345aecd487804534))
+
 ## [3.3.1](https://github.com/IBM/python-sdk-core/compare/v3.3.0...v3.3.1) (2020-11-11)
 
 
