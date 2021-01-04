@@ -68,7 +68,7 @@ class JWTTokenManager(TokenManager, ABC):
         self.access_token = token_response.get(self.token_name)
 
         # The time of expiration is found by decoding the JWT access token
-        decoded_response = jwt.decode(self.access_token, verify=False)
+        decoded_response = jwt.decode(self.access_token, options={"verify_signature": False})
         # exp is the time of expire and iat is the time of token retrieval
         exp = decoded_response.get('exp')
         iat = decoded_response.get('iat')
