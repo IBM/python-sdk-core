@@ -111,7 +111,7 @@ def get_access_token() -> str:
         headers={
             'kid': '230498151c214b788dd97f22b85410a5'
         })
-    return access_token.decode('utf-8')
+    return access_token
 
 
 @responses.activate
