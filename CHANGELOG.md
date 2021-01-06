@@ -1,3 +1,10 @@
+## [3.3.3](https://github.com/IBM/python-sdk-core/compare/v3.3.2...v3.3.3) (2021-01-06)
+
+
+### Bug Fixes
+
+* bump minimum requirement versions ([62edeb6](https://github.com/IBM/python-sdk-core/commit/62edeb6f3c89dcb49cddb4cbf315ba664ea7bd73))
+
 ## [3.3.2](https://github.com/IBM/python-sdk-core/compare/v3.3.1...v3.3.2) (2020-11-20)
 
 
