@@ -92,7 +92,6 @@ def test_get_token():
         headers={
             'kid': '230498151c214b788dd97f22b85410a5'
         })
-    access_token = access_token.decode('utf-8')
     response = {
         "access_token": access_token,
         "token_type": "Bearer",
