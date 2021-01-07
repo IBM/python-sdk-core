@@ -1,3 +1,10 @@
+## [3.3.4](https://github.com/IBM/python-sdk-core/compare/v3.3.3...v3.3.4) (2021-01-07)
+
+
+### Bug Fixes
+
+* update pyjwt parameters to satisfy 2.x changes ([f2d7225](https://github.com/IBM/python-sdk-core/commit/f2d7225a6f8e8f4b19ed6d1858c93993d7d62cf5))
+
 ## [3.3.3](https://github.com/IBM/python-sdk-core/compare/v3.3.2...v3.3.3) (2021-01-06)
 
 
