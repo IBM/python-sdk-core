@@ -1,3 +1,10 @@
+## [3.3.5](https://github.com/IBM/python-sdk-core/compare/v3.3.4...v3.3.5) (2021-01-08)
+
+
+### Bug Fixes
+
+* update setup.py requirements to match requirements.txt ([c618928](https://github.com/IBM/python-sdk-core/commit/c618928da730eb0e94f12d7efa0ee9ba9370842f))
+
 ## [3.3.4](https://github.com/IBM/python-sdk-core/compare/v3.3.3...v3.3.4) (2021-01-07)
 
 
