@@ -1,3 +1,10 @@
+## [3.3.6](https://github.com/IBM/python-sdk-core/compare/v3.3.5...v3.3.6) (2021-01-08)
+
+
+### Bug Fixes
+
+* include requirements.txt in MANIFEST.in for setup.py reference ([cc8935a](https://github.com/IBM/python-sdk-core/commit/cc8935a8082f852a528631b606940336253580f6))
+
 ## [3.3.5](https://github.com/IBM/python-sdk-core/compare/v3.3.4...v3.3.5) (2021-01-08)
 
 
