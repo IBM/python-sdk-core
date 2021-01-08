@@ -15,6 +15,7 @@
 
 import os
 import sys
+import pkg_resources
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
@@ -30,6 +31,10 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload -r pypi')
     sys.exit()
 
+with open('requirements.txt') as f:
+    install_requires = [str(req) for req in pkg_resources.parse_requirements(f)]
+with open('requirements-dev.txt') as f:
+    tests_require = [str(req) for req in pkg_resources.parse_requirements(f)]
 
 class PyTest(TestCommand):
     def finalize_options(self):
@@ -49,8 +54,8 @@ setup(name='ibm-cloud-sdk-core',
       version=__version__,
       description='Core library used by SDKs for IBM Cloud Services',
       license='Apache 2.0',
-      install_requires=['requests>=2.0, <3.0', 'python_dateutil>=2.5.3', 'PyJWT >=1.7.1'],
-      tests_require=['responses', 'pytest', 'pytest-rerunfailures', 'tox', 'pylint', 'bumpversion'],
+      install_requires=install_requires,
+      tests_require=tests_require,
       cmdclass={'test': PyTest},
       author='IBM',
       author_email='devexdev@us.ibm.com',
