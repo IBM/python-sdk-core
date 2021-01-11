@@ -1,11 +1,6 @@
 {
   "debug": true,
-  "branches": [ 
-    {"name": "master",      "range": "3.x.x"}, 
-    {"name": "release_2.x", "range": "2.x.x"},
-    {"name": "release_1.x", "range": "1.x.x"},
-    {"name": "release_0.x", "range": "0.x.x"}
-  ],
+  "branches": "[ "master" ],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
