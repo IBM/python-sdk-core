@@ -16,7 +16,8 @@
 from __future__ import print_function
 import os
 import sys
-from setuptools import setup
+import pkg_resources
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 __version__ = '0.5.2'
@@ -31,19 +32,10 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload -r pypi')
     sys.exit()
 
-# Convert README.md to README.rst for pypi
-try:
-    from pypandoc import convert_file
-
-    def read_md(f):
-        return convert_file(f, 'rst')
-except:
-    print('warning: pypandoc module not found, '
-          'could not convert Markdown to RST')
-
-    def read_md(f):
-        return open(f, 'rb').read().decode(encoding='utf-8')
-
+with open('requirements.txt') as f:
+    install_requires = [str(req) for req in pkg_resources.parse_requirements(f)]
+with open('requirements-dev.txt') as f:
+    tests_require = [str(req) for req in pkg_resources.parse_requirements(f)]
 
 class PyTest(TestCommand):
     def finalize_options(self):
@@ -56,32 +48,37 @@ class PyTest(TestCommand):
         errcode = pytest.main(self.test_args)
         sys.exit(errcode)
 
+with open("README.md", "r") as fh:
+    readme = fh.read()
 
 setup(name='ibm-cloud-sdk-core',
       version=__version__,
       description='Client library for the IBM Cloud services',
       license='Apache 2.0',
-      install_requires=['requests>=2.0, <3.0', 'python_dateutil>=2.5.3', 'PyJWT >=1.7.1,<2.0.0'],
-      tests_require=['responses', 'pytest', 'pytest-rerunfailures', 'tox', 'pylint', 'bumpversion'],
+      install_requires=install_requires,
+      tests_require=tests_require,
       cmdclass={'test': PyTest},
-      author='Erika Dsouza',
-      author_email='erika.dsouza@ibm.com',
-      long_description=read_md('README.md'),
+      author='IBM',
+      author_email='devexdev@us.ibm.com',
+      long_description=readme,
+      long_description_content_type='text/markdown',
       url='https://github.com/IBM/python-sdk-core',
       packages=['ibm_cloud_sdk_core'],
       include_package_data=True,
       keywords='watson, ibm, cloud',
       classifiers=[
           'Programming Language :: Python',
-          'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 3',
-          'Development Status :: 4 - Beta',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
+          'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: Apache Software License',
           'Operating System :: OS Independent',
           'Topic :: Software Development :: Libraries :: Python Modules',
-          'Topic :: Software Development :: Libraries :: Application '
-          'Frameworks',
+          'Topic :: Software Development :: Libraries :: Application Frameworks',
       ],
       zip_safe=True
      )

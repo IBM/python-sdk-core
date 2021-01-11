@@ -1,15 +1,25 @@
 {
-  "branch": "master",
-  "verifyConditions": [],
-  "prepare": [
-    {
-      "path": "@semantic-release/exec",
-      "cmd": "bumpversion --current-version ${lastRelease.version} --new-version ${nextRelease.version} patch"
-    }
+  "debug": true,
+  "branches": [ 
+    {"name": "master"}, 
+    {"name": "release_0.x", "range": "0.x.x"}
   ],
-  "publish": [
-    {
-      "path": "@semantic-release/github",
-    }
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/exec", 
+      {
+        "prepareCmd": "bumpversion --allow-dirty --current-version ${lastRelease.version} --new-version ${nextRelease.version} patch"
+      }
+    ],
+    [
+      "@semantic-release/git", 
+      {
+        "message": "chore(release): ${nextRelease.version} release notes\n\n${nextRelease.notes}"
+      }
+    ],
+    "@semantic-release/github"
   ]
 }
