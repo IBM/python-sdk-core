@@ -1,39 +1,45 @@
 language: python
 matrix:
   include:
-    - python: 2.7
-    - python: 3.4
     - python: 3.5
     - python: 3.6
     - python: 3.7
-      dist: xenial
-cache: pip
-before_install:
-- npm install npm@latest -g
+    - python: 3.8
+
+dist: xenial
+
+cache: pip3
+
 install:
-- pip install tox-travis
-- pip install bumpversion
-- npm install @semantic-release/exec
-- npm install @semantic-release/git
+- pip3 install tox-travis
+
+before_script:
+- sudo apt-get update
+- pip3 install pypandoc
+- sudo apt-get install pandoc
+
 script:
 - tox
+
 before_deploy:
-- sudo apt-get update
-- pip install -r requirements.txt
-- pip install -r requirements-dev.txt
-- pip install pypandoc
-- sudo apt-get install pandoc
-- pip install --editable .
+- pip3 install --editable .
+- pip3 install bumpversion
+- nvm install 12
+- npm install @semantic-release/changelog
+- npm install @semantic-release/exec
+- npm install @semantic-release/git
+- npm install @semantic-release/github
+
 deploy:
   - provider: script
     script: npx semantic-release
     skip_cleanup: true
     on:
       python: '3.5'
-      branch: master
+      branch: release_0.x
   - provider: pypi
-    user: watson-devex
-    password: $PYPI_PASSWORD
+    user: $PYPI_USER
+    password: $PYPI_TOKEN
     repository: https://upload.pypi.org/legacy
     skip_cleanup: true
     on:
