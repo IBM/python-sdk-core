@@ -19,7 +19,7 @@ import pkg_resources
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-__version__ = '3.3.6'
+__version__ = '3.4.0'
 
 if sys.argv[-1] == 'publish':
     # test server
