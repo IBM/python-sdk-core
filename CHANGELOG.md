@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/IBM/python-sdk-core/compare/v3.3.6...v3.4.0) (2021-01-26)
+
+
+### Features
+
+* update minimum supported python version to 3.6 ([7f9b968](https://github.com/IBM/python-sdk-core/commit/7f9b968670a637a5619c4dda2405e11c9c3f5328))
+
 ## [3.3.6](https://github.com/IBM/python-sdk-core/compare/v3.3.5...v3.3.6) (2021-01-08)
 
 
