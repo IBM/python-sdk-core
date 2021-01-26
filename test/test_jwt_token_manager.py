@@ -93,9 +93,7 @@ def test_is_token_expired():
 def test_abstract_class_instantiation():
     with pytest.raises(TypeError) as err:
         JWTTokenManager(None)
-    assert str(err.value) == "Can't instantiate abstract class " \
-                             "JWTTokenManager with abstract methods " \
-                             "request_token"
+    assert str(err.value).startswith("Can't instantiate abstract class JWTTokenManager with abstract")
 
 def test_disable_ssl_verification():
     token_manager = JWTTokenManagerMockImpl('https://iam.cloud.ibm.com/identity/token')
