@@ -5,6 +5,7 @@
 setup: deps dev_deps install_project
 
 deps:
+	python -m pip install --upgrade pip
 	python -m pip install -r requirements.txt
 
 dev_deps:
