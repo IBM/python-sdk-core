@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/IBM/python-sdk-core/compare/v3.4.0...v3.5.0) (2021-01-27)
+
+
+### Features
+
+* **BaseService:** use a requests.Session for retry and other configuration ([14bcf41](https://github.com/IBM/python-sdk-core/commit/14bcf413c74173903621ece3ad55ca8bb0bff81b))
+
 # [3.4.0](https://github.com/IBM/python-sdk-core/compare/v3.3.6...v3.4.0) (2021-01-26)
 
 
