@@ -472,6 +472,20 @@ def test_set_service_url():
 
     service.set_service_url('my_url')
 
+def test_http_client():
+    auth = BasicAuthenticator('my_username', 'my_password')
+    service = AnyServiceV1('2018-11-20', authenticator=auth)
+    assert isinstance(service.get_http_client(), requests.sessions.Session)
+    assert service.get_http_client().headers.get('Accept-Encoding') == 'gzip, deflate'
+
+    new_http_client = requests.Session()
+    new_http_client.headers.update({'Accept-Encoding': 'gzip'})
+    service.set_http_client(http_client=new_http_client)
+    assert service.get_http_client().headers.get('Accept-Encoding') == 'gzip'
+
+    with pytest.raises(TypeError):
+        service.set_http_client("bad_argument_type")
+
 def test_get_authenticator():
     auth = BasicAuthenticator('my_username', 'my_password')
     service = AnyServiceV1('2018-11-20', authenticator=auth)
