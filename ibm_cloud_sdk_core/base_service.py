@@ -65,6 +65,8 @@ class BaseService:
         default_headers (dict): A dictionary of headers to be sent with every HTTP request to the service endpoint.
         jar (http.cookiejar.CookieJar): Stores cookies received from the service.
         http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
+        http_client (Session): A configurable session which can use Transport Adapters to configure retries, timeouts,
+            proxies, etc. globally for all requests.
         enable_gzip_compression (bool): A flag that indicates whether to enable gzip compression on request bodies
     Raises:
         ValueError: If Authenticator is not provided or invalid type.
@@ -82,6 +84,7 @@ class BaseService:
                  disable_ssl_verification: bool = False,
                  enable_gzip_compression: bool = False) -> None:
         self.set_service_url(service_url)
+        self.http_client = requests.Session()
         self.http_config = {}
         self.jar = CookieJar()
         self.authenticator = authenticator
@@ -181,6 +184,25 @@ class BaseService:
             )
         self.service_url = service_url
 
+    def get_http_client(self) -> requests.sessions.Session:
+        """Get the http client session currently used by the service.
+
+        Returns:
+            The http client session currently used by the service.
+        """
+        return self.http_client
+
+    def set_http_client(self, http_client: requests.sessions.Session) -> None:
+        """Set current http client session
+
+        Arguments:
+            http_client: A new requests session client
+        """
+        if isinstance(http_client, requests.sessions.Session):
+            self.http_client = http_client
+        else:
+            raise TypeError("http_client parameter must be a requests.sessions.Session")
+
     def get_authenticator(self) -> Authenticator:
         """Get the authenticator currently used by the service.
 
@@ -224,7 +246,7 @@ class BaseService:
         stream_response = kwargs.get('stream') or False
 
         try:
-            response = requests.request(**request, cookies=self.jar, **kwargs)
+            response = self.http_client.request(**request, cookies=self.jar, **kwargs)
 
             if 200 <= response.status_code <= 299:
                 if response.status_code == 204 or request['method'] == 'HEAD':
