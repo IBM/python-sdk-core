@@ -1,3 +1,11 @@
+## [3.5.1](https://github.com/IBM/python-sdk-core/compare/v3.5.0...v3.5.1) (2021-02-01)
+
+
+### Bug Fixes
+
+* remove unnecessary logging of exceptions ([e94d5ae](https://github.com/IBM/python-sdk-core/commit/e94d5ae81930a5e65e117f15cb20ecce4134c5ab))
+* silently ignore missing configuration file ([d438ade](https://github.com/IBM/python-sdk-core/commit/d438ade26d0ddda65074d6c31f735cc1f53850cf))
+
 # [3.5.0](https://github.com/IBM/python-sdk-core/compare/v3.4.0...v3.5.0) (2021-01-27)
 
 
