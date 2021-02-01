@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2021 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -234,16 +234,16 @@ def __read_from_credential_file(service_name: str,
     """
     default_credentials_file_name = 'ibm-credentials.env'
 
-    # File path specified by an env variable
+    # 1. ${IBM_CREDENTIALS_FILE}
     credential_file_path = getenv('IBM_CREDENTIALS_FILE')
 
-    # Current working directory
+    # 2. <current-working-directory>/ibm-credentials.env
     if credential_file_path is None:
         file_path = join(getcwd(), default_credentials_file_name)
         if isfile(file_path):
             credential_file_path = file_path
 
-    # Home directory
+    # 3. <user-home-directory>/ibm-credentials.env
     if credential_file_path is None:
         file_path = join(expanduser('~'), default_credentials_file_name)
         if isfile(file_path):
@@ -251,14 +251,19 @@ def __read_from_credential_file(service_name: str,
 
     config = {}
     if credential_file_path is not None:
-        with open(credential_file_path, 'r') as fobj:
-            for line in fobj:
-                key_val = line.strip().split(separator, 1)
-                if len(key_val) == 2:
-                    key = key_val[0]
-                    value = key_val[1]
-                    _parse_key_and_update_config(config, service_name, key,
-                                                 value)
+        try:
+            with open(credential_file_path, 'r') as fobj:
+                for line in fobj:
+                    key_val = line.strip().split(separator, 1)
+                    if len(key_val) == 2:
+                        key = key_val[0]
+                        value = key_val[1]
+                        _parse_key_and_update_config(config, service_name, key,
+                                                     value)
+        except OSError:
+            # just absorb the exception and make sure we return an empty response
+            config = {}
+
     return config
 
 

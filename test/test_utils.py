@@ -1,4 +1,20 @@
 # pylint: disable=missing-docstring
+# coding: utf-8
+
+# Copyright 2019, 2021 IBM All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import datetime
 
@@ -6,6 +22,7 @@ from typing import Optional
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
 from ibm_cloud_sdk_core import string_to_date, date_to_string
 from ibm_cloud_sdk_core import convert_model, convert_list
+from ibm_cloud_sdk_core import read_external_sources
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, IAMAuthenticator
 
 
@@ -375,3 +392,28 @@ def test_multi_word_service_name():
     assert authenticator is not None
     assert authenticator.token_manager.apikey == '5678efgh'
     del os.environ['PERSONALITY_INSIGHTS_APIKEY']
+
+
+def test_read_external_sources_1():
+    # Set IBM_CREDENTIALS_FILE to a non-existent file (should be silently ignored).
+    bad_file_path = os.path.join(os.path.dirname(__file__), 'NOT_A_FILE')
+    os.environ['IBM_CREDENTIALS_FILE'] = bad_file_path
+
+    # This env var should take precendence since the config file wasn't found.
+    os.environ['SERVICE_1_URL'] = 'https://good-url.com'
+
+    config = read_external_sources('service_1')
+    assert config.get('URL') == 'https://good-url.com'
+
+
+def test_read_external_sources_2():
+    # The config file should take precedence over the env variable.
+    config_file = os.path.join(os.path.dirname(__file__),
+                               '../resources/ibm-credentials.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = config_file
+
+    # This should be ignored since IBM_CREDENTIALS_FILE points to a valid file.
+    os.environ['SERVICE_1_URL'] = 'wrong-url'
+
+    config = read_external_sources('service_1')
+    assert config.get('URL') == 'service1.com/api'
