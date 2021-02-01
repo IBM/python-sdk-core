@@ -48,7 +48,7 @@ export EXAMPLE_SERVICE_PASSWORD=mypassword
 ```
 Application code:
 ```python
-from ibm_cloud_sdk_core.authenticators import get_authenticator_from_environment
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 authenticator = get_authenticator_from_environment('example_service')
 service = ExampleService(authenticator=authenticator)
@@ -80,7 +80,7 @@ export EXAMPLE_SERVICE_BEARER_TOKEN=<the bearer token value>
 ```
 Application code:
 ```python
-from ibm_cloud_sdk_core.authenticators import get_authenticator_from_environment
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 authenticator = get_authenticator_from_environment('example_service')
 service = ExampleService(authenticator=authenticator)
@@ -133,7 +133,7 @@ export EXAMPLE_SERVICE_APIKEY=myapikey
 ```
 Application code:
 ```python
-from ibm_cloud_sdk_core.authenticators import get_authenticator_from_environment
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 authenticator = get_authenticator_from_environment('example_service')
 service = ExampleService(authenticator=authenticator)
@@ -179,7 +179,7 @@ export EXAMPLE_SERVICE_URL=https://mycp4dhost.com/
 ```
 Application code:
 ```python
-from ibm_cloud_sdk_core.authenticators import get_authenticator_from_environment
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 authenticator = get_authenticator_from_environment('example_service')
 service = ExampleService(authenticator=authenticator)
@@ -203,7 +203,7 @@ export EXAMPLE_SERVICE_AUTH_TYPE=noauth
 ```
 Application code:
 ```python
-from ibm_cloud_sdk_core.authenticators import get_authenticator_from_environment
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 authenticator = get_authenticator_from_environment('example_service')
 service = ExampleService(authenticator=authenticator)
