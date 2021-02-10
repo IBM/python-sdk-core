@@ -1,3 +1,11 @@
+## [3.5.2](https://github.com/IBM/python-sdk-core/compare/v3.5.1...v3.5.2) (2021-02-10)
+
+
+### Bug Fixes
+
+* **build:** main migration ([3664e2e](https://github.com/IBM/python-sdk-core/commit/3664e2e7e564d227b1e9be67831b4c6d4cea8b18))
+* **build:** main migration release ([8b3debc](https://github.com/IBM/python-sdk-core/commit/8b3debcf088c2bc71957645ae0925c4fa6dac56a))
+
 ## [3.5.1](https://github.com/IBM/python-sdk-core/compare/v3.5.0...v3.5.1) (2021-02-01)
 
 
