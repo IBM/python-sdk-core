@@ -79,11 +79,11 @@ class IAMTokenManager(JWTTokenManager):
                  proxies: Optional[Dict[str, str]] = None,
                  scope: Optional[str] = None) -> None:
         self.apikey = apikey
+        if not url:
+            url = self.DEFAULT_IAM_URL
+        if url.endswith(self.OPERATION_PATH):
+            url = url[:-len(self.OPERATION_PATH)]
         self.url = url
-        if url == "":
-            self.url = self.DEFAULT_IAM_URL
-        elif url.endswith(self.OPERATION_PATH):
-            self.url = url[:-len(self.OPERATION_PATH)]
         self.client_id = client_id
         self.client_secret = client_secret
         self.headers = headers
@@ -125,7 +125,7 @@ class IAMTokenManager(JWTTokenManager):
 
         response = self._request(
             method='POST',
-            url=self.url + self.OPERATION_PATH,
+            url=(self.url + self.OPERATION_PATH) if self.url else self.url,
             headers=headers,
             data=data,
             auth_tuple=auth_tuple,

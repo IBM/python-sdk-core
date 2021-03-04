@@ -11,7 +11,7 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 def test_iam_authenticator():
     authenticator = IAMAuthenticator(apikey='my_apikey')
     assert authenticator is not None
-    assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com/identity/token'
+    assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com'
     assert authenticator.token_manager.client_id is None
     assert authenticator.token_manager.client_secret is None
     assert authenticator.token_manager.disable_ssl_verification is False
