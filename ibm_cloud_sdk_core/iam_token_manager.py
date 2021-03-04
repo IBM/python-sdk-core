@@ -60,7 +60,7 @@ class IAMTokenManager(JWTTokenManager):
         scope: The "scope" to use when fetching the bearer token from the IAM token server.
         This can be used to obtain an access token with a specific scope.
     """
-    DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com/identity/token'
+    DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com'
     CONTENT_TYPE = 'application/x-www-form-urlencoded'
     OPERATION_PATH = "/identity/token"
     REQUEST_TOKEN_GRANT_TYPE = 'urn:ibm:params:oauth:grant-type:apikey'
