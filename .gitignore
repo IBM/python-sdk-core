@@ -52,7 +52,7 @@ venv*/
 # python 3 virtual env
 python3/
 
-.env
+*.env
 
 .sfdx/tools/apex.db
 .pytest_cache/
