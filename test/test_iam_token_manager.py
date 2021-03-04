@@ -1,13 +1,12 @@
 # pylint: disable=missing-docstring
 import os
-from ibm_cloud_sdk_core import get_authenticator_from_environment
 import time
 
 import responses
 import jwt
 import pytest
 
-from ibm_cloud_sdk_core import IAMTokenManager, ApiException
+from ibm_cloud_sdk_core import IAMTokenManager, ApiException, get_authenticator_from_environment
 
 
 def get_access_token() -> str:
