@@ -17,6 +17,7 @@
 from typing import Dict, Optional
 from .jwt_token_manager import JWTTokenManager
 
+# pylint: disable=too-many-instance-attributes
 class IAMTokenManager(JWTTokenManager):
     """The IAMTokenManager takes an api key and performs the necessary interactions with
     the IAM token service to obtain and store a suitable bearer token. Additionally, the IAMTokenManager
@@ -61,6 +62,7 @@ class IAMTokenManager(JWTTokenManager):
     """
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com/identity/token'
     CONTENT_TYPE = 'application/x-www-form-urlencoded'
+    OPERATION_PATH = "/identity/token"
     REQUEST_TOKEN_GRANT_TYPE = 'urn:ibm:params:oauth:grant-type:apikey'
     REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
     TOKEN_NAME = 'access_token'
@@ -77,10 +79,15 @@ class IAMTokenManager(JWTTokenManager):
                  proxies: Optional[Dict[str, str]] = None,
                  scope: Optional[str] = None) -> None:
         self.apikey = apikey
-        self.url = url if url else self.DEFAULT_IAM_URL
+        self.url = url
+        if url == "":
+            self.url = self.DEFAULT_IAM_URL
+        elif url.endswith(self.OPERATION_PATH):
+            self.url = url[:-len(self.OPERATION_PATH)]
         self.client_id = client_id
         self.client_secret = client_secret
         self.headers = headers
+        self.refresh_token = None
         self.proxies = proxies
         self.scope = scope
         super().__init__(
@@ -118,7 +125,7 @@ class IAMTokenManager(JWTTokenManager):
 
         response = self._request(
             method='POST',
-            url=self.url,
+            url=self.url + self.OPERATION_PATH,
             headers=headers,
             data=data,
             auth_tuple=auth_tuple,
@@ -145,6 +152,11 @@ class IAMTokenManager(JWTTokenManager):
             self.headers = headers
         else:
             raise TypeError('headers must be a dictionary')
+
+    def _save_token_info(self, token_response: dict) -> None:
+        super()._save_token_info(token_response)
+
+        self.refresh_token = token_response.get("refresh_token")
 
     def set_proxies(self, proxies: Dict[str, str]) -> None:
         """Sets the proxies the token manager will use to communicate with IAM on behalf of the host.
