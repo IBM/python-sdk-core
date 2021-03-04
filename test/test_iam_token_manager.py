@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+import os
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 import time
 
 import responses
@@ -6,6 +8,7 @@ import jwt
 import pytest
 
 from ibm_cloud_sdk_core import IAMTokenManager, ApiException
+
 
 def get_access_token() -> str:
     access_token_layout = {
@@ -27,6 +30,7 @@ def get_access_token() -> str:
                               headers={'kid': '230498151c214b788dd97f22b85410a5'})
     return access_token
 
+
 @responses.activate
 def test_request_token_auth_default():
     iam_url = "https://iam.cloud.ibm.com/identity/token"
@@ -47,6 +51,7 @@ def test_request_token_auth_default():
     assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
 
+
 @responses.activate
 def test_request_token_auth_in_ctor():
     iam_url = "https://iam.cloud.ibm.com/identity/token"
@@ -60,7 +65,8 @@ def test_request_token_auth_in_ctor():
     default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager("apikey", url=iam_url, client_id='foo', client_secret='bar')
+    token_manager = IAMTokenManager(
+        "apikey", url=iam_url, client_id='foo', client_secret='bar')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -68,6 +74,7 @@ def test_request_token_auth_in_ctor():
     assert responses.calls[0].request.headers['Authorization'] != default_auth_header
     assert responses.calls[0].response.text == response
     assert 'scope' not in responses.calls[0].response.request.body
+
 
 @responses.activate
 def test_request_token_auth_in_ctor_with_scope():
@@ -82,7 +89,8 @@ def test_request_token_auth_in_ctor_with_scope():
     default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager("apikey", url=iam_url, client_id='foo', client_secret='bar', scope='john snow')
+    token_manager = IAMTokenManager(
+        "apikey", url=iam_url, client_id='foo', client_secret='bar', scope='john snow')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -90,6 +98,7 @@ def test_request_token_auth_in_ctor_with_scope():
     assert responses.calls[0].request.headers['Authorization'] != default_auth_header
     assert responses.calls[0].response.text == response
     assert 'scope=john+snow' in responses.calls[0].response.request.body
+
 
 @responses.activate
 def test_request_token_unsuccessful():
@@ -123,6 +132,7 @@ def test_request_token_unsuccessful():
     assert responses.calls[0].request.url == iam_url
     assert responses.calls[0].response.text == response
 
+
 @responses.activate
 def test_request_token_auth_in_ctor_client_id_only():
     iam_url = "https://iam.cloud.ibm.com/identity/token"
@@ -144,6 +154,7 @@ def test_request_token_auth_in_ctor_client_id_only():
     assert responses.calls[0].response.text == response
     assert 'scope' not in responses.calls[0].response.request.body
 
+
 @responses.activate
 def test_request_token_auth_in_ctor_secret_only():
     iam_url = "https://iam.cloud.ibm.com/identity/token"
@@ -156,7 +167,8 @@ def test_request_token_auth_in_ctor_secret_only():
     }"""
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager("iam_apikey", url=iam_url, client_id=None, client_secret='bar')
+    token_manager = IAMTokenManager(
+        "iam_apikey", url=iam_url, client_id=None, client_secret='bar')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -164,6 +176,7 @@ def test_request_token_auth_in_ctor_secret_only():
     assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
     assert 'scope' not in responses.calls[0].response.request.body
+
 
 @responses.activate
 def test_request_token_auth_in_setter():
@@ -188,6 +201,7 @@ def test_request_token_auth_in_setter():
     assert responses.calls[0].response.text == response
     assert 'scope' not in responses.calls[0].response.request.body
 
+
 @responses.activate
 def test_request_token_auth_in_setter_client_id_only():
     iam_url = "https://iam.cloud.ibm.com/identity/token"
@@ -210,6 +224,7 @@ def test_request_token_auth_in_setter_client_id_only():
     assert responses.calls[0].response.text == response
     assert 'scope' not in responses.calls[0].response.request.body
 
+
 @responses.activate
 def test_request_token_auth_in_setter_secret_only():
     iam_url = "https://iam.cloud.ibm.com/identity/token"
@@ -224,7 +239,7 @@ def test_request_token_auth_in_setter_secret_only():
 
     token_manager = IAMTokenManager("iam_apikey")
     token_manager.set_client_id_and_secret(None, 'bar')
-    token_manager.set_headers({'user':'header'})
+    token_manager.set_headers({'user': 'header'})
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -232,6 +247,7 @@ def test_request_token_auth_in_setter_secret_only():
     assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
     assert 'scope' not in responses.calls[0].response.request.body
+
 
 @responses.activate
 def test_request_token_auth_in_setter_scope():
@@ -247,7 +263,7 @@ def test_request_token_auth_in_setter_scope():
 
     token_manager = IAMTokenManager("iam_apikey")
     token_manager.set_client_id_and_secret(None, 'bar')
-    token_manager.set_headers({'user':'header'})
+    token_manager.set_headers({'user': 'header'})
     token_manager.set_scope('john snow')
     token_manager.request_token()
 
@@ -256,6 +272,7 @@ def test_request_token_auth_in_setter_scope():
     assert responses.calls[0].request.headers.get('Authorization') is None
     assert responses.calls[0].response.text == response
     assert 'scope=john+snow' in responses.calls[0].response.request.body
+
 
 @responses.activate
 def test_get_refresh_token():
@@ -276,69 +293,71 @@ def test_get_refresh_token():
     assert len(responses.calls) == 2
     assert token_manager.refresh_token == "jy4gl91BQ"
 
-# In order to test with a live IAM server, create file "iamtest.env" in the project root.
+#
+# In order to run the following integration test with a live IAM server:
+#
+# 1. Create file "iamtest.env" in the project root.
 # It should look like this:
-
 # IAMTEST1_AUTH_URL=<url> e.g. https://iam.cloud.ibm.com
 # IAMTEST1_AUTH_TYPE=iam
 # IAMTEST1_APIKEY=<apikey>
-
-# IAMTEST2_AUTH_URL=<url> e.g. https://iam.test.cloud.ibm.com/identity/token
+# IAMTEST2_AUTH_URL=<url> e.g. https://iam.test.cloud.ibm.com
 # IAMTEST2_AUTH_TYPE=iam
 # IAMTEST2_APIKEY=<apikey>
 # IAMTEST2_CLIENT_ID=<client id>
 # IAMTEST2_CLIENT_SECRET=<client secret>
-
-# Then uncomment the function below and run this command:
-# python3 -m pytest test -k "test_iam_live_token_server"
-
-# import os
-# from ibm_cloud_sdk_core import get_authenticator_from_environment
-
-# def test_iam_live_token_server():
-#     # Get two iam authenticators from the environment.
-#     # "iamtest1" uses username/password
-#     # "iamtest2" uses username/apikey
-#     os.environ['IBM_CREDENTIALS_FILE'] = "iamtest.env"
+#
+# 2. Comment out the "@pytest.mark.skip" decorator below.
+#
+# 3. Run this command:
+# python3 -m pytest -s test -k "test_iam_live_token_server"
+# (or just run tests like normal and this test function will be invoked)
+#
 
 
-#     # Test "iamtest1" service
-#     auth1 = get_authenticator_from_environment("iamtest1")
-#     assert auth1 is not None
-#     assert auth1.token_manager is not None
-#     assert auth1.token_manager.url is not None
+@pytest.mark.skip(reason="avoid integration test in automated builds")
+def test_iam_live_token_server():
+    # Get two iam authenticators from the environment.
+    # "iamtest1" uses the production IAM token server
+    # "iamtest2" uses the staging IAM token server
+    os.environ['IBM_CREDENTIALS_FILE'] = "iamtest.env"
 
-#     request = {'method': "GET"}
-#     request["url"] = ""
-#     request["headers"] = {}
+    # Test "iamtest1" service
+    auth1 = get_authenticator_from_environment("iamtest1")
+    assert auth1 is not None
+    assert auth1.token_manager is not None
+    assert auth1.token_manager.url is not None
 
-#     assert auth1.token_manager.refresh_token is None
+    request = {'method': "GET"}
+    request["url"] = ""
+    request["headers"] = {}
 
-#     auth1.authenticate(request)
+    assert auth1.token_manager.refresh_token is None
 
-#     assert auth1.token_manager.refresh_token is not None
+    auth1.authenticate(request)
 
-#     assert request.get("headers") is not None
-#     assert request["headers"].get("Authorization") is not None
-#     assert "Bearer " in request["headers"].get("Authorization")
+    assert request.get("headers") is not None
+    assert request["headers"].get("Authorization") is not None
+    assert "Bearer " in request["headers"].get("Authorization")
 
+    # Test "iamtest2" service
+    auth2 = get_authenticator_from_environment("iamtest2")
+    assert auth2 is not None
+    assert auth2.token_manager is not None
+    assert auth2.token_manager.url is not None
 
-#     # Test "iamtest2" service
-#     auth2 = get_authenticator_from_environment("iamtest2")
-#     assert auth2 is not None
-#     assert auth2.token_manager is not None
-#     assert auth2.token_manager.url is not None
+    request = {'method': "GET"}
+    request["url"] = ""
+    request["headers"] = {}
 
-#     request = {'method': "GET"}
-#     request["url"] = ""
-#     request["headers"] = {}
+    assert auth2.token_manager.refresh_token is None
 
-#     assert auth2.token_manager.refresh_token is None
+    auth2.authenticate(request)
 
-#     auth2.authenticate(request)
+    assert auth2.token_manager.refresh_token is not None
 
-#     assert auth2.token_manager.refresh_token is not None
+    assert request.get("headers") is not None
+    assert request["headers"].get("Authorization") is not None
+    assert "Bearer " in request["headers"].get("Authorization")
 
-#     assert request.get("headers") is not None
-#     assert request["headers"].get("Authorization") is not None
-#     assert "Bearer " in request["headers"].get("Authorization")
+    # print('Refresh token: ', auth2.token_manager.refresh_token)
