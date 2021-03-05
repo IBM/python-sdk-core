@@ -1,3 +1,16 @@
+# [3.6.0](https://github.com/IBM/python-sdk-core/compare/v3.5.2...v3.6.0) (2021-03-05)
+
+
+### Bug Fixes
+
+* split token manager url path ([18d64b5](https://github.com/IBM/python-sdk-core/commit/18d64b51f0e637a01f72488635e81fc5a7bd6918))
+* update default iam url to omit path ([1fbdd0c](https://github.com/IBM/python-sdk-core/commit/1fbdd0c0c61add47182c9e389f5933789276a7d0))
+
+
+### Features
+
+* expose refresh token in iam authenticator ([31e988d](https://github.com/IBM/python-sdk-core/commit/31e988d4348f313074d5c434ae2b86264e3cbbc1))
+
 ## [3.5.2](https://github.com/IBM/python-sdk-core/compare/v3.5.1...v3.5.2) (2021-02-10)
 
 
