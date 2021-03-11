@@ -29,6 +29,7 @@ functions:
     string_to_date: De-serializes a string to a date.
     convert_model: Convert a model object into an equivalent dict.
     convert_list: Convert a list of strings into comma-separated string.
+    get_query_param: Return a query parameter value from a URL
     read_external_sources: Get config object from external sources.
     get_authenticator_from_environment: Get authenticator from external sources.
 """
@@ -42,4 +43,5 @@ from .api_exception import ApiException
 from .utils import datetime_to_string, string_to_datetime, read_external_sources
 from .utils import date_to_string, string_to_date
 from .utils import convert_model, convert_list
+from .utils import get_query_param
 from .get_authenticator import get_authenticator_from_environment

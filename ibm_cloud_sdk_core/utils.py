@@ -19,6 +19,7 @@ import json as json_import
 from os import getenv, environ, getcwd
 from os.path import isfile, join, expanduser
 from typing import List, Union
+from urllib.parse import urlparse, parse_qs
 
 import dateutil.parser as date_parser
 
@@ -141,6 +142,29 @@ def string_to_date(string: str) -> datetime.date:
     """
     return date_parser.parse(string).date()
 
+def get_query_param(url_str: str, param: str) -> str:
+    """Return a query parameter value from url_str
+
+    Args:
+        url_str: the URL from which to extract the query
+            parameter value
+        param: the name of the query parameter whose value
+            should be returned
+
+    Returns:
+        the value of the `param` query parameter as a string
+
+    Raises:
+        ValueError: if errors are encountered parsing `url_str`
+    """
+    if not url_str:
+        return None
+    url = urlparse(url_str)
+    if not url.query:
+        return None
+    query = parse_qs(url.query, strict_parsing=True)
+    values = query.get(param)
+    return values[0] if values else None
 
 def convert_model(val: any) -> dict:
     """Convert a model object into an equivalent dict.
