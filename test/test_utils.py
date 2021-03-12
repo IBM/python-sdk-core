@@ -17,11 +17,13 @@
 
 import os
 import datetime
-
 from typing import Optional
+import pytest
+
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
 from ibm_cloud_sdk_core import string_to_date, date_to_string
 from ibm_cloud_sdk_core import convert_model, convert_list
+from ibm_cloud_sdk_core import get_query_param
 from ibm_cloud_sdk_core import read_external_sources
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, IAMAuthenticator
 
@@ -122,6 +124,46 @@ def test_date_conversion():
     assert res == '2017-03-06'
     assert date_to_string(None) is None
 
+def test_get_query_param():
+    # Relative URL
+    next_url = '/api/v1/offerings?start=foo&limit=10'
+    page_token = get_query_param(next_url, 'start')
+    assert page_token == 'foo'
+    # Absolute URL
+    next_url = 'https://acme.com/api/v1/offerings?start=bar&limit=10'
+    page_token = get_query_param(next_url, 'start')
+    assert page_token == 'bar'
+    # Missing param
+    next_url = 'https://acme.com/api/v1/offerings?start=bar&limit=10'
+    page_token = get_query_param(next_url, 'token')
+    assert page_token is None
+    # No URL
+    page_token = get_query_param(None, 'start')
+    assert page_token is None
+    # Empty URL
+    page_token = get_query_param('', 'start')
+    assert page_token is None
+    # No query string
+    next_url = '/api/v1/offerings'
+    page_token = get_query_param(next_url, 'start')
+    assert page_token is None
+    # Bad query string
+    next_url = '/api/v1/offerings?start%XXfoo'
+    with pytest.raises(ValueError):
+        page_token = get_query_param(next_url, 'start')
+    # Duplicate param
+    next_url = '/api/v1/offerings?start=foo&start=bar&limit=10'
+    page_token = get_query_param(next_url, 'start')
+    assert page_token == 'foo'
+    # Bad URL - since the behavior for this case varies based on the version of Python
+    # we allow _either_ a ValueError or that the illegal chars are just ignored
+    next_url = 'https://foo.bar\u2100/api/v1/offerings?start=foo'
+    try:
+        page_token = get_query_param(next_url, 'start')
+        assert page_token == 'foo'
+    except ValueError:
+        # This is okay.
+        pass
 
 def test_convert_model():
     class MockModel:
