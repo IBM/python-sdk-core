@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/IBM/python-sdk-core/compare/v3.6.0...v3.7.0) (2021-03-12)
+
+
+### Features
+
+* add get_query_param utility method to support pagination ([b40edde](https://github.com/IBM/python-sdk-core/commit/b40edde45dcba59ecfb626ac8bf8a98cbb11b6de))
+
 # [3.6.0](https://github.com/IBM/python-sdk-core/compare/v3.5.2...v3.6.0) (2021-03-05)
 
 
