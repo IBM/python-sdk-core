@@ -117,6 +117,40 @@ def string_to_datetime(string: str) -> datetime.datetime:
     return val.replace(tzinfo=datetime.timezone.utc)
 
 
+def string_to_datetime_list(string_list: List[str]) -> List[datetime.datetime]:
+    """De-serializes each string in a list to a datetime.
+
+    Args:
+        string_list: list of strings containing datetime in iso8601 format.
+
+    Returns:
+        the de-serialized list of strings as a list of datetime objects.
+    """
+    if not isinstance(string_list, list):
+        raise ValueError("Invalid argument type: " + str(type(string_list))
+            + ". Argument string_list must be of type List[str]")
+    datetime_list = []
+    for string_val in string_list:
+        datetime_list.append(string_to_datetime(string_val))
+    return datetime_list
+
+def datetime_to_string_list(datetime_list: List[datetime.datetime]) -> List[str]:
+    """Convert a list of datetime objects to a list of strings.
+
+    Args:
+        datetime_list: The list of datetime objects.
+
+    Returns:
+        list of datetimes serialized as strings in iso8601 format.
+    """
+    if not isinstance(datetime_list, list):
+        raise ValueError("Invalid argument type: " + str(type(datetime_list))
+            + ". Argument datetime_list must be of type List[datetime.datetime]")
+    string_list = []
+    for datetime_val in datetime_list:
+        string_list.append(datetime_to_string(datetime_val))
+    return string_list
+
 def date_to_string(val: datetime.date) -> str:
     """Convert a date object to string.
 
