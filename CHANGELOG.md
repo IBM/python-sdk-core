@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/IBM/python-sdk-core/compare/v3.7.0...v3.8.0) (2021-03-17)
+
+
+### Features
+
+* add datetime to string utils for lists ([2a4260c](https://github.com/IBM/python-sdk-core/commit/2a4260c7aca9b99020e2b06ccffc976ece8bd6ac))
+
 # [3.7.0](https://github.com/IBM/python-sdk-core/compare/v3.6.0...v3.7.0) (2021-03-12)
 
 
