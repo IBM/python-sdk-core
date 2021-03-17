@@ -21,6 +21,7 @@ from typing import Optional
 import pytest
 
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
+from ibm_cloud_sdk_core import string_to_datetime_list, datetime_to_string_list
 from ibm_cloud_sdk_core import string_to_date, date_to_string
 from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core import get_query_param
@@ -116,6 +117,63 @@ def test_datetime_to_string():
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338Z'
 
+def test_string_to_datetime_list():
+    # Assert ValueError is raised for invalid argument type
+    with pytest.raises(ValueError):
+        string_to_datetime_list(None)
+    # If the specified string does not include a timezone, it is assumed to be UTC
+    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338' ])
+    assert date_list[0].day == 6
+    assert date_list[0].hour == 16
+    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    # Test date string with TZ specified as '+xxxx'
+    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338+0600' ])
+    assert date_list[0].day == 6
+    assert date_list[0].hour == 16
+    assert date_list[0].tzinfo.utcoffset(None).total_seconds() == 6 * 60 * 60
+    # Test date string with TZ specified as 'Z'
+    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338Z' ])
+    assert date_list[0].day == 6
+    assert date_list[0].hour == 16
+    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    # Test multiple datetimes in a list
+    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338', '2017-03-07 17:00:04.159338' ])
+    assert date_list[0].day == 6
+    assert date_list[0].hour == 16
+    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[1].day == 7
+    assert date_list[1].hour == 17
+    assert date_list[1].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+
+
+def test_datetime_to_string_list():
+    # Assert ValueError is raised for invalid argument type
+    with pytest.raises(ValueError):
+        datetime_to_string_list(None)
+    # If specified datetime list item is None, return list of None
+    assert datetime_to_string_list([None]) == [None]
+    # If specified datetime list is empty, return empty list
+    assert datetime_to_string_list([]) == []
+    # If the specified date list item is "naive", it is interpreted as a UTC date
+    date_list = [ datetime.datetime(2017, 3, 6, 16, 0, 4, 159338) ]
+    res = datetime_to_string_list(date_list)
+    assert res == [ '2017-03-06T16:00:04.159338Z' ]
+    # Test date list item with UTC timezone
+    date_list = [ datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
+                             datetime.timezone.utc) ]
+    res = datetime_to_string_list(date_list)
+    assert res == [ '2017-03-06T16:00:04.159338Z' ]
+    # Test date list item with non-UTC timezone
+    tzn = datetime.timezone(datetime.timedelta(hours=-6))
+    date_list = [ datetime.datetime(2017, 3, 6, 10, 0, 4, 159338, tzn) ]
+    res = datetime_to_string_list(date_list)
+    assert res == [ '2017-03-06T16:00:04.159338Z' ]
+    # Test specified date list with multiple items
+    date_list = [ datetime.datetime(2017, 3, 6, 16, 0, 4, 159338),
+                  datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
+                        datetime.timezone.utc) ]
+    res = datetime_to_string_list(date_list)
+    assert res == [ '2017-03-06T16:00:04.159338Z', '2017-03-06T16:00:04.159338Z' ]
 
 def test_date_conversion():
     date = string_to_date('2017-03-06')
