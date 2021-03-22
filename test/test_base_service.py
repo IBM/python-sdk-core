@@ -11,6 +11,7 @@ import pytest
 import responses
 import requests
 import jwt
+from urllib3.exceptions import ConnectTimeoutError, MaxRetryError
 from ibm_cloud_sdk_core import BaseService, DetailedResponse
 from ibm_cloud_sdk_core import ApiException
 from ibm_cloud_sdk_core import CP4DTokenManager
@@ -552,6 +553,72 @@ def test_gzip_compression_external():
     prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
     assert prepped['data'] == gzip.compress(b'{"foo": "bar"}')
     assert prepped['headers'].get('content-encoding') == 'gzip'
+
+def test_retry_config_default():
+    service = BaseService(service_url='https://mockurl/', authenticator=NoAuthAuthenticator())
+    service.enable_retries()
+    assert service.retry_config.total == 4
+    assert service.retry_config.backoff_factor == 0.1
+    assert service.http_client.get_adapter('https://').max_retries.total == 4
+
+    # Ensure retries fail after 4 retries
+    error = ConnectTimeoutError()
+    retry = service.http_client.get_adapter('https://').max_retries
+    retry = retry.increment(error=error)
+    retry = retry.increment(error=error)
+    retry = retry.increment(error=error)
+    retry = retry.increment(error=error)
+    with pytest.raises(MaxRetryError) as retry_err:
+        retry.increment(error=error)
+    assert retry_err.value.reason == error
+
+def test_retry_config_disable():
+    # Test disabling retries
+    service = BaseService(service_url='https://mockurl/', authenticator=NoAuthAuthenticator())
+    service.enable_retries()
+    service.disable_retries()
+    assert service.retry_config is None
+    assert service.http_client.get_adapter('https://').max_retries.total == 0
+
+    # Ensure retries are not started after one connection attempt
+    error = ConnectTimeoutError()
+    retry = service.http_client.get_adapter('https://').max_retries
+    with pytest.raises(MaxRetryError) as retry_err:
+        retry.increment(error=error)
+    assert retry_err.value.reason == error
+
+def test_retry_config_non_default():
+    service = BaseService(service_url='https://mockurl/', authenticator=NoAuthAuthenticator())
+    service.enable_retries(2, 0.3)
+    assert service.retry_config.total == 2
+    assert service.retry_config.backoff_factor == 0.3
+
+    # Ensure retries fail after 2 retries
+    error = ConnectTimeoutError()
+    retry = service.http_client.get_adapter('https://').max_retries
+    retry = retry.increment(error=error)
+    retry = retry.increment(error=error)
+    with pytest.raises(MaxRetryError) as retry_err:
+        retry.increment(error=error)
+    assert retry_err.value.reason == error
+
+def test_retry_config_external():
+    file_path = os.path.join(
+        os.path.dirname(__file__), '../resources/ibm-credentials-retry.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
+    assert service.retry_config.total == 3
+    assert service.retry_config.backoff_factor == 0.2
+
+    # Ensure retries fail after 3 retries
+    error = ConnectTimeoutError()
+    retry = service.http_client.get_adapter('https://').max_retries
+    retry = retry.increment(error=error)
+    retry = retry.increment(error=error)
+    retry = retry.increment(error=error)
+    with pytest.raises(MaxRetryError) as retry_err:
+        retry.increment(error=error)
+    assert retry_err.value.reason == error
 
 @responses.activate
 def test_user_agent_header():
