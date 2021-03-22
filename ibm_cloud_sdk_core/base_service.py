@@ -24,7 +24,9 @@ import gzip
 from typing import Dict, List, Optional, Tuple, Union
 
 import requests
+from requests.adapters import HTTPAdapter
 from requests.structures import CaseInsensitiveDict
+from urllib3.util.retry import Retry
 from ibm_cloud_sdk_core.authenticators import Authenticator
 from .version import __version__
 from .utils import (has_bad_first_or_last_char, remove_null_values,
@@ -88,10 +90,34 @@ class BaseService:
         self.default_headers = None
         self.enable_gzip_compression = enable_gzip_compression
         self._set_user_agent_header(self._build_user_agent())
+        self.retry_config = None
+        self.http_adapter = HTTPAdapter()
         if not self.authenticator:
             raise ValueError('authenticator must be provided')
         if not isinstance(self.authenticator, Authenticator):
             raise ValueError('authenticator should be of type Authenticator')
+
+    def enable_retries(self, max_retries: int = 4, retry_interval: float = 0.1) -> None:
+        """Setup http_client with retry_config and http_adapter"""
+        self.retry_config = Retry(
+            total = max_retries,
+            backoff_factor = retry_interval,
+            # List of HTTP status codes to retry on in addition to Timeout/Connection Errors
+            status_forcelist = [429, 500, 502, 503, 504],
+            # List of HTTP methods to retry on
+            # Omitting this will default to all methods except POST
+            allowed_methods=['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'POST']
+        )
+        self.http_adapter = HTTPAdapter(max_retries=self.retry_config)
+        self.http_client.mount('http://', self.http_adapter)
+        self.http_client.mount('https://', self.http_adapter)
+
+    def disable_retries(self):
+        """Remove retry config from http_adapter"""
+        self.retry_config = None
+        self.http_adapter = HTTPAdapter()
+        self.http_client.mount('http://', self.http_adapter)
+        self.http_client.mount('https://', self.http_adapter)
 
     @staticmethod
     def _get_system_info() -> str:
@@ -126,10 +152,19 @@ class BaseService:
         if config.get('URL'):
             self.set_service_url(config.get('URL'))
         if config.get('DISABLE_SSL'):
-            self.set_disable_ssl_verification(bool(config.get('DISABLE_SSL')))
-        if config.get('ENABLE_GZIP') is not None:
+            self.set_disable_ssl_verification(
+                config.get('DISABLE_SSL').lower() == 'true')
+        if config.get('ENABLE_GZIP'):
             self.set_enable_gzip_compression(
-                config.get('ENABLE_GZIP') == 'True')
+                config.get('ENABLE_GZIP').lower() == 'true')
+        if config.get('ENABLE_RETRIES'):
+            if config.get('ENABLE_RETRIES').lower() == 'true':
+                kwargs = {}
+                if config.get('MAX_RETRIES'):
+                    kwargs["max_retries"] = int(config.get('MAX_RETRIES'))
+                if config.get('RETRY_INTERVAL'):
+                    kwargs["retry_interval"] = float(config.get('RETRY_INTERVAL'))
+                self.enable_retries(**kwargs)
 
     def _set_user_agent_header(self, user_agent_string: str) -> None:
         self.user_agent_header = {'User-Agent': user_agent_string}

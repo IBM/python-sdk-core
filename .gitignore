@@ -53,6 +53,7 @@ venv*/
 python3/
 
 *.env
+!resources/*.env
 
 .sfdx/tools/apex.db
 .pytest_cache/
