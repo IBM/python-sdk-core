@@ -1,3 +1,10 @@
+# [3.9.0](https://github.com/IBM/python-sdk-core/compare/v3.8.0...v3.9.0) (2021-03-25)
+
+
+### Features
+
+* **python:** add max retry configuration for python requests session ([481192c](https://github.com/IBM/python-sdk-core/commit/481192c5468c908f28f77ce697cae13350409397))
+
 # [3.8.0](https://github.com/IBM/python-sdk-core/compare/v3.7.0...v3.8.0) (2021-03-17)
 
 
