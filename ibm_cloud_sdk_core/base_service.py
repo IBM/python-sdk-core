@@ -109,14 +109,12 @@ class BaseService:
             allowed_methods=['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'POST']
         )
         self.http_adapter = HTTPAdapter(max_retries=self.retry_config)
-        self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
 
     def disable_retries(self):
         """Remove retry config from http_adapter"""
         self.retry_config = None
         self.http_adapter = HTTPAdapter()
-        self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
 
     @staticmethod
