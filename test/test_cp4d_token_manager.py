@@ -29,20 +29,26 @@ def test_request_token():
                               'secret', algorithm='HS256',
                               headers={'kid': '230498151c214b788dd97f22b85410a5'})
     response = {
-        "accessToken": access_token,
+        "token": access_token,
     }
-    responses.add(responses.GET, url + '/v1/preauth/validateAuth', body=json.dumps(response), status=200)
+    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
 
     token_manager = CP4DTokenManager("username", "password", url)
     token_manager.set_disable_ssl_verification(True)
     token = token_manager.get_token()
 
     assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == url + '/v1/preauth/validateAuth'
+    assert responses.calls[0].request.url == url + '/v1/authorize'
     assert token == access_token
 
-    token_manager = CP4DTokenManager("username", "password", url + '/v1/preauth/validateAuth')
+    token_manager = CP4DTokenManager("username", "password", url + '/v1/authorize')
     token = token_manager.get_token()
     assert len(responses.calls) == 2
-    assert responses.calls[1].request.url == url + '/v1/preauth/validateAuth'
+    assert responses.calls[1].request.url == url + '/v1/authorize'
+    assert token == access_token
+
+    token_manager = CP4DTokenManager(username="username", apikey="fake_api_key", url=url + '/v1/authorize')
+    token = token_manager.get_token()
+    assert len(responses.calls) == 3
+    assert responses.calls[2].request.url == url + '/v1/authorize'
     assert token == access_token

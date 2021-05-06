@@ -7,15 +7,15 @@ import jwt
 
 from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
 
-def test_iam_authenticator():
+def test_cp4d_authenticator():
     authenticator = CloudPakForDataAuthenticator(
         'my_username', 'my_password', 'http://my_url')
     assert authenticator is not None
-    assert authenticator.token_manager.url == 'http://my_url/v1/preauth/validateAuth'
+    assert authenticator.token_manager.url == 'http://my_url/v1/authorize'
     assert authenticator.token_manager.username == 'my_username'
     assert authenticator.token_manager.password == 'my_password'
     assert authenticator.token_manager.disable_ssl_verification is False
-    assert authenticator.token_manager.headers is None
+    assert authenticator.token_manager.headers == {'Content-Type': 'application/json'}
     assert authenticator.token_manager.proxies is None
 
     authenticator.set_disable_ssl_verification(True)
@@ -36,17 +36,33 @@ def test_iam_authenticator():
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
 
 
-def test_iam_authenticator_validate_failed():
+def test_cp4d_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator('my_username', None, 'my_url')
-    assert str(err.value) == 'The username and password shouldn\'t be None.'
+    assert str(err.value) == 'Exactly one of `apikey` or `password` must be specified.'
+
+    with pytest.raises(ValueError) as err:
+        CloudPakForDataAuthenticator(username='my_username', url='my_url')
+    assert str(err.value) == 'Exactly one of `apikey` or `password` must be specified.'
+
+    with pytest.raises(ValueError) as err:
+        CloudPakForDataAuthenticator('my_username', None, 'my_url', apikey=None)
+    assert str(err.value) == 'Exactly one of `apikey` or `password` must be specified.'
 
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator(None, 'my_password', 'my_url')
-    assert str(err.value) == 'The username and password shouldn\'t be None.'
+    assert str(err.value) == 'The username shouldn\'t be None.'
+
+    with pytest.raises(ValueError) as err:
+        CloudPakForDataAuthenticator(password='my_password', url='my_url')
+    assert str(err.value) == 'The username shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator('my_username', 'my_password', None)
+    assert str(err.value) == 'The url shouldn\'t be None.'
+
+    with pytest.raises(ValueError) as err:
+        CloudPakForDataAuthenticator(username='my_username', password='my_password')
     assert str(err.value) == 'The url shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
@@ -87,14 +103,22 @@ def test_get_token():
                               'secret', algorithm='HS256',
                               headers={'kid': '230498151c214b788dd97f22b85410a5'})
     response = {
-        "accessToken": access_token,
+        "token": access_token,
         "token_type": "Bearer",
         "expires_in": 3600,
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }
-    responses.add(responses.GET, url + '/v1/preauth/validateAuth', body=json.dumps(response), status=200)
+    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
 
+    authenticator = CloudPakForDataAuthenticator(
+        'my_username', 'my_password', url + '/v1/authorize')
+
+    request = {'headers': {}}
+    authenticator.authenticate(request)
+    assert request['headers']['Authorization'] is not None
+
+    # Ensure '/v1/authorize' is added to the url if omitted
     authenticator = CloudPakForDataAuthenticator(
         'my_username', 'my_password', url)
 

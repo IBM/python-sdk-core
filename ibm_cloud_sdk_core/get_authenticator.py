@@ -54,6 +54,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             username=config.get('USERNAME'),
             password=config.get('PASSWORD'),
             url=config.get('AUTH_URL'),
+            apikey=config.get('APIKEY'),
             disable_ssl_verification=config.get('AUTH_DISABLE_SSL'))
     elif auth_type == 'iam' and config.get('APIKEY'):
         authenticator = IAMAuthenticator(
