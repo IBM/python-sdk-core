@@ -1,3 +1,10 @@
+# [3.10.0](https://github.com/IBM/python-sdk-core/compare/v3.9.0...v3.10.0) (2021-05-12)
+
+
+### Features
+
+* support api key use case for CP4D authenticator ([830c28f](https://github.com/IBM/python-sdk-core/commit/830c28f68682a885d5cd4f668964def2864930d0))
+
 # [3.9.0](https://github.com/IBM/python-sdk-core/compare/v3.8.0...v3.9.0) (2021-03-25)
 
 
