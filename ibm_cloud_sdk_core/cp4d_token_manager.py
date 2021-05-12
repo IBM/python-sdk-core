@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from typing import Dict, Optional
 from .jwt_token_manager import JWTTokenManager
 
@@ -24,12 +25,11 @@ class CP4DTokenManager(JWTTokenManager):
     The Token Manager performs basic auth with a username and password
     to acquire JWT tokens.
 
-    Args:
-        username: The username for authentication.
-        password: The password for authentication.
-        url: The endpoint for JWT token requests.
-
     Keyword Arguments:
+        username: The username for authentication [required].
+        password: The password for authentication [required if apikey not specified].
+        url: The endpoint for JWT token requests [required].
+        apikey: The apikey for authentication [required if password not specified].
         disable_ssl_verification: Disable ssl verification. Defaults to False.
         headers: Headers to be sent with every service token request. Defaults to None.
         proxies: Proxies to use for making request. Defaults to None.
@@ -45,22 +45,27 @@ class CP4DTokenManager(JWTTokenManager):
         proxies.http (str): The proxy endpoint to use for HTTP requests.
         proxies.https (str): The proxy endpoint to use for HTTPS requests.
     """
-    TOKEN_NAME = 'accessToken'
-    VALIDATE_AUTH_PATH = '/v1/preauth/validateAuth'
+    TOKEN_NAME = 'token'
+    VALIDATE_AUTH_PATH = '/v1/authorize'
 
     def __init__(self,
-                 username: str,
-                 password: str,
-                 url: str,
+                 username: str = None,
+                 password: str = None,
+                 url: str = None,
                  *,
+                 apikey: str = None,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None) -> None:
         self.username = username
         self.password = password
         if url and not self.VALIDATE_AUTH_PATH in url:
-            url = url + '/v1/preauth/validateAuth'
+            url = url + '/v1/authorize'
+        self.apikey = apikey
         self.headers = headers
+        if self.headers is None:
+            self.headers = {}
+        self.headers['Content-Type'] = 'application/json'
         self.proxies = proxies
         super().__init__(url, disable_ssl_verification=disable_ssl_verification,
                          token_name=self.TOKEN_NAME)
@@ -68,13 +73,15 @@ class CP4DTokenManager(JWTTokenManager):
     def request_token(self) -> dict:
         """Makes a request for a token.
         """
-        auth_tuple = (self.username, self.password)
-
         response = self._request(
-            method='GET',
+            method='POST',
             headers=self.headers,
             url=self.url,
-            auth_tuple=auth_tuple,
+            data=json.dumps({
+                "username": self.username,
+                "password": self.password,
+                "api_key": self.apikey
+            }),
             proxies=self.proxies)
         return response
 

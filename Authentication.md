@@ -140,7 +140,7 @@ service = ExampleService(authenticator=authenticator)
 ```
 
 ##  Cloud Pak for Data
-The `CloudPakForDataAuthenticator` will accept user-supplied username and password values, and will
+The `CloudPakForDataAuthenticator` will accept a user-supplied username and either a password or an apikey value, and will
 perform the necessary interactions with the Cloud Pak for Data token service to obtain a suitable
 bearer token.  The authenticator will also obtain a new bearer token when the current token expires.
 The bearer token is then added to each outbound request in the `Authorization` header in the
@@ -150,8 +150,9 @@ form:
 ```
 ### Properties
 - username: (required) the username used to obtain a bearer token.
-- password: (required) the password used to obtain a bearer token.
+- password: (required if apikey is not specified) the password used to obtain a bearer token.
 - url: (required) The URL representing the Cloud Pak for Data token service endpoint.
+- apikey: (required if password is not specified) the apikey used to obtain a bearer token.
 - disableSSLVerification: (optional) A flag that indicates whether verificaton of the server's SSL
 certificate should be disabled or not. The default value is `false`.
 - headers: (optional) A set of key/value pairs that will be sent as HTTP headers in requests
@@ -160,11 +161,20 @@ made to the IAM token service.
 ```python
 from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
 
+# Username / password authentication
 authenticator = CloudPakForDataAuthenticator(
-                 'my_username',
-                 'my_password',
-                 'https://my-cp4d-url',
+                 username='my_username',
+                 password='my_password',
+                 url='https://my-cp4d-url',
                  disable_ssl_verification=True)
+
+# Username / apikey authentication
+authenticator = CloudPakForDataAuthenticator(
+                 username='my_username',
+                 apikey='my_apikey',
+                 url='https://my-cp4d-url',
+                 disable_ssl_verification=True)
+
 service = ExampleService(authenticator=authenticator)
 
 service.get_authenticator().set_headers({'dummy': 'headers'})
@@ -172,9 +182,16 @@ service.get_authenticator().set_headers({'dummy': 'headers'})
 ### Configuration example
 External configuration:
 ```
+# Username / password authentication
 export EXAMPLE_SERVICE_AUTH_TYPE=cp4d
 export EXAMPLE_SERVICE_USERNAME=myuser
 export EXAMPLE_SERVICE_PASSWORD=mypassword
+export EXAMPLE_SERVICE_URL=https://mycp4dhost.com/
+
+# Username / apikey authentication
+export EXAMPLE_SERVICE_AUTH_TYPE=cp4d
+export EXAMPLE_SERVICE_USERNAME=myuser
+export EXAMPLE_SERVICE_APIKEY=myapikey
 export EXAMPLE_SERVICE_URL=https://mycp4dhost.com/
 ```
 Application code:
