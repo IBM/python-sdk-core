@@ -293,7 +293,7 @@ def test_for_cp4d():
     assert service.authenticator.token_manager is not None
     assert service.authenticator.token_manager.username == 'my_username'
     assert service.authenticator.token_manager.password == 'my_password'
-    assert service.authenticator.token_manager.url == 'my_url/v1/preauth/validateAuth'
+    assert service.authenticator.token_manager.url == 'my_url/v1/authorize'
     assert isinstance(service.authenticator.token_manager, CP4DTokenManager)
 
 
@@ -648,10 +648,10 @@ def test_files_dict():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
     form_data = {}
-    file = open(
+    with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
-    form_data['file1'] = (None, file, 'application/octet-stream')
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
+        form_data['file1'] = (None, file, 'application/octet-stream')
     form_data['string1'] = (None, 'hello', 'text/plain')
     request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
     files = request['files']
@@ -667,10 +667,10 @@ def test_files_list():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
     form_data = []
-    file = open(
+    with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
-    form_data.append(('file1', (None, file, 'application/octet-stream')))
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
+        form_data.append(('file1', (None, file, 'application/octet-stream')))
     form_data.append(('string1', (None, 'hello', 'text/plain')))
     request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
     files = request['files']
@@ -686,18 +686,18 @@ def test_files_duplicate_parts():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
     form_data = []
-    file = open(
+    with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r')
-    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
-    file = open(
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
+        form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-basic.env'), 'r')
-    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
-    file = open(
+            os.path.dirname(__file__), '../resources/ibm-credentials-basic.env'), 'r') as file:
+        form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+    with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env'), 'r')
-    form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+            os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env'), 'r') as file:
+        form_data.append(('creds_file', (None, file, 'application/octet-stream')))
     request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
     files = request['files']
     assert isinstance(files, list)

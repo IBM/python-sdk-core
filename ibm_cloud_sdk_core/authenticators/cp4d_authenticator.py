@@ -31,12 +31,11 @@ class CloudPakForDataAuthenticator(Authenticator):
 
         Authorization: Bearer <bearer-token>
 
-    Args:
-        username: The username used to obtain a bearer token.
-        password: The password used to obtain a bearer token.
-        url: The URL representing the Cloud Pak for Data token service endpoint.
-
     Keyword Args:
+        username: The username used to obtain a bearer token [required].
+        password: The password used to obtain a bearer token [required if apikey not specified].
+        url: The URL representing the Cloud Pak for Data token service endpoint [required].
+        apikey: The API key used to obtain a bearer token [required if password not specified].
         disable_ssl_verification:  A flag that indicates whether verification of the server's SSL
             certificate should be disabled or not. Defaults to False.
         headers: Default headers to be sent with every CP4D token request. Defaults to None.
@@ -48,21 +47,22 @@ class CloudPakForDataAuthenticator(Authenticator):
         token_manager (CP4DTokenManager): Retrives and manages CP4D tokens from the endpoint specified by the url.
 
     Raises:
-        ValueError: The username, password, and/or url are not valid for CP4D token requests.
+        ValueError: The username, password/apikey, and/or url are not valid for CP4D token requests.
     """
     authenticationdict = 'cp4d'
 
     def __init__(self,
-                 username: str,
-                 password: str,
-                 url: str,
+                 username: str = None,
+                 password: str = None,
+                 url: str = None,
                  *,
+                 apikey: str = None,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None) -> None:
         self.token_manager = CP4DTokenManager(
-            username, password, url, disable_ssl_verification=disable_ssl_verification,
-            headers=headers, proxies=proxies)
+            username=username, password=password, apikey=apikey, url=url,
+            disable_ssl_verification=disable_ssl_verification, headers=headers, proxies=proxies)
         self.validate()
 
     def validate(self) -> None:
@@ -74,8 +74,12 @@ class CloudPakForDataAuthenticator(Authenticator):
         Raises:
             ValueError: The username, password, and/or url are not valid for token requests.
         """
-        if self.token_manager.username is None or self.token_manager.password is None:
-            raise ValueError('The username and password shouldn\'t be None.')
+        if self.token_manager.username is None:
+            raise ValueError('The username shouldn\'t be None.')
+
+        if ((self.token_manager.password is None and self.token_manager.apikey is None)
+                or (self.token_manager.password is not None and self.token_manager.apikey is not None)):
+            raise ValueError('Exactly one of `apikey` or `password` must be specified.')
 
         if self.token_manager.url is None:
             raise ValueError('The url shouldn\'t be None.')
