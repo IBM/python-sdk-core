@@ -23,7 +23,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-package-lock.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -64,3 +63,8 @@ python3/
 # ignore detect secrets files
 .pre-commit-config.yaml
 .secrets.baseline
+
+# files produced by "npm install" commands during build
+package.json
+package-lock.json
+node_modules/
