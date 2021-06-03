@@ -23,12 +23,13 @@ from ibm_cloud_sdk_core.utils import strip_extra_slashes
 
 class IncludeExternalConfigService(BaseService):
     default_service_url = 'https://servicesthatincludeexternalconfig.com/api'
+
     def __init__(
-            self,
-            api_version: str,
-            authenticator: Optional[Authenticator] = None,
-            trace_id: Optional[str] = None
-        ) -> None:
+        self,
+        api_version: str,
+        authenticator: Optional[Authenticator] = None,
+        trace_id: Optional[str] = None
+    ) -> None:
         BaseService.__init__(
             self,
             service_url=self.default_service_url,
@@ -39,16 +40,17 @@ class IncludeExternalConfigService(BaseService):
         self.trace_id = trace_id
         self.configure_service('include-external-config')
 
+
 class AnyServiceV1(BaseService):
     default_url = 'https://gateway.watsonplatform.net/test/api'
 
     def __init__(
-            self,
-            version: str,
-            service_url: str = default_url,
-            authenticator: Optional[Authenticator] = None,
-            disable_ssl_verification: bool = False
-        ) -> None:
+        self,
+        version: str,
+        service_url: str = default_url,
+        authenticator: Optional[Authenticator] = None,
+        disable_ssl_verification: bool = False
+    ) -> None:
         BaseService.__init__(
             self,
             service_url=service_url,
@@ -138,12 +140,19 @@ def test_url_encoding():
         }),
         content_type='application/json')
 
+    # Set Host as a default header on the service.
+    service.set_default_headers({'Host': 'alternatehost.ibm.com:443'})
+
     response = service.op_with_path_params(path0, path1)
 
     assert response is not None
     assert len(responses.calls) == 1
     assert path_encoded in responses.calls[0].request.url
     assert 'version=2017-07-07' in responses.calls[0].request.url
+
+    # Verify that the Host header was set in the request.
+    assert responses.calls[0].request.headers.get(
+        'Host') == 'alternatehost.ibm.com:443'
 
 
 @responses.activate
@@ -153,7 +162,8 @@ def test_stream_json_response():
     path = '/v1/streamjson'
     test_url = service.default_url + path
 
-    expected_response = json.dumps({"id": 1, "rev": "v1", "content": "this is a document"})
+    expected_response = json.dumps(
+        {"id": 1, "rev": "v1", "content": "this is a document"})
 
     # print("Expected response: ", expected_response)
 
@@ -207,6 +217,7 @@ def test_fail_http_config():
     with pytest.raises(TypeError):
         service.with_http_config(None)
 
+
 @responses.activate
 def test_cwd():
     file_path = os.path.join(
@@ -230,6 +241,7 @@ def test_cwd():
     os.remove(temp_env_path)
     assert service.service_url == 'https://cwdserviceurl'
     assert service.authenticator is not None
+
 
 @responses.activate
 def test_iam():
@@ -263,6 +275,7 @@ def test_iam():
         content_type='application/json')
     service.any_service_call()
     assert "grant-type%3Aapikey" in responses.calls[0].request.body
+
 
 def test_no_auth():
     class MadeUp:
@@ -298,7 +311,8 @@ def test_for_cp4d():
 
 
 def test_disable_ssl_verification():
-    service1 = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator(), disable_ssl_verification=True)
+    service1 = AnyServiceV1(
+        '2017-07-07', authenticator=NoAuthAuthenticator(), disable_ssl_verification=True)
     assert service1.disable_ssl_verification is True
 
     service1.set_disable_ssl_verification(False)
@@ -343,7 +357,8 @@ def test_response_with_no_body():
 
 def test_has_bad_first_or_last_char():
     with pytest.raises(ValueError) as err:
-        basic_authenticator = BasicAuthenticator('{my_username}', 'my_password')
+        basic_authenticator = BasicAuthenticator(
+            '{my_username}', 'my_password')
         AnyServiceV1('2018-11-20', authenticator=basic_authenticator).prepare_request(
             responses.GET,
             'https://gateway.watsonplatform.net/test/api'
@@ -352,6 +367,7 @@ def test_has_bad_first_or_last_char():
         err.value
     ) == 'The username and password shouldn\'t start or end with curly brackets or quotes. '\
          'Please remove any surrounding {, }, or \" characters.'
+
 
 @responses.activate
 def test_request_server_error():
@@ -370,6 +386,7 @@ def test_request_server_error():
     except ApiException as err:
         assert err.message == 'internal server error'
 
+
 @responses.activate
 def test_request_success_json():
     responses.add(
@@ -385,12 +402,14 @@ def test_request_success_json():
     detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {'foo': 'bar'}
 
-    service = AnyServiceV1('2018-11-20', authenticator=BasicAuthenticator('my_username', 'my_password'))
+    service = AnyServiceV1(
+        '2018-11-20', authenticator=BasicAuthenticator('my_username', 'my_password'))
     service.set_default_headers({'test': 'header'})
     service.set_disable_ssl_verification(True)
     prepped = service.prepare_request('GET', url='')
     detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {'foo': 'bar'}
+
 
 @responses.activate
 def test_request_success_response():
@@ -406,6 +425,7 @@ def test_request_success_response():
     prepped = service.prepare_request('GET', url='')
     detailed_response = service.send(prepped)
     assert detailed_response.get_result() == {"foo": "bar"}
+
 
 @responses.activate
 def test_request_fail_401():
@@ -423,6 +443,7 @@ def test_request_fail_401():
         service.send(prepped)
     except ApiException as err:
         assert err.message == 'Unauthorized: Access is denied due to invalid credentials'
+
 
 def test_misc_methods():
 
@@ -457,12 +478,14 @@ def test_misc_methods():
     res_str = service._convert_list(temp)
     assert res_str == 'default,123'
 
+
 def test_default_headers():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     service.set_default_headers({'xxx': 'yyy'})
     assert service.default_headers == {'xxx': 'yyy'}
     with pytest.raises(TypeError):
         service.set_default_headers('xxx')
+
 
 def test_set_service_url():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
@@ -473,11 +496,13 @@ def test_set_service_url():
 
     service.set_service_url('my_url')
 
+
 def test_http_client():
     auth = BasicAuthenticator('my_username', 'my_password')
     service = AnyServiceV1('2018-11-20', authenticator=auth)
     assert isinstance(service.get_http_client(), requests.sessions.Session)
-    assert service.get_http_client().headers.get('Accept-Encoding') == 'gzip, deflate'
+    assert service.get_http_client().headers.get(
+        'Accept-Encoding') == 'gzip, deflate'
 
     new_http_client = requests.Session()
     new_http_client.headers.update({'Accept-Encoding': 'gzip'})
@@ -487,23 +512,27 @@ def test_http_client():
     with pytest.raises(TypeError):
         service.set_http_client("bad_argument_type")
 
+
 def test_get_authenticator():
     auth = BasicAuthenticator('my_username', 'my_password')
     service = AnyServiceV1('2018-11-20', authenticator=auth)
     assert service.get_authenticator() is not None
 
+
 def test_gzip_compression():
     # Should return uncompressed data when gzip is off
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     assert not service.get_enable_gzip_compression()
-    prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
+    prepped = service.prepare_request(
+        'GET', url='', data=json.dumps({"foo": "bar"}))
     assert prepped['data'] == b'{"foo": "bar"}'
     assert prepped['headers'].get('content-encoding') != 'gzip'
 
     # Should return compressed data when gzip is on
     service.set_enable_gzip_compression(True)
     assert service.get_enable_gzip_compression()
-    prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
+    prepped = service.prepare_request(
+        'GET', url='', data=json.dumps({"foo": "bar"}))
     assert prepped['data'] == gzip.compress(b'{"foo": "bar"}')
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
@@ -542,20 +571,25 @@ def test_gzip_compression():
     assert prepped['data'] == b'{"foo": "bar"}'
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
+
 def test_gzip_compression_external():
     # Should set gzip compression from external config
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-gzip.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
+    service = IncludeExternalConfigService(
+        'v1', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://mockurl'
     assert service.get_enable_gzip_compression() is True
-    prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
+    prepped = service.prepare_request(
+        'GET', url='', data=json.dumps({"foo": "bar"}))
     assert prepped['data'] == gzip.compress(b'{"foo": "bar"}')
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
+
 def test_retry_config_default():
-    service = BaseService(service_url='https://mockurl/', authenticator=NoAuthAuthenticator())
+    service = BaseService(service_url='https://mockurl/',
+                          authenticator=NoAuthAuthenticator())
     service.enable_retries()
     assert service.retry_config.total == 4
     assert service.retry_config.backoff_factor == 0.1
@@ -572,9 +606,11 @@ def test_retry_config_default():
         retry.increment(error=error)
     assert retry_err.value.reason == error
 
+
 def test_retry_config_disable():
     # Test disabling retries
-    service = BaseService(service_url='https://mockurl/', authenticator=NoAuthAuthenticator())
+    service = BaseService(service_url='https://mockurl/',
+                          authenticator=NoAuthAuthenticator())
     service.enable_retries()
     service.disable_retries()
     assert service.retry_config is None
@@ -587,8 +623,10 @@ def test_retry_config_disable():
         retry.increment(error=error)
     assert retry_err.value.reason == error
 
+
 def test_retry_config_non_default():
-    service = BaseService(service_url='https://mockurl/', authenticator=NoAuthAuthenticator())
+    service = BaseService(service_url='https://mockurl/',
+                          authenticator=NoAuthAuthenticator())
     service.enable_retries(2, 0.3)
     assert service.retry_config.total == 2
     assert service.retry_config.backoff_factor == 0.3
@@ -602,11 +640,13 @@ def test_retry_config_non_default():
         retry.increment(error=error)
     assert retry_err.value.reason == error
 
+
 def test_retry_config_external():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-retry.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
+    service = IncludeExternalConfigService(
+        'v1', authenticator=NoAuthAuthenticator())
     assert service.retry_config.total == 3
     assert service.retry_config.backoff_factor == 0.2
 
@@ -619,6 +659,7 @@ def test_retry_config_external():
     with pytest.raises(MaxRetryError) as retry_err:
         retry.increment(error=error)
     assert retry_err.value.reason == error
+
 
 @responses.activate
 def test_user_agent_header():
@@ -644,6 +685,7 @@ def test_user_agent_header():
     assert response.get_result().request.headers.__getitem__(
         'user-agent') == user_agent_header['User-Agent']
 
+
 def test_files_dict():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
@@ -653,7 +695,8 @@ def test_files_dict():
             os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
         form_data['file1'] = (None, file, 'application/octet-stream')
     form_data['string1'] = (None, 'hello', 'text/plain')
-    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    request = service.prepare_request(
+        'GET', url='', headers={'X-opt-out': True}, files=form_data)
     files = request['files']
     assert isinstance(files, list)
     assert len(files) == 2
@@ -662,6 +705,7 @@ def test_files_dict():
     assert file1[0] == 'ibm-credentials-iam.env'
     string1 = files_dict['string1']
     assert string1[0] is None
+
 
 def test_files_list():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
@@ -672,7 +716,8 @@ def test_files_list():
             os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
         form_data.append(('file1', (None, file, 'application/octet-stream')))
     form_data.append(('string1', (None, 'hello', 'text/plain')))
-    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+    request = service.prepare_request(
+        'GET', url='', headers={'X-opt-out': True}, files=form_data)
     files = request['files']
     assert isinstance(files, list)
     assert len(files) == 2
@@ -682,6 +727,7 @@ def test_files_list():
     string1 = files_dict['string1']
     assert string1[0] is None
 
+
 def test_files_duplicate_parts():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
@@ -689,16 +735,20 @@ def test_files_duplicate_parts():
     with open(
         os.path.join(
             os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
-        form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+        form_data.append(
+            ('creds_file', (None, file, 'application/octet-stream')))
     with open(
         os.path.join(
             os.path.dirname(__file__), '../resources/ibm-credentials-basic.env'), 'r') as file:
-        form_data.append(('creds_file', (None, file, 'application/octet-stream')))
+        form_data.append(
+            ('creds_file', (None, file, 'application/octet-stream')))
     with open(
         os.path.join(
             os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env'), 'r') as file:
-        form_data.append(('creds_file', (None, file, 'application/octet-stream')))
-    request = service.prepare_request('GET', url='', headers={'X-opt-out': True}, files=form_data)
+        form_data.append(
+            ('creds_file', (None, file, 'application/octet-stream')))
+    request = service.prepare_request(
+        'GET', url='', headers={'X-opt-out': True}, files=form_data)
     files = request['files']
     assert isinstance(files, list)
     assert len(files) == 3
@@ -706,10 +756,13 @@ def test_files_duplicate_parts():
         assert part_name == 'creds_file'
         assert file_tuple[0] is not None
 
+
 def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
-    req = service.prepare_request('POST', url='', headers={'X-opt-out': True}, data={'hello': 'world'})
+    req = service.prepare_request('POST', url='', headers={
+                                  'X-opt-out': True}, data={'hello': 'world'})
     assert req.get('data') == "{\"hello\": \"world\"}"
+
 
 def test_trailing_slash():
     assert strip_extra_slashes('') == ''
@@ -723,7 +776,8 @@ def test_trailing_slash():
     assert strip_extra_slashes('https://host/path//') == 'https://host/path/'
     assert strip_extra_slashes('https://host//path//') == 'https://host//path/'
 
-    service = AnyServiceV1('2018-11-20', service_url='https://host/', authenticator=NoAuthAuthenticator())
+    service = AnyServiceV1(
+        '2018-11-20', service_url='https://host/', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://host/'
     service.set_service_url('https://host/')
     assert service.service_url == 'https://host/'
@@ -733,7 +787,8 @@ def test_trailing_slash():
                                   data={'hello': 'world'})
     assert req.get('url') == 'https://host//path/'
 
-    service = AnyServiceV1('2018-11-20', service_url='https://host/', authenticator=NoAuthAuthenticator())
+    service = AnyServiceV1(
+        '2018-11-20', service_url='https://host/', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://host/'
     service.set_service_url('https://host/')
     assert service.service_url == 'https://host/'
@@ -746,7 +801,8 @@ def test_trailing_slash():
     service.set_service_url(None)
     assert service.service_url is None
 
-    service = AnyServiceV1('2018-11-20', service_url='/', authenticator=NoAuthAuthenticator())
+    service = AnyServiceV1('2018-11-20', service_url='/',
+                           authenticator=NoAuthAuthenticator())
     assert service.service_url == '/'
     service.set_service_url('/')
     assert service.service_url == '/'
@@ -756,14 +812,17 @@ def test_trailing_slash():
                                   data={'hello': 'world'})
     assert req.get('url') == '/'
 
+
 def test_service_url_not_set():
     service = BaseService(service_url='', authenticator=NoAuthAuthenticator())
     with pytest.raises(ValueError) as err:
         service.prepare_request('POST', url='')
     assert str(err.value) == 'The service_url is required'
 
+
 def test_setting_proxy():
-    service = BaseService(service_url='test', authenticator=IAMAuthenticator('wonder woman'))
+    service = BaseService(service_url='test',
+                          authenticator=IAMAuthenticator('wonder woman'))
     assert service.authenticator is not None
     assert service.authenticator.token_manager.http_config == {}
 
@@ -775,22 +834,27 @@ def test_setting_proxy():
     service.set_http_config(http_config)
     assert service.authenticator.token_manager.http_config == http_config
 
-    service2 = BaseService(service_url='test', authenticator=BasicAuthenticator('marvellous', 'mrs maisel'))
+    service2 = BaseService(service_url='test', authenticator=BasicAuthenticator(
+        'marvellous', 'mrs maisel'))
     service2.set_http_config(http_config)
     assert service2.authenticator is not None
+
 
 def test_configure_service():
     file_path = os.path.join(
         os.path.dirname(__file__), '../resources/ibm-credentials-external.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
-    service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
+    service = IncludeExternalConfigService(
+        'v1', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://externallyconfigured.com/api'
     assert service.disable_ssl_verification is True
     # The authenticator should not be changed as a result of configure_service()
     assert isinstance(service.get_authenticator(), NoAuthAuthenticator)
 
+
 def test_configure_service_error():
-    service = BaseService(service_url='v1', authenticator=NoAuthAuthenticator())
+    service = BaseService(
+        service_url='v1', authenticator=NoAuthAuthenticator())
     with pytest.raises(ValueError) as err:
         service.configure_service(None)
     assert str(err.value) == 'Service_name must be of type string.'

@@ -7,6 +7,7 @@ import jwt
 
 from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
 
+
 def test_cp4d_authenticator():
     authenticator = CloudPakForDataAuthenticator(
         'my_username', 'my_password', 'http://my_url')
@@ -15,7 +16,8 @@ def test_cp4d_authenticator():
     assert authenticator.token_manager.username == 'my_username'
     assert authenticator.token_manager.password == 'my_password'
     assert authenticator.token_manager.disable_ssl_verification is False
-    assert authenticator.token_manager.headers == {'Content-Type': 'application/json'}
+    assert authenticator.token_manager.headers == {
+        'Content-Type': 'application/json'}
     assert authenticator.token_manager.proxies is None
 
     authenticator.set_disable_ssl_verification(True)
@@ -39,15 +41,19 @@ def test_cp4d_authenticator():
 def test_cp4d_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator('my_username', None, 'my_url')
-    assert str(err.value) == 'Exactly one of `apikey` or `password` must be specified.'
+    assert str(
+        err.value) == 'Exactly one of `apikey` or `password` must be specified.'
 
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator(username='my_username', url='my_url')
-    assert str(err.value) == 'Exactly one of `apikey` or `password` must be specified.'
+    assert str(
+        err.value) == 'Exactly one of `apikey` or `password` must be specified.'
 
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator('my_username', None, 'my_url', apikey=None)
-    assert str(err.value) == 'Exactly one of `apikey` or `password` must be specified.'
+        CloudPakForDataAuthenticator(
+            'my_username', None, 'my_url', apikey=None)
+    assert str(
+        err.value) == 'Exactly one of `apikey` or `password` must be specified.'
 
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator(None, 'my_password', 'my_url')
@@ -62,7 +68,8 @@ def test_cp4d_authenticator_validate_failed():
     assert str(err.value) == 'The url shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
-        CloudPakForDataAuthenticator(username='my_username', password='my_password')
+        CloudPakForDataAuthenticator(
+            username='my_username', password='my_password')
     assert str(err.value) == 'The url shouldn\'t be None.'
 
     with pytest.raises(ValueError) as err:
@@ -109,14 +116,26 @@ def test_get_token():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }
-    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
+    responses.add(responses.POST, url + '/v1/authorize',
+                  body=json.dumps(response), status=200)
 
+    auth_headers = {'Host': 'cp4d.cloud.ibm.com:443'}
     authenticator = CloudPakForDataAuthenticator(
-        'my_username', 'my_password', url + '/v1/authorize')
+        'my_username', 'my_password', url + '/v1/authorize',
+        headers=auth_headers)
 
+    # Simulate an SDK API request that needs to be authenticated.
     request = {'headers': {}}
+
+    # Trigger the "get token" processing to obtain the access token and add to the "SDK request".
     authenticator.authenticate(request)
+
+    # Verify that the "authenticate()" method added the Authorization header
     assert request['headers']['Authorization'] is not None
+
+    # Verify that the "get token" call contained the Host header.
+    assert responses.calls[0].request.headers.get(
+        'Host') == 'cp4d.cloud.ibm.com:443'
 
     # Ensure '/v1/authorize' is added to the url if omitted
     authenticator = CloudPakForDataAuthenticator(

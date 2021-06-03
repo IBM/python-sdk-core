@@ -41,6 +41,7 @@ def test_iam_authenticator():
     authenticator.set_proxies({'dummy': 'proxies'})
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
 
+
 def test_iam_authenticator_with_scope():
     authenticator = IAMAuthenticator(apikey='my_apikey', scope='scope1 scope2')
     assert authenticator is not None
@@ -102,7 +103,18 @@ def test_get_token():
     responses.add(
         responses.POST, url=url, body=json.dumps(response), status=200)
 
-    authenticator = IAMAuthenticator('my_apikey')
+    auth_headers = {'Host': 'iam.cloud.ibm.com:443'}
+    authenticator = IAMAuthenticator('my_apikey', headers=auth_headers)
+
+    # Simulate an SDK API request that needs to be authenticated.
     request = {'headers': {}}
+
+    # Trigger the "get token" processing to obtain the access token and add to the "SDK request".
     authenticator.authenticate(request)
+
+    # Verify that the "authenticate()" method added the Authorization header
     assert request['headers']['Authorization'] is not None
+
+    # Verify that the "get token" call contained the Host header.
+    assert responses.calls[0].request.headers.get(
+        'Host') == 'iam.cloud.ibm.com:443'
