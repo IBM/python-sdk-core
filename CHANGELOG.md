@@ -1,3 +1,10 @@
+## [3.10.1](https://github.com/IBM/python-sdk-core/compare/v3.10.0...v3.10.1) (2021-07-08)
+
+
+### Bug Fixes
+
+* remove reserved keywords from kwargs before passing it to requests ([#117](https://github.com/IBM/python-sdk-core/issues/117)) ([6191978](https://github.com/IBM/python-sdk-core/commit/619197844e553fd4fd3c7e9ece2abae752d5dc3f))
+
 # [3.10.0](https://github.com/IBM/python-sdk-core/compare/v3.9.0...v3.10.0) (2021-05-12)
 
 
