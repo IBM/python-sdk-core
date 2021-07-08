@@ -277,6 +277,12 @@ class BaseService:
         # Check to see if the caller specified the 'stream' argument.
         stream_response = kwargs.get('stream') or False
 
+        # Remove the keys we set manually, don't let the user to overwrite these.
+        reserved_keys = ['method', 'url', 'headers', 'params', 'cookies']
+        for key in reserved_keys:
+            if key in kwargs:
+                del kwargs[key]
+                logging.warning('"%s" has been removed from the request', key)
         try:
             response = self.http_client.request(**request,
                                                 cookies=self.jar,

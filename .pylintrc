@@ -6,7 +6,8 @@ disable=
     duplicate-code,
     missing-module-docstring,
     too-many-arguments,
-    unnecessary-pass
+    unnecessary-pass,
+    no-member,
 
 [TYPECHECK]
 ignored-classes= responses
