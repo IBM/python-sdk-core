@@ -41,6 +41,9 @@ def test_iam_authenticator():
     authenticator.set_proxies({'dummy': 'proxies'})
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
 
+    authenticator.set_disable_ssl_verification(True)
+    assert authenticator.token_manager.disable_ssl_verification
+
 
 def test_iam_authenticator_with_scope():
     authenticator = IAMAuthenticator(apikey='my_apikey', scope='scope1 scope2')
