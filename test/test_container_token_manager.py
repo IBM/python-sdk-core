@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 import json
+import os
 import time
 from urllib.parse import parse_qs
 
@@ -13,10 +14,11 @@ from ibm_cloud_sdk_core.authenticators import ContainerAuthenticator
 TEST_ACCESS_TOKEN_1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImhlbGxvIiwicm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6WyJhZG1pbmlzdHJhdG9yIiwiZGVwbG95bWVudF9hZG1pbiJdLCJzdWIiOiJoZWxsbyIsImlzcyI6IkpvaG4iLCJhdWQiOiJEU1giLCJ1aWQiOiI5OTkiLCJpYXQiOjE1NjAyNzcwNTEsImV4cCI6MTU2MDI4MTgxOSwianRpIjoiMDRkMjBiMjUtZWUyZC00MDBmLTg2MjMtOGNkODA3MGI1NDY4In0.cIodB4I6CCcX8vfIImz7Cytux3GpWyObt9Gkur5g1QI'
 TEST_ACCESS_TOKEN_2 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjIzMDQ5ODE1MWMyMTRiNzg4ZGQ5N2YyMmI4NTQxMGE1In0.eyJ1c2VybmFtZSI6ImR1bW15Iiwicm9sZSI6IkFkbWluIiwicGVybWlzc2lvbnMiOlsiYWRtaW5pc3RyYXRvciIsIm1hbmFnZV9jYXRhbG9nIl0sInN1YiI6ImFkbWluIiwiaXNzIjoic3NzIiwiYXVkIjoic3NzIiwidWlkIjoic3NzIiwiaWF0IjozNjAwLCJleHAiOjE2MjgwMDcwODF9.zvUDpgqWIWs7S1CuKv40ERw1IZ5FqSFqQXsrwZJyfRM'
 TEST_REFRESH_TOKEN = 'Xj7Gle500MachEOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImhlbGxvIiwicm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6WyJhZG1pbmlzdHJhdG9yIiwiZGVwbG95bWVudF9hZG1pbiJdLCJzdWIiOiJoZWxsbyIsImlzcyI6IkpvaG4iLCJhdWQiOiJEU1giLCJ1aWQiOiI5OTkiLCJpYXQiOjE1NjAyNzcwNTEsImV4cCI6MTU2MDI4MTgxOSwianRpIjoiMDRkMjBiMjUtZWUyZC00MDBmLTg2MjMtOGNkODA3MGI1NDY4In0.cIodB4I6CCcX8vfIImz7Cytux3GpWyObt9Gkur5g1QI'
-MOCK_CR_TOKEN_FILE = './resources/cr-token.txt'
 MOCK_IAM_PROFILE_NAME = 'iam-user-123'
 MOCK_CLIENT_ID = 'client-id-1'
 MOCK_CLIENT_SECRET = 'client-secret-1'
+
+cr_token_file = os.path.join(os.path.dirname(__file__), '../resources/cr-token.txt')
 
 
 def _get_current_time() -> int:
@@ -81,7 +83,7 @@ def test_request_token_auth_default():
     iam_url = "https://iam.cloud.ibm.com/identity/token"
 
     token_manager = ContainerTokenManager(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
     )
     token_manager.request_token()
@@ -96,7 +98,7 @@ def test_request_token_auth_default():
 def test_request_token_auth_in_ctor():
     default_auth_header = 'Basic Yng6Yng='
     token_manager = ContainerTokenManager(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
         client_id='foo',
         client_secret='bar')
@@ -113,7 +115,7 @@ def test_request_token_auth_in_ctor():
 def test_request_token_auth_in_ctor_with_scope():
     default_auth_header = 'Basic Yng6Yng='
     token_manager = ContainerTokenManager(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
         client_id='foo',
         client_secret='bar',
@@ -129,7 +131,7 @@ def test_request_token_auth_in_ctor_with_scope():
 
 def test_retrieve_cr_token_success():
     token_manager = ContainerTokenManager(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
     )
 
     cr_token = token_manager.retrieve_cr_token()
@@ -151,7 +153,7 @@ def test_retrieve_cr_token_success_fail():
 @mock_iam_response
 def test_get_token_success():
     token_manager = ContainerTokenManager(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
     )
 
@@ -182,7 +184,7 @@ def test_get_token_success():
 @mock_iam_response
 def test_request_token_success():
     token_manager = ContainerTokenManager(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
     )
 
@@ -193,7 +195,7 @@ def test_request_token_success():
 @mock_iam_response
 def test_authenticate_success():
     authenticator = ContainerAuthenticator(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name='iam-user-123')
 
     request = {'headers': {}}
@@ -234,7 +236,7 @@ def test_authenticate_fail_no_cr_token():
 @mock_iam_response
 def test_authenticate_fail_iam():
     authenticator = ContainerAuthenticator(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name='iam-user-123',
         scope='status-bad-request')
 
@@ -249,7 +251,7 @@ def test_authenticate_fail_iam():
 @mock_iam_response
 def test_client_id_and_secret():
     token_manager = ContainerTokenManager(
-        cr_token_filename=MOCK_CR_TOKEN_FILE,
+        cr_token_filename=cr_token_file,
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
     )
 
