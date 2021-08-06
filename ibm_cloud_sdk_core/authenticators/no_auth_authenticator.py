@@ -16,6 +16,7 @@
 
 from .authenticator import Authenticator
 
+
 class NoAuthAuthenticator(Authenticator):
     """Performs no authentication."""
     authentication_type = 'noAuth'

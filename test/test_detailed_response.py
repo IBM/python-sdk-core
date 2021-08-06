@@ -4,11 +4,14 @@ import json
 
 import responses
 import requests
+
 from ibm_cloud_sdk_core import DetailedResponse
+
 
 def clean(val):
     """Eliminate all whitespace and convert single to double quotes"""
     return val.translate(str.maketrans('', '', ' \n\t\r')).replace("'", "\"")
+
 
 @responses.activate
 def test_detailed_response_dict():
@@ -30,6 +33,7 @@ def test_detailed_response_dict():
     assert clean(detailed_response.get_result().__str__()) in response_str
     #assert clean(detailed_response.get_headers().__str__()) in response_str
     assert clean(detailed_response.get_status_code().__str__()) in response_str
+
 
 @responses.activate
 def test_detailed_response_list():

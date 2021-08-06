@@ -1,8 +1,11 @@
 # coding=utf-8
 import json
-import responses
+
 import requests
+import responses
+
 from ibm_cloud_sdk_core import ApiException
+
 
 @responses.activate
 def test_api_exception():

@@ -14,26 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-from http.cookiejar import CookieJar
+import gzip
 import json as json_import
-from os.path import basename
+import logging
 import platform
 import sys
-import gzip
+from http.cookiejar import CookieJar
+from os.path import basename
 from typing import Dict, List, Optional, Tuple, Union
+from urllib3.util.retry import Retry
 
 import requests
 from requests.adapters import HTTPAdapter
 from requests.structures import CaseInsensitiveDict
-from urllib3.util.retry import Retry
+
 from ibm_cloud_sdk_core.authenticators import Authenticator
-from .version import __version__
+from .api_exception import ApiException
+from .detailed_response import DetailedResponse
+from .token_managers.token_manager import TokenManager
 from .utils import (has_bad_first_or_last_char, remove_null_values,
                     cleanup_values, read_external_sources, strip_extra_slashes)
-from .detailed_response import DetailedResponse
-from .api_exception import ApiException
-from .token_managers.token_manager import TokenManager
+from .version import __version__
 
 # Uncomment this to enable http debugging
 # import http.client as http_client

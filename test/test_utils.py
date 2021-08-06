@@ -15,9 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import datetime
+import os
 from typing import Optional
+
 import pytest
 
 from ibm_cloud_sdk_core import string_to_datetime, datetime_to_string, get_authenticator_from_environment
@@ -117,6 +118,7 @@ def test_datetime_to_string():
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338Z'
 
+
 def test_string_to_datetime_list():
     # Assert ValueError is raised for invalid argument type
     with pytest.raises(ValueError):
@@ -175,12 +177,14 @@ def test_datetime_to_string_list():
     res = datetime_to_string_list(date_list)
     assert res == [ '2017-03-06T16:00:04.159338Z', '2017-03-06T16:00:04.159338Z' ]
 
+
 def test_date_conversion():
     date = string_to_date('2017-03-06')
     assert date.day == 6
     res = date_to_string(date)
     assert res == '2017-03-06'
     assert date_to_string(None) is None
+
 
 def test_get_query_param():
     # Relative URL
@@ -222,6 +226,7 @@ def test_get_query_param():
     except ValueError:
         # This is okay.
         pass
+
 
 def test_convert_model():
     class MockModel:

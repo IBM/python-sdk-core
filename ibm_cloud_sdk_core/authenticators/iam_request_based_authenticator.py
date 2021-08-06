@@ -20,6 +20,7 @@ from requests import Request
 
 from .authenticator import Authenticator
 
+
 class IAMRequestBasedAuthenticator(Authenticator):
     """The IAMRequestBasedAuthenticator class contains code that is common to all authenticators
     that need to interact with the IAM tokens service to obtain an access token.

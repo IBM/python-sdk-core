@@ -134,6 +134,7 @@ def string_to_datetime_list(string_list: List[str]) -> List[datetime.datetime]:
         datetime_list.append(string_to_datetime(string_val))
     return datetime_list
 
+
 def datetime_to_string_list(datetime_list: List[datetime.datetime]) -> List[str]:
     """Convert a list of datetime objects to a list of strings.
 
@@ -150,6 +151,7 @@ def datetime_to_string_list(datetime_list: List[datetime.datetime]) -> List[str]
     for datetime_val in datetime_list:
         string_list.append(datetime_to_string(datetime_val))
     return string_list
+
 
 def date_to_string(val: datetime.date) -> str:
     """Convert a date object to string.
@@ -176,6 +178,7 @@ def string_to_date(string: str) -> datetime.date:
     """
     return date_parser.parse(string).date()
 
+
 def get_query_param(url_str: str, param: str) -> str:
     """Return a query parameter value from url_str
 
@@ -199,6 +202,7 @@ def get_query_param(url_str: str, param: str) -> str:
     query = parse_qs(url.query, strict_parsing=True)
     values = query.get(param)
     return values[0] if values else None
+
 
 def convert_model(val: any) -> dict:
     """Convert a model object into an equivalent dict.

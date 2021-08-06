@@ -20,6 +20,7 @@ from .iam_request_based_authenticator import IAMRequestBasedAuthenticator
 from ..token_managers.iam_token_manager import IAMTokenManager
 from ..utils import has_bad_first_or_last_char
 
+
 class IAMAuthenticator(IAMRequestBasedAuthenticator):
     """The IAMAuthenticator utilizes an apikey, or client_id and client_secret pair to
     obtain a suitable bearer token, and adds it to requests.

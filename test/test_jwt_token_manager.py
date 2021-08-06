@@ -2,10 +2,12 @@
 import time
 import threading
 from typing import Optional
+
 import jwt
 import pytest
 
 from ibm_cloud_sdk_core import JWTTokenManager, DetailedResponse
+
 
 class JWTTokenManagerMockImpl(JWTTokenManager):
     def __init__(self, url: Optional[str] = None, access_token: Optional[str] = None) -> None:
@@ -45,8 +47,10 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
         time.sleep(0.5)
         return response
 
+
 def _get_current_time() -> int:
     return int(time.time())
+
 
 def test_get_token():
     url = "https://iam.cloud.ibm.com/identity/token"
@@ -70,6 +74,7 @@ def test_get_token():
     assert token != "old_dummy"
     assert token_manager.request_count == 2
 
+
 def test_paced_get_token():
     url = "https://iam.cloud.ibm.com/identity/token"
     token_manager = JWTTokenManagerMockImpl(url)
@@ -82,6 +87,7 @@ def test_paced_get_token():
         thread.join()
     assert token_manager.request_count == 1
 
+
 def test_is_token_expired():
     token_manager = JWTTokenManagerMockImpl(None, access_token=None)
     assert token_manager._is_token_expired() is True
@@ -90,10 +96,12 @@ def test_is_token_expired():
     token_manager.expire_time = _get_current_time() - 3600
     assert token_manager._is_token_expired()
 
+
 def test_abstract_class_instantiation():
     with pytest.raises(TypeError) as err:
         JWTTokenManager(None)
     assert str(err.value).startswith("Can't instantiate abstract class JWTTokenManager with abstract")
+
 
 def test_disable_ssl_verification():
     token_manager = JWTTokenManagerMockImpl('https://iam.cloud.ibm.com/identity/token')
