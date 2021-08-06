@@ -4,6 +4,7 @@ The python-sdk-core project supports the following types of authentication:
 - Bearer Token
 - Identity and Access Management (IAM)
 - Cloud Pak for Data
+- Container
 - No Authentication
 
 The SDK user configures the appropriate type of authentication for use with service instances.
@@ -193,6 +194,47 @@ export EXAMPLE_SERVICE_AUTH_TYPE=cp4d
 export EXAMPLE_SERVICE_USERNAME=myuser
 export EXAMPLE_SERVICE_APIKEY=myapikey
 export EXAMPLE_SERVICE_URL=https://mycp4dhost.com/
+```
+Application code:
+```python
+from ibm_cloud_sdk_core import get_authenticator_from_environment
+
+authenticator = get_authenticator_from_environment('example_service')
+service = ExampleService(authenticator=authenticator)
+```
+
+## Container
+The `ContainerAuthenticator` will read a compute resource token from the file system (typically, a container running on a system like IKS) and will perform the necessary interactions with the IAM token service to obtain a suitable bearer token for the compute resource.  The authenticator will also obtain  a new bearer token when the current token expires.  The bearer token is then added to each outbound request in the `Authorization` header in the form:
+
+```
+   Authorization: Bearer <bearer-token>
+```
+
+### Properties
+- cr_token_filename: (optional) The name of the file containing the injected CR token value. If not specified, then `/var/run/secrets/tokens/vault-token` is used as the default value. The application must have `read` permissions on the file containing the CR token value.
+- iam_profile_name: (optional) The name of the linked trusted IAM profile to be used when obtaining the IAM access token (a CR token might map to multiple IAM profiles). One of `iam_profile_name` or `iam_profile_id` must be specified.
+- iam_profile_id: (optional) The ID of the linked trusted IAM profile to be used when obtaining the IAM access token (a CR token might map to multiple IAM profiles). One of `iam_profile_name` or `iam_profile_id` must be specified.
+- url: (optional) The URL representing the IAM token service endpoint.  If not specified, a suitable default value is used.
+- client_id/client_secret: (optional) The `client_id` and `client_secret` fields are used to form a "basic auth" Authorization header for interactions with the IAM token server. If neither field is specified, then no Authorization header will be sent with token server requests.  These fields are optional, but must be specified together.
+- disable_ssl_verification: (optional) A flag that indicates whether verificaton of the server's SSL certificate should be disabled or not. The default value is `False`.
+- scope (optional): the scope to be associated with the IAM access token.
+If not specified, then no scope will be associated with the access token.
+- proxies (optional): The proxy endpoint to use for HTTP(S) requests.
+- headers: (optional) A set of key/value pairs that will be sent as HTTP headers in requests made to the IAM token service.
+
+### Programming example
+```python
+from ibm_cloud_sdk_core.authenticators import ContainerAuthenticatior
+
+authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123')
+service = ExampleService(authenticator=authenticator)
+```
+
+### Configuration example
+External configuration:
+```
+export EXAMPLE_SERVICE_AUTH_TYPE=container
+export EXAMPLE_SERVICE_IAM_PROFILE_NAME=iam-user-123
 ```
 Application code:
 ```python
