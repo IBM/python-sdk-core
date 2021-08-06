@@ -96,7 +96,7 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
              A dictionary containing the bearer token to be subsequently used service requests.
         """
         headers = {
-            'Content-type': 'applicaton/x-www-form-urlencoded',
+            'Content-type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
         }
         if self.headers is not None and isinstance(self.headers, dict):
