@@ -33,7 +33,7 @@ from .utils import (has_bad_first_or_last_char, remove_null_values,
                     cleanup_values, read_external_sources, strip_extra_slashes)
 from .detailed_response import DetailedResponse
 from .api_exception import ApiException
-from .token_manager import TokenManager
+from .token_managers.token_manager import TokenManager
 
 # Uncomment this to enable http debugging
 # import http.client as http_client

@@ -17,7 +17,7 @@
 from typing import Dict, Optional
 
 from .iam_request_based_authenticator import IAMRequestBasedAuthenticator
-from ..iam_token_manager import IAMTokenManager
+from ..token_managers.iam_token_manager import IAMTokenManager
 from ..utils import has_bad_first_or_last_char
 
 class IAMAuthenticator(IAMRequestBasedAuthenticator):

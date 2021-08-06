@@ -21,7 +21,7 @@ from threading import Lock
 import time
 import requests
 
-from .api_exception import ApiException
+from ..api_exception import ApiException
 
 
 # pylint: disable=too-many-instance-attributes

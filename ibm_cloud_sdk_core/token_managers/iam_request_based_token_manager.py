@@ -18,6 +18,7 @@ from typing import Dict, Optional
 
 from .jwt_token_manager import JWTTokenManager
 
+
 class IAMRequestBasedTokenManager(JWTTokenManager):
     """The IamRequestBasedTokenManager class contains code relevant to any token manager that
     interacts with the IAM service to manage a token. It stores information relevant to all

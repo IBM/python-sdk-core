@@ -18,6 +18,7 @@ from typing import Dict, Optional
 
 from .iam_request_based_token_manager import IAMRequestBasedTokenManager
 
+
 class IAMTokenManager(IAMRequestBasedTokenManager):
     """The IAMTokenManager takes an api key and performs the necessary interactions with
     the IAM token service to obtain and store a suitable bearer token. Additionally, the IAMTokenManager
