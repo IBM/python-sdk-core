@@ -31,7 +31,6 @@ class IAMRequestBasedAuthenticator(Authenticator):
     Attributes:
         token_manager (TokenManager): Retrives and manages IAM tokens from the endpoint specified by the url.
     """
-    authentication_type = 'iam'
 
     def validate(self) -> None:
         """Validates the client_id, and client_secret for IAM token requests.
