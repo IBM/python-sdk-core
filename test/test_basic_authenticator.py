@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring
 import pytest
+
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator
+
 
 def test_basic_authenticator():
     authenticator = BasicAuthenticator('my_username', 'my_password')
@@ -11,6 +13,7 @@ def test_basic_authenticator():
     request = {'headers': {}}
     authenticator.authenticate(request)
     assert request['headers']['Authorization'] == 'Basic bXlfdXNlcm5hbWU6bXlfcGFzc3dvcmQ='
+
 
 def test_basic_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:

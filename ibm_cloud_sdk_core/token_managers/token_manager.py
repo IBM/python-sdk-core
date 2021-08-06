@@ -15,17 +15,16 @@
 # limitations under the License.
 
 
+import time
 from abc import ABC, abstractmethod
 from threading import Lock
 
-import time
 import requests
 
-from .api_exception import ApiException
+from ..api_exception import ApiException
 
 
 # pylint: disable=too-many-instance-attributes
-
 class TokenManager(ABC):
     """An abstract class to contain functionality for parsing, storing, and requesting tokens.
 

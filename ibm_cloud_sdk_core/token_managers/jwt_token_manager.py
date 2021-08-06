@@ -19,11 +19,9 @@ from typing import Optional
 
 import jwt
 import requests
-from .api_exception import ApiException
+
 from .token_manager import TokenManager
-
-
-# pylint: disable=too-many-instance-attributes
+from ..api_exception import ApiException
 
 
 class JWTTokenManager(TokenManager, ABC):

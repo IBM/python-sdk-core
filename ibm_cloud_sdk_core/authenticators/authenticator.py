@@ -16,6 +16,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class Authenticator(ABC):
     """This interface defines the common methods and constants associated with an Authenticator implementation."""
     @abstractmethod

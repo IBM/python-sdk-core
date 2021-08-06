@@ -12,6 +12,7 @@ from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 IBM_CREDENTIALS_FILE = '../resources/ibm-credentials-cp4dtest.env'
 
+
 def test_cp4d_authenticator_password():
     file_path = os.path.join(
         os.path.dirname(__file__), IBM_CREDENTIALS_FILE)
@@ -26,6 +27,7 @@ def test_cp4d_authenticator_password():
     authenticator.authenticate(request)
     assert request['headers']['Authorization'] is not None
     assert 'Bearer' in request['headers']['Authorization']
+
 
 def test_cp4d_authenticator_apikey():
     file_path = os.path.join(

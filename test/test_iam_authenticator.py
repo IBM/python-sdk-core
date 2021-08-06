@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 import json
 
+import jwt
 import pytest
 import responses
-import jwt
 
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
@@ -40,6 +40,9 @@ def test_iam_authenticator():
 
     authenticator.set_proxies({'dummy': 'proxies'})
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
+
+    authenticator.set_disable_ssl_verification(True)
+    assert authenticator.token_manager.disable_ssl_verification
 
 
 def test_iam_authenticator_with_scope():

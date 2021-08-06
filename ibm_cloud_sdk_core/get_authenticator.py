@@ -18,6 +18,7 @@ from .authenticators import (Authenticator, BasicAuthenticator, BearerTokenAuthe
                              CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator)
 from .utils import read_external_sources
 
+
 def get_authenticator_from_environment(service_name: str) -> Authenticator:
     """Look for external configuration of authenticator.
 
@@ -37,6 +38,7 @@ def get_authenticator_from_environment(service_name: str) -> Authenticator:
     if config:
         authenticator = __construct_authenticator(config)
     return authenticator
+
 
 def __construct_authenticator(config: dict) -> Authenticator:
     auth_type = config.get('AUTH_TYPE').lower() if config.get('AUTH_TYPE') else 'iam'

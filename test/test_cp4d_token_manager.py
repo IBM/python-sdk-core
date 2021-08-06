@@ -2,9 +2,11 @@
 import json
 import time
 
-import responses
 import jwt
+import responses
+
 from ibm_cloud_sdk_core import CP4DTokenManager
+
 
 @responses.activate
 def test_request_token():

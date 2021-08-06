@@ -15,18 +15,20 @@
 # limitations under the License.
 
 from typing import Dict, Optional
+
 from .jwt_token_manager import JWTTokenManager
 
-# pylint: disable=too-many-instance-attributes
-class IAMTokenManager(JWTTokenManager):
-    """The IAMTokenManager takes an api key and performs the necessary interactions with
-    the IAM token service to obtain and store a suitable bearer token. Additionally, the IAMTokenManager
-    will retrieve bearer tokens via basic auth using a supplied client_id and client_secret pair.
+
+class IAMRequestBasedTokenManager(JWTTokenManager):
+    """The IamRequestBasedTokenManager class contains code relevant to any token manager that
+    interacts with the IAM service to manage a token. It stores information relevant to all
+    IAM requests, such as the client ID and secret, and performs the token request with a set
+    of request options common to any IAM token management scheme.
 
     If the current stored bearer token has expired a new bearer token will be retrieved.
 
     Attributes:
-        apikey: A generated API key from ibmcloud.
+        request_payload(dict): the data that will be sent in the IAM OAuth token request
         url (str): The IAM endpoint to token requests.
         client_id (str): The client_id and client_secret fields are used to form
             a "basic auth" Authorization header for interactions with the IAM token server.
@@ -39,9 +41,6 @@ class IAMTokenManager(JWTTokenManager):
         http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
         scope (str): The "scope" to use when fetching the bearer token from the IAM token server.
         This can be used to obtain an access token with a specific scope.
-
-    Args:
-        apikey: A generated APIKey from ibmcloud.
 
     Keyword Args:
         url: The IAM endpoint to token requests. Defaults to None.
@@ -61,16 +60,11 @@ class IAMTokenManager(JWTTokenManager):
         This can be used to obtain an access token with a specific scope.
     """
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com'
-    CONTENT_TYPE = 'application/x-www-form-urlencoded'
     OPERATION_PATH = "/identity/token"
-    REQUEST_TOKEN_GRANT_TYPE = 'urn:ibm:params:oauth:grant-type:apikey'
-    REQUEST_TOKEN_RESPONSE_TYPE = 'cloud_iam'
-    TOKEN_NAME = 'access_token'
-    SCOPE = 'scope'
+
+    request_payload = {}
 
     def __init__(self,
-                 apikey: str,
-                 *,
                  url: Optional[str] = None,
                  client_id: Optional[str] = None,
                  client_secret: Optional[str] = None,
@@ -78,7 +72,6 @@ class IAMTokenManager(JWTTokenManager):
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None,
                  scope: Optional[str] = None) -> None:
-        self.apikey = apikey
         if not url:
             url = self.DEFAULT_IAM_URL
         if url.endswith(self.OPERATION_PATH):
@@ -91,7 +84,7 @@ class IAMTokenManager(JWTTokenManager):
         self.proxies = proxies
         self.scope = scope
         super().__init__(
-            self.url, disable_ssl_verification=disable_ssl_verification, token_name=self.TOKEN_NAME)
+            self.url, disable_ssl_verification=disable_ssl_verification, token_name='access_token')
 
     def request_token(self) -> dict:
         """Request an IAM OAuth token given an API Key.
@@ -103,20 +96,16 @@ class IAMTokenManager(JWTTokenManager):
              A dictionary containing the bearer token to be subsequently used service requests.
         """
         headers = {
-            'Content-type': self.CONTENT_TYPE,
+            'Content-type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
         }
         if self.headers is not None and isinstance(self.headers, dict):
             headers.update(self.headers)
 
-        data = {
-            'grant_type': self.REQUEST_TOKEN_GRANT_TYPE,
-            'apikey': self.apikey,
-            'response_type': self.REQUEST_TOKEN_RESPONSE_TYPE
-        }
+        data = dict(self.request_payload)
 
         if self.scope is not None and self.scope:
-            data[self.SCOPE] = self.scope
+            data['scope'] = self.scope
 
         auth_tuple = None
         # If both the client_id and secret were specified by the user, then use them

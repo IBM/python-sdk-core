@@ -18,6 +18,7 @@ from requests import Request
 
 from .authenticator import Authenticator
 
+
 class BearerTokenAuthenticator(Authenticator):
     """The BearerTokenAuthenticator will add a user-supplied bearer token
     to requests.

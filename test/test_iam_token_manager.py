@@ -2,9 +2,9 @@
 import os
 import time
 
-import responses
 import jwt
 import pytest
+import responses
 
 from ibm_cloud_sdk_core import IAMTokenManager, ApiException, get_authenticator_from_environment
 

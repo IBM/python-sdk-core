@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 import json
 
+import jwt
 import pytest
 import responses
-import jwt
 
 from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
 

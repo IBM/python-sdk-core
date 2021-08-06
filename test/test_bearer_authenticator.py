@@ -3,6 +3,7 @@ import pytest
 
 from ibm_cloud_sdk_core.authenticators import BearerTokenAuthenticator
 
+
 def test_bearer_authenticator():
     authenticator = BearerTokenAuthenticator('my_bearer_token')
     assert authenticator is not None
@@ -14,6 +15,7 @@ def test_bearer_authenticator():
     request = {'headers': {}}
     authenticator.authenticate(request)
     assert request['headers']['Authorization'] == 'Bearer james bond'
+
 
 def test_bearer_validate_failed():
     with pytest.raises(ValueError) as err:

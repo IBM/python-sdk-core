@@ -38,9 +38,9 @@ functions:
 
 from .base_service import BaseService
 from .detailed_response import DetailedResponse
-from .iam_token_manager import IAMTokenManager
-from .jwt_token_manager import JWTTokenManager
-from .cp4d_token_manager import CP4DTokenManager
+from .token_managers.iam_token_manager import IAMTokenManager
+from .token_managers.jwt_token_manager import JWTTokenManager
+from .token_managers.cp4d_token_manager import CP4DTokenManager
 from .api_exception import ApiException
 from .utils import datetime_to_string, string_to_datetime, read_external_sources
 from .utils import datetime_to_string_list, string_to_datetime_list

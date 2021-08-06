@@ -1,23 +1,25 @@
 # coding=utf-8
 # pylint: disable=missing-docstring,protected-access,too-few-public-methods
+import gzip
 import json
-import time
 import os
+import tempfile
+import time
 from shutil import copyfile
 from typing import Optional
-import gzip
-import tempfile
+from urllib3.exceptions import ConnectTimeoutError, MaxRetryError
+
+import jwt
 import pytest
 import responses
 import requests
-import jwt
-from urllib3.exceptions import ConnectTimeoutError, MaxRetryError
-from ibm_cloud_sdk_core import BaseService, DetailedResponse
+
 from ibm_cloud_sdk_core import ApiException
+from ibm_cloud_sdk_core import BaseService, DetailedResponse
 from ibm_cloud_sdk_core import CP4DTokenManager
+from ibm_cloud_sdk_core import get_authenticator_from_environment
 from ibm_cloud_sdk_core.authenticators import (IAMAuthenticator, NoAuthAuthenticator, Authenticator,
                                                BasicAuthenticator, CloudPakForDataAuthenticator)
-from ibm_cloud_sdk_core import get_authenticator_from_environment
 from ibm_cloud_sdk_core.utils import strip_extra_slashes
 
 

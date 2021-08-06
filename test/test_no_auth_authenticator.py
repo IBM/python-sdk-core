@@ -2,6 +2,7 @@
 
 from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 
+
 def test_no_auth_authenticator():
     authenticator = NoAuthAuthenticator()
     assert authenticator is not None

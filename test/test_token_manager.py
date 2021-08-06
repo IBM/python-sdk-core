@@ -21,7 +21,7 @@ from unittest import mock
 import pytest
 
 from ibm_cloud_sdk_core import ApiException
-from ibm_cloud_sdk_core.token_manager import TokenManager
+from ibm_cloud_sdk_core.token_managers.token_manager import TokenManager
 
 
 class MockTokenManager(TokenManager):
