@@ -292,6 +292,15 @@ def test_get_authenticator_from_credential_file():
     del os.environ['IBM_CREDENTIALS_FILE']
 
     file_path = os.path.join(os.path.dirname(__file__),
+                             '../resources/ibm-credentials-container.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service 1')
+    assert authenticator is not None
+    assert authenticator.token_manager.cr_token_filename == 'crtoken.txt'
+    assert authenticator.token_manager.iam_profile_name == 'iam-user1'
+    del os.environ['IBM_CREDENTIALS_FILE']
+
+    file_path = os.path.join(os.path.dirname(__file__),
                              '../resources/ibm-credentials-cp4d.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
