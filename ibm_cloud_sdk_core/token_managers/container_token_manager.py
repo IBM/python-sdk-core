@@ -115,7 +115,8 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
             return cr_token
         # pylint: disable=broad-except
         except Exception as ex:
-            raise Exception('Unable to retrieve the CR token value from file {}: {}'.format(cr_token_filename, ex))
+            raise Exception(
+                'Unable to retrieve the CR token value from file {}: {}'.format(cr_token_filename, ex)) from None
 
     def request_token(self) -> dict:
         """Retrieves a CR token value from the current compute resource,
