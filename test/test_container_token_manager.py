@@ -196,7 +196,7 @@ def test_request_token_success():
 def test_authenticate_success():
     authenticator = ContainerAuthenticator(
         cr_token_filename=cr_token_file,
-        iam_profile_name='iam-user-123')
+        iam_profile_name=MOCK_IAM_PROFILE_NAME)
 
     request = {'headers': {}}
 
@@ -222,7 +222,7 @@ def test_authenticate_success():
 def test_authenticate_fail_no_cr_token():
     authenticator = ContainerAuthenticator(
         cr_token_filename='bogus-cr-token-file',
-        iam_profile_name='iam-user-123',
+        iam_profile_name=MOCK_IAM_PROFILE_NAME,
         url='https://bogus.iam.endpoint')
 
     request = {'headers': {}}
@@ -237,7 +237,7 @@ def test_authenticate_fail_no_cr_token():
 def test_authenticate_fail_iam():
     authenticator = ContainerAuthenticator(
         cr_token_filename=cr_token_file,
-        iam_profile_name='iam-user-123',
+        iam_profile_name=MOCK_IAM_PROFILE_NAME,
         scope='status-bad-request')
 
     request = {'headers': {}}
@@ -257,5 +257,19 @@ def test_client_id_and_secret():
 
     token_manager.set_client_id_and_secret(MOCK_CLIENT_ID, MOCK_CLIENT_SECRET)
     token_manager.set_scope('check-basic-auth')
+    access_token = token_manager.get_token()
+    assert access_token == TEST_ACCESS_TOKEN_1
+
+@mock_iam_response
+def test_setter_methods():
+    token_manager = ContainerTokenManager(
+        cr_token_filename='bogus-cr-token-file',
+        iam_profile_id=MOCK_IAM_PROFILE_NAME,
+    )
+
+    token_manager.set_iam_profile_id('iam-id-123')
+    token_manager.set_iam_profile_name(None)
+    token_manager.set_cr_token_filename(cr_token_file)
+
     access_token = token_manager.get_token()
     assert access_token == TEST_ACCESS_TOKEN_1

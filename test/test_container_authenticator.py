@@ -17,11 +17,17 @@ def test_container_authenticator():
     authenticator.set_cr_token_filename('path/to/token')
     assert authenticator.token_manager.cr_token_filename == 'path/to/token'
 
-    authenticator.set_iam_profile_name('iam-user-123')
-    assert authenticator.token_manager.iam_profile_name == 'iam-user-123'
+    # Set the IAM profile to None to trigger a validation which will fail,
+    # because both of the profile and ID are None.
+    with pytest.raises(ValueError) as err:
+        authenticator.set_iam_profile_name(None)
+    assert str(err.value) == 'At least one of iam_profile_name or iam_profile_id must be specified.'
 
     authenticator.set_iam_profile_id('iam-id-123')
     assert authenticator.token_manager.iam_profile_id == 'iam-id-123'
+
+    authenticator.set_iam_profile_name('iam-user-123')
+    assert authenticator.token_manager.iam_profile_name == 'iam-user-123'
 
     authenticator.set_client_id_and_secret('tom', 'jerry')
     assert authenticator.token_manager.client_id == 'tom'
