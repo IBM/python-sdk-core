@@ -154,7 +154,7 @@ form:
 - password: (required if apikey is not specified) the password used to obtain a bearer token.
 - url: (required) The URL representing the Cloud Pak for Data token service endpoint.
 - apikey: (required if password is not specified) the apikey used to obtain a bearer token.
-- disableSSLVerification: (optional) A flag that indicates whether verificaton of the server's SSL
+- disable_ssl_verification: (optional) A flag that indicates whether verification of the server's SSL
 certificate should be disabled or not. The default value is `false`.
 - headers: (optional) A set of key/value pairs that will be sent as HTTP headers in requests
 made to the IAM token service.
@@ -231,7 +231,7 @@ The IAM access token is added to each outbound request in the `Authorization` he
 - iam_profile_id: (optional) The ID of the linked trusted IAM profile to be used when obtaining the IAM access token (a CR token might map to multiple IAM profiles). One of `iam_profile_name` or `iam_profile_id` must be specified.
 - url: (optional) The URL representing the IAM token service endpoint.  If not specified, a suitable default value is used.
 - client_id/client_secret: (optional) The `client_id` and `client_secret` fields are used to form a "basic auth" Authorization header for interactions with the IAM token server. If neither field is specified, then no Authorization header will be sent with token server requests.  These fields are optional, but must be specified together.
-- disable_ssl_verification: (optional) A flag that indicates whether verificaton of the server's SSL certificate should be disabled or not. The default value is `False`.
+- disable_ssl_verification: (optional) A flag that indicates whether verification of the server's SSL certificate should be disabled or not. The default value is `False`.
 - scope (optional): the scope to be associated with the IAM access token.
 If not specified, then no scope will be associated with the access token.
 - proxies (optional): The proxy endpoint to use for HTTP(S) requests.

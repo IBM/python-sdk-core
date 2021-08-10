@@ -33,7 +33,7 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
             (applies to IKS-managed compute resources). Defaults to "/var/run/secrets/tokens/vault-token".
         iam_profile_name: The name of the linked trusted IAM profile to be used when obtaining the IAM access token
             (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
-            sDefaults to None.
+            Defaults to None.
         iam_profile_id: The id of the linked trusted IAM profile to be used when obtaining the IAM access token
 	        (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
             Defaults to None.

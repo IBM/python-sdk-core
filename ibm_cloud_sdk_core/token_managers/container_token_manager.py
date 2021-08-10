@@ -28,7 +28,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
     If the current stored bearer token has expired a new bearer token will be retrieved.
 
     Attributes:
-        container_token_filename(str): The name of the file containing the injected CR token value
+        cr_token_filename(str): The name of the file containing the injected CR token value
             (applies to IKS-managed compute resources).
         iam_profile_name (str): The name of the linked trusted IAM profile to be used when obtaining the
             IAM access token (a CR token might map to multiple IAM profiles).
@@ -49,7 +49,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         This can be used to obtain an access token with a specific scope.
 
     Keyword Args:
-        container_token_filename: The name of the file containing the injected CR token value
+        cr_token_filename: The name of the file containing the injected CR token value
             (applies to IKS-managed compute resources). Defaults to "/var/run/secrets/tokens/vault-token".
         iam_profile_name: The name of the linked trusted IAM profile to be used when obtaining the IAM access token
             (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
