@@ -139,7 +139,7 @@ def test_retrieve_cr_token_success():
     assert cr_token == 'cr-token-1'
 
 
-def test_retrieve_cr_token_success_fail():
+def test_retrieve_cr_token_fail():
     token_manager = ContainerTokenManager(
         cr_token_filename='bogus-cr-token-file',
     )
@@ -157,11 +157,11 @@ def test_get_token_success():
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
     )
 
-    cr_token = token_manager.access_token
-    assert cr_token is None
+    access_token = token_manager.access_token
+    assert access_token is None
 
-    cr_token = token_manager.get_token()
-    assert cr_token == TEST_ACCESS_TOKEN_1
+    access_token = token_manager.get_token()
+    assert access_token == TEST_ACCESS_TOKEN_1
     assert token_manager.access_token == TEST_ACCESS_TOKEN_1
 
     # Verify the token manager return the cached value.
@@ -170,14 +170,14 @@ def test_get_token_success():
     token_manager.expire_time = _get_current_time() + 3600
     token_manager.refresh_time = _get_current_time() + 3600
     token_manager.set_scope('send-second-token')
-    cr_token = token_manager.get_token()
-    assert cr_token == TEST_ACCESS_TOKEN_1
+    access_token = token_manager.get_token()
+    assert access_token == TEST_ACCESS_TOKEN_1
     assert token_manager.access_token == TEST_ACCESS_TOKEN_1
 
     # Force expiration to get the second token.
     token_manager.expire_time = _get_current_time() - 1
-    cr_token = token_manager.get_token()
-    assert cr_token == TEST_ACCESS_TOKEN_2
+    access_token = token_manager.get_token()
+    assert access_token == TEST_ACCESS_TOKEN_2
     assert token_manager.access_token == TEST_ACCESS_TOKEN_2
 
 
