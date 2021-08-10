@@ -51,6 +51,27 @@ def test_container_authenticator():
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
 
 
+def test_disable_ssl_verification():
+    authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123', disable_ssl_verification=True)
+    assert authenticator.token_manager.disable_ssl_verification is True
+
+    authenticator.set_disable_ssl_verification(False)
+    assert authenticator.token_manager.disable_ssl_verification is False
+
+
+def test_invalid_disable_ssl_verification_type():
+    with pytest.raises(TypeError) as err:
+        authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123', disable_ssl_verification='True')
+    assert str(err.value) == 'disable_ssl_verification must be a bool'
+
+    authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123')
+    assert authenticator.token_manager.disable_ssl_verification is False
+
+    with pytest.raises(TypeError) as err:
+        authenticator.set_disable_ssl_verification('True')
+    assert str(err.value) == 'status must be a bool'
+
+
 def test_container_authenticator_with_scope():
     authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123', scope='scope1 scope2')
     assert authenticator is not None

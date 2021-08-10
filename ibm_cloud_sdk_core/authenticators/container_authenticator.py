@@ -56,6 +56,7 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
                 from the endpoint specified by the url.
 
         Raises:
+            TypeError: The `disable_ssl_verification` is not a bool.
             ValueError: Neither of iam_profile_name or iam_profile_idk are set,
             or client_id, and/or client_secret are not valid for IAM token requests.
     """
@@ -72,10 +73,15 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
                  scope: Optional[str] = None,
                  proxies: Optional[Dict[str, str]] = None,
                  headers: Optional[Dict[str, str]] = None) -> None:
+        # Check the type of `disable_ssl_verification`. Must be a bool.
+        if not isinstance(disable_ssl_verification, bool):
+            raise TypeError('disable_ssl_verification must be a bool')
+
         self.token_manager = ContainerTokenManager(
             cr_token_filename=cr_token_filename, iam_profile_name=iam_profile_name, iam_profile_id=iam_profile_id,
             url=url, client_id=client_id, client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification, scope=scope, proxies=proxies, headers=headers)
+
         self.validate()
 
     def validate(self) -> None:

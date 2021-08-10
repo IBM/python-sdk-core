@@ -51,6 +51,7 @@ class IAMAuthenticator(IAMRequestBasedAuthenticator):
         token_manager (IAMTokenManager): Retrieves and manages IAM tokens from the endpoint specified by the url.
 
     Raises:
+        TypeError: The `disable_ssl_verification` is not a bool.
         ValueError: The apikey, client_id, and/or client_secret are not valid for IAM token requests.
     """
     authentication_type = 'iam'
@@ -65,10 +66,15 @@ class IAMAuthenticator(IAMRequestBasedAuthenticator):
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None,
                  scope: Optional[str] = None) -> None:
+        # Check the type of `disable_ssl_verification`. Must be a bool.
+        if not isinstance(disable_ssl_verification, bool):
+            raise TypeError('disable_ssl_verification must be a bool')
+
         self.token_manager = IAMTokenManager(
             apikey, url=url, client_id=client_id, client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
             headers=headers, proxies=proxies, scope=scope)
+
         self.validate()
 
     def validate(self) -> None:

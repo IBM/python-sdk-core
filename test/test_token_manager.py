@@ -65,3 +65,20 @@ def test_request_raises_for_non_2xx(request):  # pylint: disable=unused-argument
     mock_token_manager = MockTokenManager(url="https://example.com", disable_ssl_verification=True)
     with pytest.raises(ApiException):
         mock_token_manager.request_token()
+
+
+def test_set_disable_ssl_verification_success():
+    token_manager = MockTokenManager(None)
+    assert token_manager.disable_ssl_verification is False
+
+    token_manager.set_disable_ssl_verification(True)
+    assert token_manager.disable_ssl_verification is True
+
+
+def test_set_disable_ssl_verification_fail():
+    token_manager = MockTokenManager(None)
+
+    with pytest.raises(TypeError) as err:
+        token_manager.set_disable_ssl_verification('True')
+    assert str(err.value) == 'status must be a bool'
+    assert token_manager.disable_ssl_verification is False

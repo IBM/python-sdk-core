@@ -80,8 +80,11 @@ class IAMRequestBasedAuthenticator(Authenticator):
         """Set the flag that indicates whether verification of the server's SSL certificate should be
         disabled or not. Defaults to False.
 
-        Keyword Arguments:
-            status: Headers to be sent with every IAM token request. Defaults to None.
+        Args:
+            status: Headers to be sent with every IAM token request. Defaults to None
+
+        Raises:
+            TypeError: The `status` is not a bool.
         """
         self.token_manager.set_disable_ssl_verification(status)
 
