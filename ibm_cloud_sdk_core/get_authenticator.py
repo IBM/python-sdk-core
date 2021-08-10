@@ -65,7 +65,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL'),
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
             scope=config.get('SCOPE'))
     elif auth_type == 'cp4d':
         authenticator = CloudPakForDataAuthenticator(
@@ -73,14 +73,14 @@ def __construct_authenticator(config: dict) -> Authenticator:
             password=config.get('PASSWORD'),
             url=config.get('AUTH_URL'),
             apikey=config.get('APIKEY'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL'))
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true')
     elif auth_type == 'iam' and config.get('APIKEY'):
         authenticator = IAMAuthenticator(
             apikey=config.get('APIKEY'),
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL'),
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
             scope=config.get('SCOPE'))
     elif auth_type == 'noauth':
         authenticator = NoAuthAuthenticator()
