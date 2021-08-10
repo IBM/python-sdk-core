@@ -44,7 +44,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         proxies.https (optional): The proxy endpoint to use for HTTPS requests.
 
     Attributes:
-        token_manager (CP4DTokenManager): Retrives and manages CP4D tokens from the endpoint specified by the url.
+        token_manager (CP4DTokenManager): Retrieves and manages CP4D tokens from the endpoint specified by the url.
 
     Raises:
         ValueError: The username, password/apikey, and/or url are not valid for CP4D token requests.

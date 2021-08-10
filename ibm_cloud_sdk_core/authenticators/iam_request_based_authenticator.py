@@ -30,7 +30,7 @@ class IAMRequestBasedAuthenticator(Authenticator):
         Authorization: Bearer <bearer-token>
 
     Attributes:
-        token_manager (TokenManager): Retrives and manages IAM tokens from the endpoint specified by the url.
+        token_manager (TokenManager): Retrieves and manages IAM tokens from the endpoint specified by the url.
     """
 
     def validate(self) -> None:

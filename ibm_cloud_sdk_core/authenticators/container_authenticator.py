@@ -52,7 +52,7 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
         This can be used to obtain an access token with a specific scope.
 
         Attributes:
-            token_manager (ContainerTokenManager): Retrives and manages IAM tokens
+            token_manager (ContainerTokenManager): Retrieves and manages IAM tokens
                 from the endpoint specified by the url.
 
         Raises:

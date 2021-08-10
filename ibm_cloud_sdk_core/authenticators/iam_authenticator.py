@@ -48,7 +48,7 @@ class IAMAuthenticator(IAMRequestBasedAuthenticator):
         This can be used to obtain an access token with a specific scope.
 
     Attributes:
-        token_manager (IAMTokenManager): Retrives and manages IAM tokens from the endpoint specified by the url.
+        token_manager (IAMTokenManager): Retrieves and manages IAM tokens from the endpoint specified by the url.
 
     Raises:
         ValueError: The apikey, client_id, and/or client_secret are not valid for IAM token requests.
