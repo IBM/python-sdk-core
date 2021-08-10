@@ -204,10 +204,25 @@ service = ExampleService(authenticator=authenticator)
 ```
 
 ## Container
-The `ContainerAuthenticator` will read a compute resource token from the file system (typically, a container running on a system like IKS) and will perform the necessary interactions with the IAM token service to obtain a suitable bearer token for the compute resource.  The authenticator will also obtain  a new bearer token when the current token expires.  The bearer token is then added to each outbound request in the `Authorization` header in the form:
+The `ContainerAuthenticator` is intended to be used by application code
+running inside a compute resource managed by the IBM Kubernetes Service (IKS)
+in which a secure compute resource token (CR token) has been stored in a file
+within the compute resource's local file system.
+The CR token is similar to an IAM apikey except that it is managed automatically by
+the compute resource provider (IKS).
+This allows the application developer to:
+- avoid storing credentials in application code, configuraton files or a password vault
+- avoid managing or rotating credentials
 
+The `ContainerAuthenticator` will retrieve the CR token from
+the compute resource in which the application is running, and will then perform
+the necessary interactions with the IAM token service to obtain an IAM access token
+using the IAM "get token" operation with grant-type `cr-token`.
+The authenticator will repeat these steps to obtain a new IAM access token when the
+current access token expires.
+The IAM access token is added to each outbound request in the `Authorization` header in the form:
 ```
-   Authorization: Bearer <bearer-token>
+   Authorization: Bearer <IAM-access-token>
 ```
 
 ### Properties
