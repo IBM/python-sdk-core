@@ -32,9 +32,10 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
             (applies to IKS-managed compute resources).
         iam_profile_name (str): The name of the linked trusted IAM profile to be used when obtaining the
             IAM access token (a CR token might map to multiple IAM profiles).
-            One of IAMProfileName or IAMProfileID must be specified.
+            One of iam_profile_name or iam_profile_id must be specified.
         iam_profile_id (str): The id of the linked trusted IAM profile to be used when obtaining the IAM access token
-	        (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
+            (a CR token might map to multiple IAM profiles).
+            One of iam_profile_name or iam_profile_id must be specified.
         url (str): The IAM endpoint to token requests.
         client_id (str): The client_id and client_secret fields are used to form
             a "basic auth" Authorization header for interactions with the IAM token server.
@@ -52,10 +53,12 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         cr_token_filename: The name of the file containing the injected CR token value
             (applies to IKS-managed compute resources). Defaults to "/var/run/secrets/tokens/vault-token".
         iam_profile_name: The name of the linked trusted IAM profile to be used when obtaining the IAM access token
-            (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
-            sDefaults to None.
+            (a CR token might map to multiple IAM profiles).
+            One of iam_profile_name or iam_profile_id must be specified.
+            Defaults to None.
         iam_profile_id: The id of the linked trusted IAM profile to be used when obtaining the IAM access token
-	        (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
+            (a CR token might map to multiple IAM profiles).
+            One of iam_profile_name or iam_prfoile_id must be specified.
             Defaults to None.
         url: The IAM endpoint to token requests. Defaults to None.
         client_id: The client_id and client_secret fields are used to form
@@ -107,7 +110,8 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         """
         cr_token_filename = self.cr_token_filename if self.cr_token_filename else self.DEFAULT_CR_TOKEN_FILENAME
 
-        logging.debug('Attempting to read CR token from file: %s', cr_token_filename)
+        logging.debug('Attempting to read CR token from file: %s',
+                      cr_token_filename)
 
         try:
             with open(cr_token_filename, 'r') as file:

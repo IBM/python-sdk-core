@@ -44,6 +44,8 @@ def __construct_authenticator(config: dict) -> Authenticator:
     # Determine the authentication type if not specified explicitly.
     if config.get('AUTH_TYPE'):
         auth_type = config.get('AUTH_TYPE').lower()
+    elif config.get('AUTHTYPE'):
+        auth_type = config.get('AUTHTYPE').lower()
     else:
         # If the APIKEY property is specified, then it should be IAM, otherwise Container Auth.
         auth_type = 'iam' if config.get('APIKEY') else 'container'
@@ -65,7 +67,8 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            disable_ssl_verification=config.get(
+                'AUTH_DISABLE_SSL', 'false').lower() == 'true',
             scope=config.get('SCOPE'))
     elif auth_type == 'cp4d':
         authenticator = CloudPakForDataAuthenticator(
@@ -80,7 +83,8 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            disable_ssl_verification=config.get(
+                'AUTH_DISABLE_SSL', 'false').lower() == 'true',
             scope=config.get('SCOPE'))
     elif auth_type == 'noauth':
         authenticator = NoAuthAuthenticator()

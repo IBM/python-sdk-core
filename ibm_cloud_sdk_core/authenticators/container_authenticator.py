@@ -32,10 +32,12 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
         cr_token_filename: The name of the file containing the injected CR token value
             (applies to IKS-managed compute resources). Defaults to "/var/run/secrets/tokens/vault-token".
         iam_profile_name: The name of the linked trusted IAM profile to be used when obtaining the IAM access token
-            (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
+            (a CR token might map to multiple IAM profiles).
+            One of iam_profile_name or iam_profile_id must be specified.
             Defaults to None.
         iam_profile_id: The id of the linked trusted IAM profile to be used when obtaining the IAM access token
-	        (a CR token might map to multiple IAM profiles). One of IAMProfileName or IAMProfileID must be specified.
+            (a CR token might map to multiple IAM profiles).
+            One of iam_profile_name or iam_profile_id must be specified.
             Defaults to None.
         url: The URL representing the IAM token service endpoint. If not specified, a suitable default value is used.
         client_id: The client_id and client_secret fields are used to form
@@ -97,7 +99,8 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
         super().validate()
 
         if not self.token_manager.iam_profile_name and not self.token_manager.iam_profile_id:
-            raise ValueError('At least one of iam_profile_name or iam_profile_id must be specified.')
+            raise ValueError(
+                'At least one of iam_profile_name or iam_profile_id must be specified.')
 
     def set_cr_token_filename(self, cr_token_filename: str) -> None:
         """Set the location of the compute resource token on the local filesystem.
