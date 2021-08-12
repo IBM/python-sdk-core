@@ -4,6 +4,7 @@ The python-sdk-core project supports the following types of authentication:
 - Bearer Token
 - Identity and Access Management (IAM)
 - Cloud Pak for Data
+- Container
 - No Authentication
 
 The SDK user configures the appropriate type of authentication for use with service instances.
@@ -153,7 +154,7 @@ form:
 - password: (required if apikey is not specified) the password used to obtain a bearer token.
 - url: (required) The URL representing the Cloud Pak for Data token service endpoint.
 - apikey: (required if password is not specified) the apikey used to obtain a bearer token.
-- disableSSLVerification: (optional) A flag that indicates whether verificaton of the server's SSL
+- disable_ssl_verification: (optional) A flag that indicates whether verification of the server's SSL
 certificate should be disabled or not. The default value is `false`.
 - headers: (optional) A set of key/value pairs that will be sent as HTTP headers in requests
 made to the IAM token service.
@@ -193,6 +194,62 @@ export EXAMPLE_SERVICE_AUTH_TYPE=cp4d
 export EXAMPLE_SERVICE_USERNAME=myuser
 export EXAMPLE_SERVICE_APIKEY=myapikey
 export EXAMPLE_SERVICE_URL=https://mycp4dhost.com/
+```
+Application code:
+```python
+from ibm_cloud_sdk_core import get_authenticator_from_environment
+
+authenticator = get_authenticator_from_environment('example_service')
+service = ExampleService(authenticator=authenticator)
+```
+
+## Container
+The `ContainerAuthenticator` is intended to be used by application code
+running inside a compute resource managed by the IBM Kubernetes Service (IKS)
+in which a secure compute resource token (CR token) has been stored in a file
+within the compute resource's local file system.
+The CR token is similar to an IAM apikey except that it is managed automatically by
+the compute resource provider (IKS).
+This allows the application developer to:
+- avoid storing credentials in application code, configuraton files or a password vault
+- avoid managing or rotating credentials
+
+The `ContainerAuthenticator` will retrieve the CR token from
+the compute resource in which the application is running, and will then perform
+the necessary interactions with the IAM token service to obtain an IAM access token
+using the IAM "get token" operation with grant-type `cr-token`.
+The authenticator will repeat these steps to obtain a new IAM access token when the
+current access token expires.
+The IAM access token is added to each outbound request in the `Authorization` header in the form:
+```
+   Authorization: Bearer <IAM-access-token>
+```
+
+### Properties
+- cr_token_filename: (optional) The name of the file containing the injected CR token value. If not specified, then `/var/run/secrets/tokens/vault-token` is used as the default value. The application must have `read` permissions on the file containing the CR token value.
+- iam_profile_name: (optional) The name of the linked trusted IAM profile to be used when obtaining the IAM access token (a CR token might map to multiple IAM profiles). One of `iam_profile_name` or `iam_profile_id` must be specified.
+- iam_profile_id: (optional) The ID of the linked trusted IAM profile to be used when obtaining the IAM access token (a CR token might map to multiple IAM profiles). One of `iam_profile_name` or `iam_profile_id` must be specified.
+- url: (optional) The URL representing the IAM token service endpoint.  If not specified, a suitable default value is used.
+- client_id/client_secret: (optional) The `client_id` and `client_secret` fields are used to form a "basic auth" Authorization header for interactions with the IAM token server. If neither field is specified, then no Authorization header will be sent with token server requests.  These fields are optional, but must be specified together.
+- disable_ssl_verification: (optional) A flag that indicates whether verification of the server's SSL certificate should be disabled or not. The default value is `False`.
+- scope (optional): the scope to be associated with the IAM access token.
+If not specified, then no scope will be associated with the access token.
+- proxies (optional): The proxy endpoint to use for HTTP(S) requests.
+- headers: (optional) A set of key/value pairs that will be sent as HTTP headers in requests made to the IAM token service.
+
+### Programming example
+```python
+from ibm_cloud_sdk_core.authenticators import ContainerAuthenticatior
+
+authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123')
+service = ExampleService(authenticator=authenticator)
+```
+
+### Configuration example
+External configuration:
+```
+export EXAMPLE_SERVICE_AUTH_TYPE=container
+export EXAMPLE_SERVICE_IAM_PROFILE_NAME=iam-user-123
 ```
 Application code:
 ```python

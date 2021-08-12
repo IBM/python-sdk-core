@@ -38,6 +38,30 @@ def test_cp4d_authenticator():
     assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
 
 
+def test_disable_ssl_verification():
+    authenticator = CloudPakForDataAuthenticator(
+            'my_username', 'my_password', 'http://my_url', disable_ssl_verification=True)
+    assert authenticator.token_manager.disable_ssl_verification is True
+
+    authenticator.set_disable_ssl_verification(False)
+    assert authenticator.token_manager.disable_ssl_verification is False
+
+
+def test_invalid_disable_ssl_verification_type():
+    with pytest.raises(TypeError) as err:
+        authenticator = CloudPakForDataAuthenticator(
+            'my_username', 'my_password', 'http://my_url', disable_ssl_verification='True')
+    assert str(err.value) == 'disable_ssl_verification must be a bool'
+
+    authenticator = CloudPakForDataAuthenticator(
+            'my_username', 'my_password', 'http://my_url')
+    assert authenticator.token_manager.disable_ssl_verification is False
+
+    with pytest.raises(TypeError) as err:
+        authenticator.set_disable_ssl_verification('True')
+    assert str(err.value) == 'status must be a bool'
+
+
 def test_cp4d_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
         CloudPakForDataAuthenticator('my_username', None, 'my_url')

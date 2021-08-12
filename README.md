@@ -31,6 +31,7 @@ The python-sdk-core project supports the following types of authentication:
 - Bearer Token
 - Identity and Access Management (IAM)
 - Cloud Pak for Data
+- Container
 - No Authentication
 
 For more information about the various authentication types and how to use them with your services, click [here](Authentication.md)

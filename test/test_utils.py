@@ -274,6 +274,7 @@ def test_convert_list():
     assert mock4_str == mock4
 
 
+# pylint: disable=too-many-statements
 def test_get_authenticator_from_credential_file():
     file_path = os.path.join(os.path.dirname(__file__),
                              '../resources/ibm-credentials-iam.env')
@@ -281,6 +282,11 @@ def test_get_authenticator_from_credential_file():
     authenticator = get_authenticator_from_environment('ibm watson')
     assert authenticator is not None
     assert authenticator.token_manager.apikey == '5678efgh'
+    assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com'
+    assert authenticator.token_manager.client_id is None
+    assert authenticator.token_manager.client_secret is None
+    assert authenticator.token_manager.disable_ssl_verification is False
+    assert authenticator.token_manager.scope is None
     del os.environ['IBM_CREDENTIALS_FILE']
 
     file_path = os.path.join(os.path.dirname(__file__),
@@ -292,12 +298,41 @@ def test_get_authenticator_from_credential_file():
     del os.environ['IBM_CREDENTIALS_FILE']
 
     file_path = os.path.join(os.path.dirname(__file__),
+                             '../resources/ibm-credentials-container.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service 1')
+    assert authenticator is not None
+    assert authenticator.token_manager.cr_token_filename == 'crtoken.txt'
+    assert authenticator.token_manager.iam_profile_name == 'iam-user-123'
+    assert authenticator.token_manager.iam_profile_id == 'iam-id-123'
+    assert authenticator.token_manager.url == 'https://iamhost/iam/api'
+    assert authenticator.token_manager.scope == 'scope1'
+    assert authenticator.token_manager.client_id == 'iam-client-123'
+    assert authenticator.token_manager.client_secret == 'iam-secret-123'
+    assert authenticator.token_manager.disable_ssl_verification is True
+
+    authenticator = get_authenticator_from_environment('service 2')
+    assert authenticator is not None
+    assert authenticator.token_manager.cr_token_filename is None
+    assert authenticator.token_manager.iam_profile_name == 'iam-user-123'
+    assert authenticator.token_manager.iam_profile_id is None
+    assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com'
+    assert authenticator.token_manager.scope is None
+    assert authenticator.token_manager.client_id is None
+    assert authenticator.token_manager.client_secret is None
+    assert authenticator.token_manager.disable_ssl_verification is False
+    del os.environ['IBM_CREDENTIALS_FILE']
+
+    file_path = os.path.join(os.path.dirname(__file__),
                              '../resources/ibm-credentials-cp4d.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
     assert authenticator.token_manager.username == 'my_username'
     assert authenticator.token_manager.password == 'my_password'
+    assert authenticator.token_manager.url == 'https://my_url/v1/authorize'
+    assert authenticator.token_manager.apikey is None
+    assert authenticator.token_manager.disable_ssl_verification is False
     del os.environ['IBM_CREDENTIALS_FILE']
 
     file_path = os.path.join(os.path.dirname(__file__),

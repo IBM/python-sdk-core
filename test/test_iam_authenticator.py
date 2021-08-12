@@ -45,6 +45,27 @@ def test_iam_authenticator():
     assert authenticator.token_manager.disable_ssl_verification
 
 
+def test_disable_ssl_verification():
+    authenticator = IAMAuthenticator(apikey='my_apikey', disable_ssl_verification=True)
+    assert authenticator.token_manager.disable_ssl_verification is True
+
+    authenticator.set_disable_ssl_verification(False)
+    assert authenticator.token_manager.disable_ssl_verification is False
+
+
+def test_invalid_disable_ssl_verification_type():
+    with pytest.raises(TypeError) as err:
+        authenticator = IAMAuthenticator(apikey='my_apikey', disable_ssl_verification='True')
+    assert str(err.value) == 'disable_ssl_verification must be a bool'
+
+    authenticator = IAMAuthenticator(apikey='my_apikey')
+    assert authenticator.token_manager.disable_ssl_verification is False
+
+    with pytest.raises(TypeError) as err:
+        authenticator.set_disable_ssl_verification('True')
+    assert str(err.value) == 'status must be a bool'
+
+
 def test_iam_authenticator_with_scope():
     authenticator = IAMAuthenticator(apikey='my_apikey', scope='scope1 scope2')
     assert authenticator is not None

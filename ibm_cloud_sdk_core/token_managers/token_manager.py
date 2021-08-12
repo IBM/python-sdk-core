@@ -91,8 +91,14 @@ class TokenManager(ABC):
 
         Args:
             status: the flag to be used for determining status.
+
+        Raises:
+            TypeError: The `status` is not a bool.
         """
-        self.disable_ssl_verification = status
+        if isinstance(status, bool):
+            self.disable_ssl_verification = status
+        else:
+            raise TypeError('status must be a bool')
 
     def paced_request_token(self) -> None:
         """

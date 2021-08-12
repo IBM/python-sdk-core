@@ -44,9 +44,10 @@ class CloudPakForDataAuthenticator(Authenticator):
         proxies.https (optional): The proxy endpoint to use for HTTPS requests.
 
     Attributes:
-        token_manager (CP4DTokenManager): Retrives and manages CP4D tokens from the endpoint specified by the url.
+        token_manager (CP4DTokenManager): Retrieves and manages CP4D tokens from the endpoint specified by the url.
 
     Raises:
+        TypeError: The `disable_ssl_verification` is not a bool.
         ValueError: The username, password/apikey, and/or url are not valid for CP4D token requests.
     """
     authenticationdict = 'cp4d'
@@ -60,9 +61,14 @@ class CloudPakForDataAuthenticator(Authenticator):
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
                  proxies: Optional[Dict[str, str]] = None) -> None:
+        # Check the type of `disable_ssl_verification`. Must be a bool.
+        if not isinstance(disable_ssl_verification, bool):
+            raise TypeError('disable_ssl_verification must be a bool')
+
         self.token_manager = CP4DTokenManager(
             username=username, password=password, apikey=apikey, url=url,
             disable_ssl_verification=disable_ssl_verification, headers=headers, proxies=proxies)
+
         self.validate()
 
     def validate(self) -> None:
@@ -116,6 +122,9 @@ class CloudPakForDataAuthenticator(Authenticator):
 
         Args:
             status: Set to true in order to disable SSL certificate verification. Defaults to False.
+
+        Raises:
+            TypeError: The `status` is not a bool.
         """
         self.token_manager.set_disable_ssl_verification(status)
 
