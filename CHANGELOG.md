@@ -1,3 +1,10 @@
+# [3.11.0](https://github.com/IBM/python-sdk-core/compare/v3.10.1...v3.11.0) (2021-08-12)
+
+
+### Features
+
+* implement container authentication ([#119](https://github.com/IBM/python-sdk-core/issues/119)) ([5237277](https://github.com/IBM/python-sdk-core/commit/5237277b4e7e9daf54bb70d2ec01882cfa3167c2))
+
 ## [3.10.1](https://github.com/IBM/python-sdk-core/compare/v3.10.0...v3.10.1) (2021-07-08)
 
 
