@@ -786,8 +786,8 @@ def test_files_duplicate_parts():
 def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     req = service.prepare_request('POST', url='', headers={
-                                  'X-opt-out': True}, data={'hello': 'world'})
-    assert req.get('data') == "{\"hello\": \"world\"}"
+                                  'X-opt-out': True}, data={'hello': 'world', 'fóó': 'bår'})
+    assert req.get('data') == b'{"hello": "world", "f\\u00f3\\u00f3": "b\\u00e5r"}'
 
 
 def test_trailing_slash():
