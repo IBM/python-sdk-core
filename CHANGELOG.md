@@ -1,3 +1,10 @@
+## [3.11.1](https://github.com/IBM/python-sdk-core/compare/v3.11.0...v3.11.1) (2021-08-18)
+
+
+### Bug Fixes
+
+* encode serialized JSON string as UTF-8 ([#121](https://github.com/IBM/python-sdk-core/issues/121)) ([6c1ddac](https://github.com/IBM/python-sdk-core/commit/6c1ddacff512478ec9aaa6f5c6ff454eae780c74))
+
 # [3.11.0](https://github.com/IBM/python-sdk-core/compare/v3.10.1...v3.11.0) (2021-08-12)
 
 
