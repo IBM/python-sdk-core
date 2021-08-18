@@ -119,6 +119,13 @@ def get_access_token() -> str:
     return access_token
 
 
+def test_invalid_authenticator():
+    with pytest.raises(ValueError) as err:
+        AnyServiceV1('2021-08-18')
+
+    assert str(err.value) == 'authenticator must be provided'
+
+
 @responses.activate
 def test_url_encoding():
     service = AnyServiceV1('2017-07-07', authenticator=NoAuthAuthenticator())
@@ -480,6 +487,10 @@ def test_misc_methods():
     res_str = service._convert_list(temp)
     assert res_str == 'default,123'
 
+    temp2 = 'default123'
+    res_str2 = service._convert_list(temp2)
+    assert res_str2 == temp2
+
 
 def test_default_headers():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
@@ -712,6 +723,18 @@ def test_reserved_keys(caplog):
     assert caplog.record_tuples[2][2] == '"headers" has been removed from the request'
     assert caplog.record_tuples[3][2] == '"cookies" has been removed from the request'
 
+@responses.activate
+def test_ssl_error():
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        body=requests.exceptions.SSLError())
+    service = AnyServiceV1('2021-08-18', authenticator=NoAuthAuthenticator())
+    with pytest.raises(requests.exceptions.SSLError):
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
+
+
 def test_files_dict():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
 
@@ -786,8 +809,8 @@ def test_files_duplicate_parts():
 def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     req = service.prepare_request('POST', url='', headers={
-                                  'X-opt-out': True}, data={'hello': 'world'})
-    assert req.get('data') == "{\"hello\": \"world\"}"
+                                  'X-opt-out': True}, data={'hello': 'world', 'fóó': 'bår'})
+    assert req.get('data') == b'{"hello": "world", "f\\u00f3\\u00f3": "b\\u00e5r"}'
 
 
 def test_trailing_slash():

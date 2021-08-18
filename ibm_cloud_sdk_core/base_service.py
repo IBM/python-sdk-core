@@ -18,7 +18,6 @@ import gzip
 import json as json_import
 import logging
 import platform
-import sys
 from http.cookiejar import CookieJar
 from os.path import basename
 from typing import Dict, List, Optional, Tuple, Union
@@ -373,14 +372,13 @@ class BaseService:
         params = cleanup_values(params)
         request['params'] = params
 
-        if sys.version_info >= (3, 0) and isinstance(data, str):
+        if isinstance(data, str):
             data = data.encode('utf-8')
-
-        if data and isinstance(data, dict):
+        elif isinstance(data, dict) and data:
             data = remove_null_values(data)
             if headers.get('content-type') is None:
                 headers.update({'content-type': 'application/json'})
-            data = json_import.dumps(data)
+            data = json_import.dumps(data).encode('utf-8')
         request['data'] = data
 
         self.authenticator.authenticate(request)
