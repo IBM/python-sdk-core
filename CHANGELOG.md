@@ -1,3 +1,10 @@
+## [3.11.2](https://github.com/IBM/python-sdk-core/compare/v3.11.1...v3.11.2) (2021-08-20)
+
+
+### Bug Fixes
+
+* **retries:** change default retry_interval to 1 second (was 0.1) ([#122](https://github.com/IBM/python-sdk-core/issues/122)) ([3daef00](https://github.com/IBM/python-sdk-core/commit/3daef00a61c461512da0a3b37952ed275180569d))
+
 ## [3.11.1](https://github.com/IBM/python-sdk-core/compare/v3.11.0...v3.11.1) (2021-08-18)
 
 
