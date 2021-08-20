@@ -605,7 +605,7 @@ def test_retry_config_default():
                           authenticator=NoAuthAuthenticator())
     service.enable_retries()
     assert service.retry_config.total == 4
-    assert service.retry_config.backoff_factor == 0.1
+    assert service.retry_config.backoff_factor == 1.0
     assert service.http_client.get_adapter('https://').max_retries.total == 4
 
     # Ensure retries fail after 4 retries
