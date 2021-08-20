@@ -97,16 +97,26 @@ class BaseService:
         if not isinstance(self.authenticator, Authenticator):
             raise ValueError('authenticator should be of type Authenticator')
 
-    def enable_retries(self, max_retries: int = 4, retry_interval: float = 0.1) -> None:
-        """Setup http_client with retry_config and http_adapter"""
+    def enable_retries(self, max_retries: int = 4, retry_interval: float = 1.0) -> None:
+        """Enable automatic retries on the underlying http client used by the BaseService instance.
+
+        Args:
+          max_retries: the maximum number of retries to attempt for a failed retryable request
+          retry_interval: the default wait time (in seconds) to use for the first retry attempt.
+            In general, if a response includes the Retry-After header, that will be used for
+            the wait time associated with the retry attempt.  If the Retry-After header is not
+            present, then the wait time is based on the retry_interval and retry attempt number:
+               wait_time = retry_interval * (2 ^ (n-1)), where n is the retry attempt number
+        """
         self.retry_config = Retry(
-            total = max_retries,
-            backoff_factor = retry_interval,
+            total=max_retries,
+            backoff_factor=retry_interval,
             # List of HTTP status codes to retry on in addition to Timeout/Connection Errors
-            status_forcelist = [429, 500, 502, 503, 504],
+            status_forcelist=[429, 500, 502, 503, 504],
             # List of HTTP methods to retry on
             # Omitting this will default to all methods except POST
-            allowed_methods=['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'POST']
+            allowed_methods=['HEAD', 'GET', 'PUT',
+                             'DELETE', 'OPTIONS', 'TRACE', 'POST']
         )
         self.http_adapter = HTTPAdapter(max_retries=self.retry_config)
         self.http_client.mount('http://', self.http_adapter)
@@ -163,7 +173,8 @@ class BaseService:
                 if config.get('MAX_RETRIES'):
                     kwargs["max_retries"] = int(config.get('MAX_RETRIES'))
                 if config.get('RETRY_INTERVAL'):
-                    kwargs["retry_interval"] = float(config.get('RETRY_INTERVAL'))
+                    kwargs["retry_interval"] = float(
+                        config.get('RETRY_INTERVAL'))
                 self.enable_retries(**kwargs)
 
     def _set_user_agent_header(self, user_agent_string: str) -> None:
