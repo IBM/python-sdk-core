@@ -1,3 +1,10 @@
+## [3.11.3](https://github.com/IBM/python-sdk-core/compare/v3.11.2...v3.11.3) (2021-08-24)
+
+
+### Bug Fixes
+
+* multiple IAM based authenticator overrides ([#124](https://github.com/IBM/python-sdk-core/issues/124)) ([b142e9e](https://github.com/IBM/python-sdk-core/commit/b142e9ecf337f73dcfd1e577afb330e993a3371b))
+
 ## [3.11.2](https://github.com/IBM/python-sdk-core/compare/v3.11.1...v3.11.2) (2021-08-20)
 
 
