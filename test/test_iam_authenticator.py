@@ -142,3 +142,13 @@ def test_get_token():
     # Verify that the "get token" call contained the Host header.
     assert responses.calls[0].request.headers.get(
         'Host') == 'iam.cloud.ibm.com:443'
+
+
+def test_multiple_iam_authenticators():
+    authenticator_1 = IAMAuthenticator('my_apikey')
+    assert authenticator_1.token_manager.request_payload['apikey'] == 'my_apikey'
+
+    authenticator_2 = IAMAuthenticator('my_other_apikey')
+    assert authenticator_2.token_manager.request_payload['apikey'] == 'my_other_apikey'
+
+    assert authenticator_1.token_manager.request_payload['apikey'] == 'my_apikey'

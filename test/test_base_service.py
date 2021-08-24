@@ -134,7 +134,7 @@ def test_url_encoding():
     path0 = ' \"<>^`{}|/\\?#%[]'
     path0_encoded = '%20%22%3C%3E%5E%60%7B%7D%7C%2F%5C%3F%23%25%5B%5D'
     # All non-ASCII chars _must_ be encoded in path segments
-    path1 = u'比萨浇头'.encode('utf8')  # "pizza toppings"
+    path1 = '比萨浇头'.encode('utf8')  # "pizza toppings"
     path1_encoded = '%E6%AF%94%E8%90%A8%E6%B5%87%E5%A4%B4'
 
     path_encoded = '/v1/foo/' + path0_encoded + '/bar/' + path1_encoded + '/baz'
@@ -741,7 +741,7 @@ def test_files_dict():
     form_data = {}
     with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r', encoding='utf-8') as file:
         form_data['file1'] = (None, file, 'application/octet-stream')
     form_data['string1'] = (None, 'hello', 'text/plain')
     request = service.prepare_request(
@@ -762,7 +762,7 @@ def test_files_list():
     form_data = []
     with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r', encoding='utf-8') as file:
         form_data.append(('file1', (None, file, 'application/octet-stream')))
     form_data.append(('string1', (None, 'hello', 'text/plain')))
     request = service.prepare_request(
@@ -783,17 +783,17 @@ def test_files_duplicate_parts():
     form_data = []
     with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r') as file:
+            os.path.dirname(__file__), '../resources/ibm-credentials-iam.env'), 'r', encoding='utf-8') as file:
         form_data.append(
             ('creds_file', (None, file, 'application/octet-stream')))
     with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-basic.env'), 'r') as file:
+            os.path.dirname(__file__), '../resources/ibm-credentials-basic.env'), 'r', encoding='utf-8') as file:
         form_data.append(
             ('creds_file', (None, file, 'application/octet-stream')))
     with open(
         os.path.join(
-            os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env'), 'r') as file:
+            os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env'), 'r', encoding='utf-8') as file:
         form_data.append(
             ('creds_file', (None, file, 'application/octet-stream')))
     request = service.prepare_request(

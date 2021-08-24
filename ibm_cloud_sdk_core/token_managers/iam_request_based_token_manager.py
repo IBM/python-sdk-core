@@ -19,6 +19,7 @@ from typing import Dict, Optional
 from .jwt_token_manager import JWTTokenManager
 
 
+#pylint: disable=too-many-instance-attributes
 class IAMRequestBasedTokenManager(JWTTokenManager):
     """The IamRequestBasedTokenManager class contains code relevant to any token manager that
     interacts with the IAM service to manage a token. It stores information relevant to all
@@ -62,8 +63,6 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com'
     OPERATION_PATH = "/identity/token"
 
-    request_payload = {}
-
     def __init__(self,
                  url: Optional[str] = None,
                  client_id: Optional[str] = None,
@@ -83,6 +82,7 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
         self.refresh_token = None
         self.proxies = proxies
         self.scope = scope
+        self.request_payload = {}
         super().__init__(
             self.url, disable_ssl_verification=disable_ssl_verification, token_name='access_token')
 

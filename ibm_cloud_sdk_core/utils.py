@@ -314,7 +314,7 @@ def __read_from_credential_file(service_name: str,
     config = {}
     if credential_file_path is not None:
         try:
-            with open(credential_file_path, 'r') as fobj:
+            with open(credential_file_path, 'r', encoding='utf-8') as fobj:
                 for line in fobj:
                     key_val = line.strip().split(separator, 1)
                     if len(key_val) == 2:

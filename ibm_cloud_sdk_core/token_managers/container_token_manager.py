@@ -114,7 +114,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
                       cr_token_filename)
 
         try:
-            with open(cr_token_filename, 'r') as file:
+            with open(cr_token_filename, 'r', encoding='utf-8') as file:
                 cr_token = file.read()
             return cr_token
         # pylint: disable=broad-except
