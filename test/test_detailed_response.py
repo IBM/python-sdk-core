@@ -26,7 +26,7 @@ def test_detailed_response_dict():
                                          status_code=mock_response.status_code)
     assert detailed_response is not None
     assert detailed_response.get_result() == {'foobar': 'baz'}
-    assert detailed_response.get_headers() == {u'Content-Type': 'application/json'}
+    assert detailed_response.get_headers() == {'Content-Type': 'application/json'}
     assert detailed_response.get_status_code() == 200
 
     response_str = clean(detailed_response.__str__())
@@ -48,7 +48,7 @@ def test_detailed_response_list():
                                          status_code=mock_response.status_code)
     assert detailed_response is not None
     assert detailed_response.get_result() == ['foobar', 'baz']
-    assert detailed_response.get_headers() == {u'Content-Type': 'application/json'}
+    assert detailed_response.get_headers() == {'Content-Type': 'application/json'}
     assert detailed_response.get_status_code() == 200
 
     response_str = clean(detailed_response.__str__())
