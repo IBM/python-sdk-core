@@ -37,7 +37,7 @@ def mock_iam_response(func):
 
         assert payload['cr_token'][0] == 'cr-token-1'
         assert payload['grant_type'][0] == 'urn:ibm:params:oauth:grant-type:cr-token'
-        assert payload['profile_name'][0] or payload['iam_profile_id']
+        assert payload.get('profile_name', [None])[0] or payload.get('profile_id', [None])[0]
 
         status_code = 200
 
@@ -264,12 +264,20 @@ def test_client_id_and_secret():
 def test_setter_methods():
     token_manager = ContainerTokenManager(
         cr_token_filename='bogus-cr-token-file',
-        iam_profile_id=MOCK_IAM_PROFILE_NAME,
+        iam_profile_name=MOCK_IAM_PROFILE_NAME,
     )
+
+    assert token_manager.iam_profile_id is None
+    assert token_manager.iam_profile_name == MOCK_IAM_PROFILE_NAME
+    assert token_manager.cr_token_filename == 'bogus-cr-token-file'
 
     token_manager.set_iam_profile_id('iam-id-123')
     token_manager.set_iam_profile_name(None)
     token_manager.set_cr_token_filename(cr_token_file)
+
+    assert token_manager.iam_profile_id == 'iam-id-123'
+    assert token_manager.iam_profile_name is None
+    assert token_manager.cr_token_filename == cr_token_file
 
     access_token = token_manager.get_token()
     assert access_token == TEST_ACCESS_TOKEN_1
