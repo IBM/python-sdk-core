@@ -28,7 +28,7 @@ script:
 before_deploy:
 - pip3 install --editable .
 - pip3 install bumpversion
-- nvm install 12
+- nvm install 14
 - npm install @semantic-release/changelog
 - npm install @semantic-release/exec
 - npm install @semantic-release/git
