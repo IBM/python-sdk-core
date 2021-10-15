@@ -1,12 +1,13 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from ibm_cloud_sdk_core.authenticators import BasicAuthenticator
+from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, Authenticator
 
 
 def test_basic_authenticator():
     authenticator = BasicAuthenticator('my_username', 'my_password')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_BASIC
     assert authenticator.username == 'my_username'
     assert authenticator.password == 'my_password'
 

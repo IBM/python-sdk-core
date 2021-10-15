@@ -19,6 +19,16 @@ from abc import ABC, abstractmethod
 
 class Authenticator(ABC):
     """This interface defines the common methods and constants associated with an Authenticator implementation."""
+
+    # Constants representing the various authenticator types.
+    AUTHTYPE_BASIC = 'basic'
+    AUTHTYPE_BEARERTOKEN = 'bearerToken'
+    AUTHTYPE_IAM = 'iam'
+    AUTHTYPE_CONTAINER = 'container'
+    AUTHTYPE_CP4D = 'cp4d'
+    AUTHTYPE_NOAUTH = 'noAuth'
+    AUTHTYPE_UNKNOWN = 'unknown'
+
     @abstractmethod
     def authenticate(self, req: dict) -> None:
         """Perform the necessary authentication steps for the specified request.
@@ -40,3 +50,8 @@ class Authenticator(ABC):
         To be implemented by subclasses.
         """
         pass
+
+    # pylint: disable=R0201
+    def authentication_type(self) -> str:
+        """Returns the authenticator's type.  This method should be overridden by each authenticator implementation."""
+        return Authenticator.AUTHTYPE_UNKNOWN

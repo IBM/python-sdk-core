@@ -19,7 +19,10 @@ from .authenticator import Authenticator
 
 class NoAuthAuthenticator(Authenticator):
     """Performs no authentication."""
-    authentication_type = 'noAuth'
+
+    def authentication_type(self) -> str:
+        """Returns this authenticator's type ('noauth')."""
+        return Authenticator.AUTHTYPE_NOAUTH
 
     def validate(self) -> None:
         pass

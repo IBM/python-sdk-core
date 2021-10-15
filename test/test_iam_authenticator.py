@@ -5,12 +5,13 @@ import jwt
 import pytest
 import responses
 
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator, Authenticator
 
 
 def test_iam_authenticator():
     authenticator = IAMAuthenticator(apikey='my_apikey')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com'
     assert authenticator.token_manager.client_id is None
     assert authenticator.token_manager.client_secret is None
@@ -46,7 +47,8 @@ def test_iam_authenticator():
 
 
 def test_disable_ssl_verification():
-    authenticator = IAMAuthenticator(apikey='my_apikey', disable_ssl_verification=True)
+    authenticator = IAMAuthenticator(
+        apikey='my_apikey', disable_ssl_verification=True)
     assert authenticator.token_manager.disable_ssl_verification is True
 
     authenticator.set_disable_ssl_verification(False)
@@ -55,7 +57,8 @@ def test_disable_ssl_verification():
 
 def test_invalid_disable_ssl_verification_type():
     with pytest.raises(TypeError) as err:
-        authenticator = IAMAuthenticator(apikey='my_apikey', disable_ssl_verification='True')
+        authenticator = IAMAuthenticator(
+            apikey='my_apikey', disable_ssl_verification='True')
     assert str(err.value) == 'disable_ssl_verification must be a bool'
 
     authenticator = IAMAuthenticator(apikey='my_apikey')

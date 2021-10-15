@@ -18,6 +18,7 @@ from typing import Dict, Optional
 
 from .iam_request_based_authenticator import IAMRequestBasedAuthenticator
 from ..token_managers.container_token_manager import ContainerTokenManager
+from .authenticator import Authenticator
 
 
 class ContainerAuthenticator(IAMRequestBasedAuthenticator):
@@ -62,7 +63,6 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
             ValueError: Neither of iam_profile_name or iam_profile_idk are set,
             or client_id, and/or client_secret are not valid for IAM token requests.
     """
-    authentication_type = 'container'
 
     def __init__(self,
                  cr_token_filename: Optional[str] = None,
@@ -85,6 +85,10 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
             disable_ssl_verification=disable_ssl_verification, scope=scope, proxies=proxies, headers=headers)
 
         self.validate()
+
+    def authentication_type(self) -> str:
+        """Returns this authenticator's type ('container')."""
+        return Authenticator.AUTHTYPE_CONTAINER
 
     def validate(self) -> None:
         """Validates the iam_profile_name, iam_profile_id, client_id, and client_secret for IAM token requests.

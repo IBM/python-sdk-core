@@ -5,13 +5,14 @@ import jwt
 import pytest
 import responses
 
-from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
+from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator, Authenticator
 
 
 def test_cp4d_authenticator():
     authenticator = CloudPakForDataAuthenticator(
         'my_username', 'my_password', 'http://my_url')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CP4D
     assert authenticator.token_manager.url == 'http://my_url/v1/authorize'
     assert authenticator.token_manager.username == 'my_username'
     assert authenticator.token_manager.password == 'my_password'
@@ -40,7 +41,7 @@ def test_cp4d_authenticator():
 
 def test_disable_ssl_verification():
     authenticator = CloudPakForDataAuthenticator(
-            'my_username', 'my_password', 'http://my_url', disable_ssl_verification=True)
+        'my_username', 'my_password', 'http://my_url', disable_ssl_verification=True)
     assert authenticator.token_manager.disable_ssl_verification is True
 
     authenticator.set_disable_ssl_verification(False)
@@ -54,7 +55,7 @@ def test_invalid_disable_ssl_verification_type():
     assert str(err.value) == 'disable_ssl_verification must be a bool'
 
     authenticator = CloudPakForDataAuthenticator(
-            'my_username', 'my_password', 'http://my_url')
+        'my_username', 'my_password', 'http://my_url')
     assert authenticator.token_manager.disable_ssl_verification is False
 
     with pytest.raises(TypeError) as err:

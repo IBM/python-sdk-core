@@ -27,7 +27,7 @@ from ibm_cloud_sdk_core import string_to_date, date_to_string
 from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core import get_query_param
 from ibm_cloud_sdk_core import read_external_sources
-from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, IAMAuthenticator
+from ibm_cloud_sdk_core.authenticators import Authenticator, BasicAuthenticator, IAMAuthenticator
 
 
 def datetime_test(datestr: str, expected: str):
@@ -124,28 +124,33 @@ def test_string_to_datetime_list():
     with pytest.raises(ValueError):
         string_to_datetime_list(None)
     # If the specified string does not include a timezone, it is assumed to be UTC
-    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338' ])
+    date_list = string_to_datetime_list(['2017-03-06 16:00:04.159338'])
     assert date_list[0].day == 6
     assert date_list[0].hour == 16
-    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[0].tzinfo.utcoffset(
+        None) == datetime.timezone.utc.utcoffset(None)
     # Test date string with TZ specified as '+xxxx'
-    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338+0600' ])
+    date_list = string_to_datetime_list(['2017-03-06 16:00:04.159338+0600'])
     assert date_list[0].day == 6
     assert date_list[0].hour == 16
     assert date_list[0].tzinfo.utcoffset(None).total_seconds() == 6 * 60 * 60
     # Test date string with TZ specified as 'Z'
-    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338Z' ])
+    date_list = string_to_datetime_list(['2017-03-06 16:00:04.159338Z'])
     assert date_list[0].day == 6
     assert date_list[0].hour == 16
-    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[0].tzinfo.utcoffset(
+        None) == datetime.timezone.utc.utcoffset(None)
     # Test multiple datetimes in a list
-    date_list = string_to_datetime_list([ '2017-03-06 16:00:04.159338', '2017-03-07 17:00:04.159338' ])
+    date_list = string_to_datetime_list(
+        ['2017-03-06 16:00:04.159338', '2017-03-07 17:00:04.159338'])
     assert date_list[0].day == 6
     assert date_list[0].hour == 16
-    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[0].tzinfo.utcoffset(
+        None) == datetime.timezone.utc.utcoffset(None)
     assert date_list[1].day == 7
     assert date_list[1].hour == 17
-    assert date_list[1].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[1].tzinfo.utcoffset(
+        None) == datetime.timezone.utc.utcoffset(None)
 
 
 def test_datetime_to_string_list():
@@ -157,25 +162,26 @@ def test_datetime_to_string_list():
     # If specified datetime list is empty, return empty list
     assert datetime_to_string_list([]) == []
     # If the specified date list item is "naive", it is interpreted as a UTC date
-    date_list = [ datetime.datetime(2017, 3, 6, 16, 0, 4, 159338) ]
+    date_list = [datetime.datetime(2017, 3, 6, 16, 0, 4, 159338)]
     res = datetime_to_string_list(date_list)
-    assert res == [ '2017-03-06T16:00:04.159338Z' ]
+    assert res == ['2017-03-06T16:00:04.159338Z']
     # Test date list item with UTC timezone
-    date_list = [ datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
-                             datetime.timezone.utc) ]
+    date_list = [datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
+                                   datetime.timezone.utc)]
     res = datetime_to_string_list(date_list)
-    assert res == [ '2017-03-06T16:00:04.159338Z' ]
+    assert res == ['2017-03-06T16:00:04.159338Z']
     # Test date list item with non-UTC timezone
     tzn = datetime.timezone(datetime.timedelta(hours=-6))
-    date_list = [ datetime.datetime(2017, 3, 6, 10, 0, 4, 159338, tzn) ]
+    date_list = [datetime.datetime(2017, 3, 6, 10, 0, 4, 159338, tzn)]
     res = datetime_to_string_list(date_list)
-    assert res == [ '2017-03-06T16:00:04.159338Z' ]
+    assert res == ['2017-03-06T16:00:04.159338Z']
     # Test specified date list with multiple items
-    date_list = [ datetime.datetime(2017, 3, 6, 16, 0, 4, 159338),
-                  datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
-                        datetime.timezone.utc) ]
+    date_list = [datetime.datetime(2017, 3, 6, 16, 0, 4, 159338),
+                 datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
+                                   datetime.timezone.utc)]
     res = datetime_to_string_list(date_list)
-    assert res == [ '2017-03-06T16:00:04.159338Z', '2017-03-06T16:00:04.159338Z' ]
+    assert res == ['2017-03-06T16:00:04.159338Z',
+                   '2017-03-06T16:00:04.159338Z']
 
 
 def test_date_conversion():
@@ -281,6 +287,7 @@ def test_get_authenticator_from_credential_file():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('ibm watson')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == '5678efgh'
     assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com'
     assert authenticator.token_manager.client_id is None
@@ -294,6 +301,7 @@ def test_get_authenticator_from_credential_file():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_BASIC
     assert authenticator.username == 'my_username'
     del os.environ['IBM_CREDENTIALS_FILE']
 
@@ -302,6 +310,7 @@ def test_get_authenticator_from_credential_file():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service 1')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CONTAINER
     assert authenticator.token_manager.cr_token_filename == 'crtoken.txt'
     assert authenticator.token_manager.iam_profile_name == 'iam-user-123'
     assert authenticator.token_manager.iam_profile_id == 'iam-id-123'
@@ -313,6 +322,7 @@ def test_get_authenticator_from_credential_file():
 
     authenticator = get_authenticator_from_environment('service 2')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CONTAINER
     assert authenticator.token_manager.cr_token_filename is None
     assert authenticator.token_manager.iam_profile_name == 'iam-user-123'
     assert authenticator.token_manager.iam_profile_id is None
@@ -328,6 +338,7 @@ def test_get_authenticator_from_credential_file():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CP4D
     assert authenticator.token_manager.username == 'my_username'
     assert authenticator.token_manager.password == 'my_password'
     assert authenticator.token_manager.url == 'https://my_url/v1/authorize'
@@ -340,6 +351,7 @@ def test_get_authenticator_from_credential_file():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_NOAUTH
     del os.environ['IBM_CREDENTIALS_FILE']
 
     file_path = os.path.join(os.path.dirname(__file__),
@@ -347,6 +359,7 @@ def test_get_authenticator_from_credential_file():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_BEARERTOKEN
     assert authenticator.bearer_token is not None
     del os.environ['IBM_CREDENTIALS_FILE']
 
@@ -355,6 +368,7 @@ def test_get_authenticator_from_credential_file():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service_1')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
     assert authenticator.token_manager.client_id == 'somefake========id'
     assert authenticator.token_manager.client_secret == '==my-client-secret=='
@@ -369,6 +383,7 @@ def test_get_authenticator_from_credential_file_scope():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service_2')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
     assert authenticator.token_manager.client_id == 'somefake========id'
     assert authenticator.token_manager.client_secret == '==my-client-secret=='
@@ -381,12 +396,21 @@ def test_get_authenticator_from_env_variables():
     os.environ['TEST_APIKEY'] = '5678efgh'
     authenticator = get_authenticator_from_environment('test')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == '5678efgh'
     del os.environ['TEST_APIKEY']
+
+    os.environ['TEST_IAM_PROFILE_ID'] = 'iam-profile-id1'
+    authenticator = get_authenticator_from_environment('test')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CONTAINER
+    assert authenticator.token_manager.iam_profile_id == 'iam-profile-id1'
+    del os.environ['TEST_IAM_PROFILE_ID']
 
     os.environ['SERVICE_1_APIKEY'] = 'V4HXmoUtMjohnsnow=KotN'
     authenticator = get_authenticator_from_environment('service_1')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == 'V4HXmoUtMjohnsnow=KotN'
     del os.environ['SERVICE_1_APIKEY']
 
@@ -409,6 +433,7 @@ def test_vcap_credentials():
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
     assert isinstance(authenticator, BasicAuthenticator)
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_BASIC
     assert authenticator.username == 'bogus username'
     assert authenticator.password == 'bogus password'
     del os.environ['VCAP_SERVICES']
@@ -420,6 +445,7 @@ def test_vcap_credentials():
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
     assert isinstance(authenticator, IAMAuthenticator)
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == 'bogus apikey'
     del os.environ['VCAP_SERVICES']
 
@@ -430,6 +456,7 @@ def test_vcap_credentials():
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('test')
     assert isinstance(authenticator, IAMAuthenticator)
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == 'bogus apikey'
     del os.environ['VCAP_SERVICES']
 
@@ -442,6 +469,7 @@ def test_vcap_credentials():
     os.environ['VCAP_SERVICES'] = vcap_services
     authenticator = get_authenticator_from_environment('testname')
     assert isinstance(authenticator, BasicAuthenticator)
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_BASIC
     assert authenticator.username == 'bogus username'
     assert authenticator.password == 'bogus password'
     del os.environ['VCAP_SERVICES']
@@ -530,6 +558,7 @@ def test_multi_word_service_name():
     os.environ['PERSONALITY_INSIGHTS_APIKEY'] = '5678efgh'
     authenticator = get_authenticator_from_environment('personality-insights')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM
     assert authenticator.token_manager.apikey == '5678efgh'
     del os.environ['PERSONALITY_INSIGHTS_APIKEY']
 

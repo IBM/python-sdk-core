@@ -33,11 +33,14 @@ class BearerTokenAuthenticator(Authenticator):
     Raises:
         ValueError: Bearer token is none.
     """
-    authentication_type = 'bearerToken'
 
     def __init__(self, bearer_token: str) -> None:
         self.bearer_token = bearer_token
         self.validate()
+
+    def authentication_type(self) -> str:
+        """Returns this authenticator's type ('bearertoken')."""
+        return Authenticator.AUTHTYPE_BEARERTOKEN
 
     def validate(self) -> None:
         """Validate the bearer token.

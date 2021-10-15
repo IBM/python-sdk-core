@@ -16,6 +16,7 @@
 
 from typing import Dict, Optional
 
+from .authenticator import Authenticator
 from .iam_request_based_authenticator import IAMRequestBasedAuthenticator
 from ..token_managers.iam_token_manager import IAMTokenManager
 from ..utils import has_bad_first_or_last_char
@@ -54,7 +55,6 @@ class IAMAuthenticator(IAMRequestBasedAuthenticator):
         TypeError: The `disable_ssl_verification` is not a bool.
         ValueError: The apikey, client_id, and/or client_secret are not valid for IAM token requests.
     """
-    authentication_type = 'iam'
 
     def __init__(self,
                  apikey: str,
@@ -76,6 +76,10 @@ class IAMAuthenticator(IAMRequestBasedAuthenticator):
             headers=headers, proxies=proxies, scope=scope)
 
         self.validate()
+
+    def authentication_type(self) -> str:
+        """Returns this authenticator's type ('iam')."""
+        return Authenticator.AUTHTYPE_IAM
 
     def validate(self) -> None:
         """Validates the apikey, client_id, and client_secret for IAM token requests.
