@@ -1,3 +1,10 @@
+# [3.12.0](https://github.com/IBM/python-sdk-core/compare/v3.11.3...v3.12.0) (2021-10-15)
+
+
+### Features
+
+* add authentication_type method to authenticators ([#127](https://github.com/IBM/python-sdk-core/issues/127)) ([c56ce73](https://github.com/IBM/python-sdk-core/commit/c56ce73454a2d049ed787649be0d3d464aae4c24))
+
 ## [3.11.3](https://github.com/IBM/python-sdk-core/compare/v3.11.2...v3.11.3) (2021-08-24)
 
 
