@@ -43,23 +43,28 @@ def get_authenticator_from_environment(service_name: str) -> Authenticator:
 def __construct_authenticator(config: dict) -> Authenticator:
     # Determine the authentication type if not specified explicitly.
     if config.get('AUTH_TYPE'):
-        auth_type = config.get('AUTH_TYPE').lower()
+        auth_type = config.get('AUTH_TYPE')
     elif config.get('AUTHTYPE'):
-        auth_type = config.get('AUTHTYPE').lower()
+        auth_type = config.get('AUTHTYPE')
     else:
+        # If authtype wasn't specified explicitly, then determine the default.
         # If the APIKEY property is specified, then it should be IAM, otherwise Container Auth.
-        auth_type = 'iam' if config.get('APIKEY') else 'container'
+        if config.get('APIKEY'):
+            auth_type = Authenticator.AUTHTYPE_IAM
+        else:
+            auth_type = Authenticator.AUTHTYPE_CONTAINER
 
+    auth_type = auth_type.lower()
     authenticator = None
 
-    if auth_type == 'basic':
+    if auth_type == Authenticator.AUTHTYPE_BASIC.lower():
         authenticator = BasicAuthenticator(
             username=config.get('USERNAME'),
             password=config.get('PASSWORD'))
-    elif auth_type == 'bearertoken':
+    elif auth_type == Authenticator.AUTHTYPE_BEARERTOKEN.lower():
         authenticator = BearerTokenAuthenticator(
             bearer_token=config.get('BEARER_TOKEN'))
-    elif auth_type == 'container':
+    elif auth_type == Authenticator.AUTHTYPE_CONTAINER.lower():
         authenticator = ContainerAuthenticator(
             cr_token_filename=config.get('CR_TOKEN_FILENAME'),
             iam_profile_name=config.get('IAM_PROFILE_NAME'),
@@ -70,14 +75,14 @@ def __construct_authenticator(config: dict) -> Authenticator:
             disable_ssl_verification=config.get(
                 'AUTH_DISABLE_SSL', 'false').lower() == 'true',
             scope=config.get('SCOPE'))
-    elif auth_type == 'cp4d':
+    elif auth_type == Authenticator.AUTHTYPE_CP4D.lower():
         authenticator = CloudPakForDataAuthenticator(
             username=config.get('USERNAME'),
             password=config.get('PASSWORD'),
             url=config.get('AUTH_URL'),
             apikey=config.get('APIKEY'),
             disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true')
-    elif auth_type == 'iam' and config.get('APIKEY'):
+    elif auth_type == Authenticator.AUTHTYPE_IAM.lower() and config.get('APIKEY'):
         authenticator = IAMAuthenticator(
             apikey=config.get('APIKEY'),
             url=config.get('AUTH_URL'),
@@ -86,7 +91,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             disable_ssl_verification=config.get(
                 'AUTH_DISABLE_SSL', 'false').lower() == 'true',
             scope=config.get('SCOPE'))
-    elif auth_type == 'noauth':
+    elif auth_type == Authenticator.AUTHTYPE_NOAUTH.lower():
         authenticator = NoAuthAuthenticator()
 
     return authenticator

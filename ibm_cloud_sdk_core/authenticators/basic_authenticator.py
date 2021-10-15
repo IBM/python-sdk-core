@@ -35,7 +35,6 @@ class BasicAuthenticator(Authenticator):
     Raises:
         ValueError: The username or password is not specified or contains invalid characters.
     """
-    authentication_type = 'basic'
 
     def __init__(self, username: str, password: str) -> None:
         self.username = username
@@ -43,6 +42,9 @@ class BasicAuthenticator(Authenticator):
         self.validate()
         self.authorization_header = self.__construct_basic_auth_header()
 
+    def authentication_type(self) -> str:
+        """Returns this authenticator's type ('basic')."""
+        return Authenticator.AUTHTYPE_BASIC
 
     def validate(self) -> None:
         """Validate username and password.
@@ -61,12 +63,11 @@ class BasicAuthenticator(Authenticator):
                 'The username and password shouldn\'t start or end with curly brackets or quotes. '
                 'Please remove any surrounding {, }, or \" characters.')
 
-
     def __construct_basic_auth_header(self) -> str:
         authstring = "{0}:{1}".format(self.username, self.password)
-        base64_authorization = base64.b64encode(authstring.encode('utf-8')).decode('utf-8')
+        base64_authorization = base64.b64encode(
+            authstring.encode('utf-8')).decode('utf-8')
         return 'Basic {0}'.format(base64_authorization)
-
 
     def authenticate(self, req: Request) -> None:
         """Add basic authentication information to a request.

@@ -50,7 +50,6 @@ class CloudPakForDataAuthenticator(Authenticator):
         TypeError: The `disable_ssl_verification` is not a bool.
         ValueError: The username, password/apikey, and/or url are not valid for CP4D token requests.
     """
-    authenticationdict = 'cp4d'
 
     def __init__(self,
                  username: str = None,
@@ -71,6 +70,10 @@ class CloudPakForDataAuthenticator(Authenticator):
 
         self.validate()
 
+    def authentication_type(self) -> str:
+        """Returns this authenticator's type ('cp4d')."""
+        return Authenticator.AUTHTYPE_CP4D
+
     def validate(self) -> None:
         """Validate username, password, and url for token requests.
 
@@ -85,7 +88,8 @@ class CloudPakForDataAuthenticator(Authenticator):
 
         if ((self.token_manager.password is None and self.token_manager.apikey is None)
                 or (self.token_manager.password is not None and self.token_manager.apikey is not None)):
-            raise ValueError('Exactly one of `apikey` or `password` must be specified.')
+            raise ValueError(
+                'Exactly one of `apikey` or `password` must be specified.')
 
         if self.token_manager.url is None:
             raise ValueError('The url shouldn\'t be None.')

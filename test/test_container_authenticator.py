@@ -1,12 +1,13 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from ibm_cloud_sdk_core.authenticators import ContainerAuthenticator
+from ibm_cloud_sdk_core.authenticators import ContainerAuthenticator, Authenticator
 
 
 def test_container_authenticator():
     authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123')
     assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CONTAINER
     assert authenticator.token_manager.cr_token_filename is None
     assert authenticator.token_manager.iam_profile_name == 'iam-user-123'
     assert authenticator.token_manager.iam_profile_id is None
