@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ibm_cloud_sdk_core.authenticators.vpc_instance_authenticator import VPCInstanceAuthenticator
 from .authenticators import (Authenticator, BasicAuthenticator, BearerTokenAuthenticator, ContainerAuthenticator,
                              CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator)
 from .utils import read_external_sources
@@ -91,6 +92,11 @@ def __construct_authenticator(config: dict) -> Authenticator:
             disable_ssl_verification=config.get(
                 'AUTH_DISABLE_SSL', 'false').lower() == 'true',
             scope=config.get('SCOPE'))
+    elif auth_type == Authenticator.AUTHTYPE_VPC.lower():
+        authenticator = VPCInstanceAuthenticator(
+            iam_profile_crn=config.get('IAM_PROFILE_CRN'),
+            iam_profile_id=config.get('IAM_PROFILE_ID'),
+            url=config.get('AUTH_URL'))
     elif auth_type == Authenticator.AUTHTYPE_NOAUTH.lower():
         authenticator = NoAuthAuthenticator()
 

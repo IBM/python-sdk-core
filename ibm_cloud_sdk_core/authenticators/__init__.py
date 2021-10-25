@@ -39,4 +39,5 @@ from .bearer_token_authenticator import BearerTokenAuthenticator
 from .container_authenticator import ContainerAuthenticator
 from .cp4d_authenticator import CloudPakForDataAuthenticator
 from .iam_authenticator import IAMAuthenticator
+from .vpc_instance_authenticator import VPCInstanceAuthenticator
 from .no_auth_authenticator import NoAuthAuthenticator

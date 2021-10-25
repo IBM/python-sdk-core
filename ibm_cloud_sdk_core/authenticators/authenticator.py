@@ -26,6 +26,7 @@ class Authenticator(ABC):
     AUTHTYPE_IAM = 'iam'
     AUTHTYPE_CONTAINER = 'container'
     AUTHTYPE_CP4D = 'cp4d'
+    AUTHTYPE_VPC = 'vpc'
     AUTHTYPE_NOAUTH = 'noAuth'
     AUTHTYPE_UNKNOWN = 'unknown'
 
