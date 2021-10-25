@@ -143,8 +143,18 @@ form:
 
 - apikey: (required) the IAM api key
 
-- url: (optional) The URL representing the IAM token service endpoint.  If not specified, a suitable
-default value is used.
+- url: (optional) The base endpoint URL of the IAM token service.
+The default value of this property is the "prod" IAM token service endpoint
+(`https://iam.cloud.ibm.com`).
+Make sure that you use an IAM token service endpoint that is appropriate for the
+location of the service being used by your application.
+For example, if you are using an instance of a service in the "production" environment
+(e.g. `https://resource-controller.cloud.ibm.com`),
+then the default "prod" IAM token service endpoint should suffice.
+However, if your application is using an instance of a service in the "staging" environment
+(e.g. `https://resource-controller.test.cloud.ibm.com`),
+then you would also need to configure the authenticator to use the IAM token service "staging"
+endpoint as well (`https://iam.test.cloud.ibm.com`).
 
 - client_id/client_secret: (optional) The `client_id` and `client_secret` fields are used to form a
 "basic auth" Authorization header for interactions with the IAM token server. If neither field
@@ -229,6 +239,15 @@ One of `iam_profile_name` or `iam_profile_id` must be specified.
 - url: (optional) The base endpoint URL of the IAM token service.
 The default value of this property is the "prod" IAM token service endpoint
 (`https://iam.cloud.ibm.com`).
+Make sure that you use an IAM token service endpoint that is appropriate for the
+location of the service being used by your application.
+For example, if you are using an instance of a service in the "production" environment
+(e.g. `https://resource-controller.cloud.ibm.com`),
+then the default "prod" IAM token service endpoint should suffice.
+However, if your application is using an instance of a service in the "staging" environment
+(e.g. `https://resource-controller.test.cloud.ibm.com`),
+then you would also need to configure the authenticator to use the IAM token service "staging"
+endpoint as well (`https://iam.test.cloud.ibm.com`).
 
 - client_id/client_secret: (optional) The `client_id` and `client_secret` fields are used to form a
 "basic auth" Authorization header for interactions with the IAM token server. If neither field
