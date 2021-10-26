@@ -141,8 +141,9 @@ form:
 
 - apikey: (required) the IAM api key
 
-- url: (optional) The URL representing the IAM token service endpoint.  If not specified, a suitable
-default value is used.
+- url: (optional) The base endpoint URL of the IAM token service.
+The default value of this property is the "prod" IAM token service endpoint
+(`https://iam.cloud.ibm.com`).
 Make sure that you use an IAM token service endpoint that is appropriate for the
 location of the service being used by your application.
 For example, if you are using an instance of a service in the "production" environment
@@ -459,4 +460,3 @@ from <sdk-package-name>.example_service_v1 import *
 service = ExampleServiceV1.new_instance(service_name='example_service')
 
 # 'service' can now be used to invoke operations.
-```
