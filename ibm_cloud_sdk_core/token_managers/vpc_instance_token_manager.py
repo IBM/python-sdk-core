@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
 from typing import Optional
 
@@ -49,11 +50,15 @@ class VPCInstanceTokenManager(JWTTokenManager):
     """
 
     METADATA_SERVICE_VERSION = '2021-09-20'
+    DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
 
     def __init__(self,
                  iam_profile_crn: Optional[str] = None,
                  iam_profile_id: Optional[str] = None,
-                 url: Optional[str] = 'http://169.254.169.254') -> None:
+                 url: Optional[str] = None) -> None:
+        if not url:
+            url = self.DEFAULT_IMS_ENDPOINT
+
         super().__init__(url)
 
         self.iam_profile_crn = iam_profile_crn
@@ -74,13 +79,11 @@ class VPCInstanceTokenManager(JWTTokenManager):
         url = self.url + '/instance_identity/v1/iam_token'
 
         if self.iam_profile_crn:
-            #pylint: disable=missing-format-argument-key
             request_payload = {
-                'trusted_profile': '{"crn": "{0}"}'.format(self.iam_profile_crn)}
+                'trusted_profile': '{{"crn": "{0}"}}'.format(self.iam_profile_crn)}
         if self.iam_profile_id:
-            #pylint: disable=missing-format-argument-key
             request_payload = {
-                'trusted_profile': '{"id": "{0}"}'.format(self.iam_profile_id)}
+                'trusted_profile': '{{"id": "{0}"}}'.format(self.iam_profile_id)}
 
         headers = {
             'Content-Type': 'application/json',
@@ -92,11 +95,11 @@ class VPCInstanceTokenManager(JWTTokenManager):
             'Invoking VPC \'create_iam_token\' operation: %s', url)
         response = self._request(
             method='POST',
-            url=(self.url + self.OPERATION_PATH) if self.url else self.url,
+            url=url,
             headers=headers,
             params={'version': self.METADATA_SERVICE_VERSION},
-            data=request_payload)
-        logging.debug('Returned from VPC \'create_access_token\' operation."')
+            data=json.dumps(request_payload))
+        logging.debug('Returned from VPC \'create_iam_token\' operation."')
 
         return response
 
@@ -143,8 +146,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             method='PUT',
             url=url,
             headers=headers,
-            data=request_body,
-            proxies=self.proxies)
+            data=json.dumps(request_body))
         logging.debug('Returned from VPC \'create_access_token\' operation."')
 
         return response['access_token']

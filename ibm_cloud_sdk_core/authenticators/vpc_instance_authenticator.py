@@ -17,7 +17,6 @@
 from typing import Optional
 
 from requests import Request
-from requests.api import head
 
 from ..token_managers.vpc_instance_token_manager import VPCInstanceTokenManager
 from .authenticator import Authenticator
@@ -52,10 +51,15 @@ class VPCInstanceAuthenticator(Authenticator):
         url (str, optional): The VPC Instance Metadata Service's base endpoint URL.
     """
 
+    DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
+
     def __init__(self,
                  iam_profile_crn: Optional[str] = None,
                  iam_profile_id: Optional[str] = None,
-                 url: Optional[str] = 'http://169.254.169.254') -> None:
+                 url: Optional[str] = None) -> None:
+
+        if not url:
+            url = self.DEFAULT_IMS_ENDPOINT
 
         self.token_manager = VPCInstanceTokenManager(
             url=url, iam_profile_crn=iam_profile_crn, iam_profile_id=iam_profile_id)
