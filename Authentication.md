@@ -3,8 +3,8 @@ The python-sdk-core project supports the following types of authentication:
 - Basic Authentication
 - Bearer Token Authentication
 - Identity and Access Management (IAM) Authentication
-- VPC Instance Authentication
 - Container Authentication
+- VPC Instance Authentication
 - Cloud Pak for Data Authentication
 - No Authentication
 
@@ -295,7 +295,7 @@ service = ExampleServiceV1.new_instance(service_name='example_service')
 
 
 ## VPC Instance Authentication
-The `VpcInstanceAuthenticator` is intended to be used by application code
+The `VPCInstanceAuthenticator` is intended to be used by application code
 running inside a VPC-managed compute resource (virtual server instance) that has been configured
 to use the "compute resource identity" feature.
 The compute resource identity feature allows you to assign a trusted IAM profile to the compute resource as its "identity".
@@ -305,7 +305,7 @@ This results in a simplified security model that allows the application develope
 - avoid storing credentials in application code, configuraton files or a password vault
 - avoid managing or rotating credentials
 
-The `VpcInstanceAuthenticator` will invoke the appropriate operations on the compute resource's locally-available
+The `VPCInstanceAuthenticator` will invoke the appropriate operations on the compute resource's locally-available
 VPC Instance Metadata Service to (1) retrieve an instance identity token
 and then (2) exchange that instance identity token for an IAM access token.
 The authenticator will repeat these steps to obtain a new IAM access token whenever the current access token expires.

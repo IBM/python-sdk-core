@@ -180,6 +180,37 @@ def test_request_token_with_id(caplog):
 
 
 @responses.activate
+def test_request_token(caplog):
+    caplog.set_level(logging.DEBUG)
+
+    token_manager = VPCInstanceTokenManager()
+
+    # Mock the retrieve instance identity token method.
+    def mock_retrieve_instance_identity_token():
+        return TEST_TOKEN
+    token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
+
+    response = {
+        'access_token': TEST_IAM_TOKEN,
+    }
+
+    responses.add(responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token',
+                  body=json.dumps(response), status=200)
+
+    response = token_manager.request_token()
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
+    assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
+    assert responses.calls[0].request.body is None
+    assert responses.calls[0].request.params['version'] == '2021-09-20'
+    # Check the logs.
+    #pylint: disable=line-too-long
+    assert caplog.record_tuples[0][2] == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_iam_token\' operation."'
+
+
+@responses.activate
 def test_request_token_failed(caplog):
     caplog.set_level(logging.DEBUG)
 

@@ -79,6 +79,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
 
         url = self.url + '/instance_identity/v1/iam_token'
 
+        request_payload = None
         if self.iam_profile_crn:
             request_payload = {'trusted_profile': {'crn': self.iam_profile_crn}}
         if self.iam_profile_id:
@@ -97,7 +98,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             url=url,
             headers=headers,
             params={'version': self.METADATA_SERVICE_VERSION},
-            data=json.dumps(request_payload))
+            data=json.dumps(request_payload) if request_payload else None)
         logging.debug('Returned from VPC \'create_iam_token\' operation."')
 
         return response
