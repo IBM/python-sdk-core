@@ -51,6 +51,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
 
     METADATA_SERVICE_VERSION = '2021-09-20'
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
+    TOKEN_NAME = 'access_token'
 
     def __init__(self,
                  iam_profile_crn: Optional[str] = None,
@@ -59,7 +60,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
         if not url:
             url = self.DEFAULT_IMS_ENDPOINT
 
-        super().__init__(url)
+        super().__init__(url, token_name=self.TOKEN_NAME)
 
         self.iam_profile_crn = iam_profile_crn
         self.iam_profile_id = iam_profile_id
