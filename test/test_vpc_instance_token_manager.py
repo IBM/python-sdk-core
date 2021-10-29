@@ -76,10 +76,10 @@ def test_retrieve_instance_identity_token(caplog):
 
     ii_token = token_manager.retrieve_instance_identity_token()
     assert len(responses.calls) == 1
-    assert responses.calls[0].request.headers['version'] == '2021-09-20'
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
     assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
+    assert responses.calls[0].request.params['version'] == '2021-09-20'
     assert responses.calls[0].request.body == '{"expires_in": 300}'
     assert ii_token == TEST_TOKEN
     # Check the logs.
@@ -138,7 +138,7 @@ def test_request_token_with_crn(caplog):
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
-    assert responses.calls[0].request.body == '{"trusted_profile": "{\\"crn\\": \\"crn:iam-profile:123\\"}"}'
+    assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
     assert responses.calls[0].request.params['version'] == '2021-09-20'
     # Check the logs.
     #pylint: disable=line-too-long
@@ -171,7 +171,7 @@ def test_request_token_with_id(caplog):
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
-    assert responses.calls[0].request.body == '{"trusted_profile": "{\\"id\\": \\"iam-id-123\\"}"}'
+    assert responses.calls[0].request.body == '{"trusted_profile": {"id": "iam-id-123"}}'
     assert responses.calls[0].request.params['version'] == '2021-09-20'
     # Check the logs.
     #pylint: disable=line-too-long

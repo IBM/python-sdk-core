@@ -80,11 +80,9 @@ class VPCInstanceTokenManager(JWTTokenManager):
         url = self.url + '/instance_identity/v1/iam_token'
 
         if self.iam_profile_crn:
-            request_payload = {
-                'trusted_profile': '{{"crn": "{0}"}}'.format(self.iam_profile_crn)}
+            request_payload = {'trusted_profile': {'crn': self.iam_profile_crn}}
         if self.iam_profile_id:
-            request_payload = {
-                'trusted_profile': '{{"id": "{0}"}}'.format(self.iam_profile_id)}
+            request_payload = {'trusted_profile': {'id': self.iam_profile_id}}
 
         headers = {
             'Content-Type': 'application/json',
@@ -133,7 +131,6 @@ class VPCInstanceTokenManager(JWTTokenManager):
         url = self.url + '/instance_identity/v1/token'
 
         headers = {
-            'version': self.METADATA_SERVICE_VERSION,
             'Content-type': 'application/json',
             'Accept': 'application/json',
             'Metadata-Flavor': 'ibm',
@@ -147,6 +144,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             method='PUT',
             url=url,
             headers=headers,
+            params={'version': self.METADATA_SERVICE_VERSION},
             data=json.dumps(request_body))
         logging.debug('Returned from VPC \'create_access_token\' operation."')
 
