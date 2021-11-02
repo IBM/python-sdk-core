@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ibm_cloud_sdk_core.authenticators.vpc_instance_authenticator import VPCInstanceAuthenticator
 from .authenticators import (Authenticator, BasicAuthenticator, BearerTokenAuthenticator, ContainerAuthenticator,
-                             CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator)
+                             CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator,
+                             VPCInstanceAuthenticator)
 from .utils import read_external_sources
 
 

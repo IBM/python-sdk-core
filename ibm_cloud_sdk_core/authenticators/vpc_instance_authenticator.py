@@ -36,7 +36,7 @@ class VPCInstanceAuthenticator(Authenticator):
     Keyword Arguments:
         iam_profile_crn (str, optional):
             The CRN of the linked trusted IAM profile to be used as the identity of the compute resource.
-            At most one of iamProfileCrn or iamProfileId may be specified. If neither one is specified,
+            At most one of iam_profile_crn or iam_profile_id may be specified. If neither one is specified,
             then the default IAM profile defined for the compute resource will be used. Defaults to None.
         iam_profile_id (str, optional):
             The ID of the linked trusted IAM profile to be used when obtaining the IAM access token.
