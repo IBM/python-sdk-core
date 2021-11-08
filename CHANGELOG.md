@@ -1,3 +1,10 @@
+# [3.13.0](https://github.com/IBM/python-sdk-core/compare/v3.12.0...v3.13.0) (2021-11-08)
+
+
+### Features
+
+* **VPCInstanceAuthenticator:** add support for new VPC authentication flow ([#129](https://github.com/IBM/python-sdk-core/issues/129)) ([5cb1c21](https://github.com/IBM/python-sdk-core/commit/5cb1c212aaef5df62df00064a12d6581e960a95b))
+
 # [3.12.0](https://github.com/IBM/python-sdk-core/compare/v3.11.3...v3.12.0) (2021-10-15)
 
 
