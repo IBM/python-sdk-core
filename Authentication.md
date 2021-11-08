@@ -4,6 +4,7 @@ The python-sdk-core project supports the following types of authentication:
 - Bearer Token Authentication
 - Identity and Access Management (IAM) Authentication
 - Container Authentication
+- VPC Instance Authentication
 - Cloud Pak for Data Authentication
 - No Authentication
 
@@ -13,13 +14,10 @@ so it is important for the SDK user to consult with the appropriate service docu
 to understand which authenticators are supported for that service.
 
 The python-sdk-core allows an authenticator to be specified in one of two ways:
-1. programmatically - the SDK user invokes the appropriate function(s) to create an instance of the 
-desired authenticator and then passes the authenticator instance when constructing an instance of the service client.
+1. programmatically - the SDK user invokes the appropriate function(s) to create an instance of the
+desired authenticator and then passes the authenticator instance when constructing an instance of the service.
 2. configuration - the SDK user provides external configuration information (in the form of environment variables
-or a credentials file) to indicate the type of authenticator, along with the configuration of the necessary properties
-for that authenticator.
-The SDK user then invokes the configuration-based service client constructor method
-to construct an instance of the authenticator and service client that reflect the external configuration information.
+or a credentials file) to indicate the type of authenticator, along with the configuration of the necessary properties for that authenticator. The SDK user then invokes the configuration-based service client constructor method to construct an instance of the authenticator and service client that reflect the external configuration information.
 
 The sections below will provide detailed information for each authenticator
 which will include the following:
@@ -296,6 +294,76 @@ service = ExampleServiceV1.new_instance(service_name='example_service')
 ```
 
 
+## VPC Instance Authentication
+The `VPCInstanceAuthenticator` is intended to be used by application code
+running inside a VPC-managed compute resource (virtual server instance) that has been configured
+to use the "compute resource identity" feature.
+The compute resource identity feature allows you to assign a trusted IAM profile to the compute resource as its "identity".
+This, in turn, allows applications running within the compute resource to take on this identity when interacting with
+IAM-secured IBM Cloud services.
+This results in a simplified security model that allows the application developer to:
+- avoid storing credentials in application code, configuraton files or a password vault
+- avoid managing or rotating credentials
+
+The `VPCInstanceAuthenticator` will invoke the appropriate operations on the compute resource's locally-available
+VPC Instance Metadata Service to (1) retrieve an instance identity token
+and then (2) exchange that instance identity token for an IAM access token.
+The authenticator will repeat these steps to obtain a new IAM access token whenever the current access token expires.
+The IAM access token is added to each outbound request in the `Authorization` header in the form:
+```
+   Authorization: Bearer <IAM-access-token>
+```
+
+### Properties
+
+- iam_profile_crn: (optional) the crn of the linked trusted IAM profile to be used when obtaining the IAM access token.
+
+- iam_profile_id: (optional) the id of the linked trusted IAM profile to be used when obtaining the IAM access token.
+
+- url: (optional) The VPC Instance Metadata Service's base URL.  
+The default value of this property is `http://169.254.169.254`, and should not need to be specified in normal situations.
+
+Usage Notes:
+1. At most one of `iam_profile_crn` or `iam_profile_id` may be specified.  The specified value must map
+to a trusted IAM profile that has been linked to the compute resource (virtual server instance).
+
+2. If both `iam_profile_crn` and `iam_profile_id` are specified, then an error occurs.
+
+3. If neither `iam_profile_crn` nor `iam_profile_id` are specified, then the default trusted profile linked to the compute resource will be used to perform the IAM token exchange.
+If no default trusted profile is defined for the compute resource, then an error occurs.
+
+
+### Programming example
+```python
+from ibm_cloud_sdk_core.authenticators import VPCInstanceAuthenticator
+from <sdk-package-name>.example_service_v1 import *
+
+# Create the authenticator.
+authenticator = VPCInstanceAuthenticator(iam_profile_crn='crn:iam-profile-123')
+
+# Construct the service instance.
+service = ExampleServiceV1(authenticator=authenticator)
+
+# 'service' can now be used to invoke operations.
+```
+
+### Configuration example
+External configuration:
+```
+export EXAMPLE_SERVICE_AUTH_TYPE=vpc
+export EXAMPLE_SERVICE_IAM_PROFILE_CRN=crn:iam-profile-123
+```
+Application code:
+```python
+from <sdk-package-name>.example_service_v1 import *
+
+# Construct the service instance.
+service = ExampleServiceV1.new_instance(service_name='example_service')
+
+# 'service' can now be used to invoke operations.
+```
+
+
 ##  Cloud Pak for Data
 The `CloudPakForDataAuthenticator` will accept a user-supplied username value, along with either a
 password or apikey, and will 
@@ -392,4 +460,3 @@ from <sdk-package-name>.example_service_v1 import *
 service = ExampleServiceV1.new_instance(service_name='example_service')
 
 # 'service' can now be used to invoke operations.
-```

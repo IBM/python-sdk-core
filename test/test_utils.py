@@ -376,6 +376,36 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.scope is None
     del os.environ['IBM_CREDENTIALS_FILE']
 
+    file_path = os.path.join(os.path.dirname(__file__),
+                             '../resources/ibm-credentials-vpc.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service1')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
+    assert authenticator.token_manager.iam_profile_crn is None
+    assert authenticator.token_manager.iam_profile_id is None
+    assert authenticator.token_manager.url == 'http://169.254.169.254'
+
+    file_path = os.path.join(os.path.dirname(__file__),
+                             '../resources/ibm-credentials-vpc.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service2')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
+    assert authenticator.token_manager.iam_profile_crn == 'crn:iam-profile1'
+    assert authenticator.token_manager.iam_profile_id is None
+    assert authenticator.token_manager.url == 'http://vpc.imds.com/api'
+
+    file_path = os.path.join(os.path.dirname(__file__),
+                             '../resources/ibm-credentials-vpc.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service3')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
+    assert authenticator.token_manager.iam_profile_crn is None
+    assert authenticator.token_manager.iam_profile_id == 'iam-profile1-id'
+    assert authenticator.token_manager.url == 'http://169.254.169.254'
+
 
 def test_get_authenticator_from_credential_file_scope():
     file_path = os.path.join(os.path.dirname(__file__),
