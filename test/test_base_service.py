@@ -20,7 +20,6 @@ from ibm_cloud_sdk_core import CP4DTokenManager
 from ibm_cloud_sdk_core import get_authenticator_from_environment
 from ibm_cloud_sdk_core.authenticators import (IAMAuthenticator, NoAuthAuthenticator, Authenticator,
                                                BasicAuthenticator, CloudPakForDataAuthenticator)
-from ibm_cloud_sdk_core.utils import strip_extra_slashes
 
 
 class IncludeExternalConfigService(BaseService):
@@ -698,6 +697,7 @@ def test_user_agent_header():
     assert response.get_result().request.headers.__getitem__(
         'user-agent') == user_agent_header['User-Agent']
 
+
 @responses.activate
 def test_reserved_keys(caplog):
     service = AnyServiceV1('2021-07-02', authenticator=NoAuthAuthenticator())
@@ -722,6 +722,7 @@ def test_reserved_keys(caplog):
     assert caplog.record_tuples[1][2] == '"url" has been removed from the request'
     assert caplog.record_tuples[2][2] == '"headers" has been removed from the request'
     assert caplog.record_tuples[3][2] == '"cookies" has been removed from the request'
+
 
 @responses.activate
 def test_ssl_error():
@@ -810,39 +811,39 @@ def test_json():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     req = service.prepare_request('POST', url='', headers={
                                   'X-opt-out': True}, data={'hello': 'world', 'fóó': 'bår'})
-    assert req.get('data') == b'{"hello": "world", "f\\u00f3\\u00f3": "b\\u00e5r"}'
+    assert req.get(
+        'data') == b'{"hello": "world", "f\\u00f3\\u00f3": "b\\u00e5r"}'
 
 
-def test_trailing_slash():
-    assert strip_extra_slashes('') == ''
-    assert strip_extra_slashes('//') == '/'
-    assert strip_extra_slashes('/////') == '/'
-    assert strip_extra_slashes('https://host') == 'https://host'
-    assert strip_extra_slashes('https://host/') == 'https://host/'
-    assert strip_extra_slashes('https://host//') == 'https://host/'
-    assert strip_extra_slashes('https://host/path') == 'https://host/path'
-    assert strip_extra_slashes('https://host/path/') == 'https://host/path/'
-    assert strip_extra_slashes('https://host/path//') == 'https://host/path/'
-    assert strip_extra_slashes('https://host//path//') == 'https://host//path/'
-
+def test_service_url_handling():
     service = AnyServiceV1(
-        '2018-11-20', service_url='https://host/', authenticator=NoAuthAuthenticator())
-    assert service.service_url == 'https://host/'
+        '2018-11-20', service_url='https://host///////', authenticator=NoAuthAuthenticator())
+    assert service.service_url == 'https://host'
+
     service.set_service_url('https://host/')
-    assert service.service_url == 'https://host/'
+    assert service.service_url == 'https://host'
+
     req = service.prepare_request('POST',
                                   url='/path/',
                                   headers={'X-opt-out': True},
                                   data={'hello': 'world'})
-    assert req.get('url') == 'https://host//path/'
+    assert req.get('url') == 'https://host/path/'
 
     service = AnyServiceV1(
         '2018-11-20', service_url='https://host/', authenticator=NoAuthAuthenticator())
-    assert service.service_url == 'https://host/'
+    assert service.service_url == 'https://host'
+
     service.set_service_url('https://host/')
-    assert service.service_url == 'https://host/'
+    assert service.service_url == 'https://host'
+
     req = service.prepare_request('POST',
                                   url='/',
+                                  headers={'X-opt-out': True},
+                                  data={'hello': 'world'})
+    assert req.get('url') == 'https://host/'
+
+    req = service.prepare_request('POST',
+                                  url='////',
                                   headers={'X-opt-out': True},
                                   data={'hello': 'world'})
     assert req.get('url') == 'https://host/'
@@ -852,14 +853,29 @@ def test_trailing_slash():
 
     service = AnyServiceV1('2018-11-20', service_url='/',
                            authenticator=NoAuthAuthenticator())
-    assert service.service_url == '/'
+    assert service.service_url == ''
+
     service.set_service_url('/')
-    assert service.service_url == '/'
-    req = service.prepare_request('POST',
-                                  url='/',
-                                  headers={'X-opt-out': True},
-                                  data={'hello': 'world'})
-    assert req.get('url') == '/'
+    assert service.service_url == ''
+
+    with pytest.raises(ValueError) as err:
+        service.prepare_request('POST',
+                                url='/',
+                                headers={'X-opt-out': True},
+                                data={'hello': 'world'})
+    assert str(err.value) == 'The service_url is required'
+
+
+def test_service_url_slash():
+    service = AnyServiceV1('2018-11-20', service_url='/',
+                           authenticator=NoAuthAuthenticator())
+    assert service.service_url == ''
+    with pytest.raises(ValueError) as err:
+        service.prepare_request('POST',
+                                url='/',
+                                headers={'X-opt-out': True},
+                                data={'hello': 'world'})
+    assert str(err.value) == 'The service_url is required'
 
 
 def test_service_url_not_set():

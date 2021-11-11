@@ -224,6 +224,8 @@ class BaseService:
                 'The service url shouldn\'t start or end with curly brackets or quotes. '
                 'Be sure to remove any {} and \" characters surrounding your service url'
             )
+        if service_url is not None:
+            service_url = service_url.rstrip('/')
         self.service_url = service_url
 
     def get_http_client(self) -> requests.sessions.Session:
@@ -368,6 +370,10 @@ class BaseService:
         # validate the service url is set
         if not self.service_url:
             raise ValueError('The service_url is required')
+
+        # Combine the service_url and operation path to form the request url.
+        # Note: we have already stripped any trailing slashes from the service_url
+        # and we know that the operation path ('url') will start with a slash.
         request['url'] = strip_extra_slashes(self.service_url + url)
 
         headers = remove_null_values(headers) if headers else {}
