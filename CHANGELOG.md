@@ -1,3 +1,10 @@
+## [3.13.2](https://github.com/IBM/python-sdk-core/compare/v3.13.1...v3.13.2) (2021-11-15)
+
+
+### Bug Fixes
+
+* bump requests and urllib3 deps ([#132](https://github.com/IBM/python-sdk-core/issues/132)) ([ced5b7e](https://github.com/IBM/python-sdk-core/commit/ced5b7ea2398570e187a109bc51dba2b30ab7243))
+
 ## [3.13.1](https://github.com/IBM/python-sdk-core/compare/v3.13.0...v3.13.1) (2021-11-15)
 
 
