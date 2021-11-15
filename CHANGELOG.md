@@ -1,3 +1,10 @@
+## [3.13.1](https://github.com/IBM/python-sdk-core/compare/v3.13.0...v3.13.1) (2021-11-15)
+
+
+### Bug Fixes
+
+* strip trailing slashes in BaseService.set_service_url ([#130](https://github.com/IBM/python-sdk-core/issues/130)) ([37d0099](https://github.com/IBM/python-sdk-core/commit/37d0099cfd7bfe4bdb9f1cddc6bb2b62f4609f60))
+
 # [3.13.0](https://github.com/IBM/python-sdk-core/compare/v3.12.0...v3.13.0) (2021-11-08)
 
 
