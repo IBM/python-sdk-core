@@ -28,6 +28,7 @@ from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core import get_query_param
 from ibm_cloud_sdk_core import read_external_sources
 from ibm_cloud_sdk_core.authenticators import Authenticator, BasicAuthenticator, IAMAuthenticator
+from ibm_cloud_sdk_core.utils import strip_extra_slashes
 
 
 def datetime_test(datestr: str, expected: str):
@@ -616,3 +617,18 @@ def test_read_external_sources_2():
 
     config = read_external_sources('service_1')
     assert config.get('URL') == 'service1.com/api'
+
+
+def test_strip_extra_slashes():
+    assert strip_extra_slashes('') == ''
+    assert strip_extra_slashes('//') == '/'
+    assert strip_extra_slashes('/////') == '/'
+    assert strip_extra_slashes('https://host') == 'https://host'
+    assert strip_extra_slashes('https://host/') == 'https://host/'
+    assert strip_extra_slashes('https://host//') == 'https://host/'
+    assert strip_extra_slashes('https://host/path') == 'https://host/path'
+    assert strip_extra_slashes('https://host/path/') == 'https://host/path/'
+    assert strip_extra_slashes('https://host/path//') == 'https://host/path/'
+    assert strip_extra_slashes('https://host//path//') == 'https://host//path/'
+    assert strip_extra_slashes(
+        'https://host//path//////////') == 'https://host//path/'
