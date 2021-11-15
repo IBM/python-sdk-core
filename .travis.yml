@@ -1,3 +1,5 @@
+dist: bionic
+
 language: python
 
 matrix:
@@ -7,23 +9,18 @@ matrix:
     - python: 3.8
     - python: 3.9
     
-dist: xenial
-
 cache: pip3
 
 before_install:
 - npm install npm@latest -g
 
 install:
-- pip3 install tox-travis
-
-before_script:
 - sudo apt-get update
 - pip3 install pypandoc
 - sudo apt-get install pandoc
 
 script:
-- tox
+- make ci
 
 before_deploy:
 - pip3 install --editable .

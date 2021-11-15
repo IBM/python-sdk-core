@@ -4,10 +4,14 @@
 
 setup: deps dev_deps install_project
 
-all: setup test-unit lint
+all: upgrade_pip setup test-unit lint
+
+ci: setup test-unit lint
+
+upgrade_pip:
+	python -m pip install --upgrade pip
 
 deps:
-	python -m pip install --upgrade pip
 	python -m pip install -r requirements.txt
 
 dev_deps:
