@@ -6,7 +6,7 @@ setup: deps dev_deps install_project
 
 all: upgrade_pip setup test-unit lint
 
-ci: setup test-unit lint publish_coverage
+ci: setup test-unit lint
 
 upgrade_pip:
 	python -m pip install --upgrade pip
@@ -22,9 +22,6 @@ install_project:
 
 test-unit:
 	python -m pytest --cov=ibm_cloud_sdk_core test
-
-publish_coverage:
-	codecov
 
 lint:
 	./pylint.sh
