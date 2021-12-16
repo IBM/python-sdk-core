@@ -12,4 +12,4 @@ def test_no_auth_authenticator():
 
     request = {'headers': {}}
     authenticator.authenticate(request)
-    assert request['headers'] == {}
+    assert not request['headers']
