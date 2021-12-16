@@ -161,7 +161,7 @@ def test_datetime_to_string_list():
     # If specified datetime list item is None, return list of None
     assert datetime_to_string_list([None]) == [None]
     # If specified datetime list is empty, return empty list
-    assert datetime_to_string_list([]) == []
+    assert not datetime_to_string_list([])
     # If the specified date list item is "naive", it is interpreted as a UTC date
     date_list = [datetime.datetime(2017, 3, 6, 16, 0, 4, 159338)]
     res = datetime_to_string_list(date_list)
