@@ -19,6 +19,7 @@ from typing import Dict, Optional
 
 from .iam_request_based_token_manager import IAMRequestBasedTokenManager
 
+logger = logging.getLogger(__name__)
 
 class ContainerTokenManager(IAMRequestBasedTokenManager):
     """The ContainerTokenManager takes a compute resource token and performs the necessary interactions with
@@ -110,7 +111,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         """
         cr_token_filename = self.cr_token_filename if self.cr_token_filename else self.DEFAULT_CR_TOKEN_FILENAME
 
-        logging.debug('Attempting to read CR token from file: %s',
+        logger.debug('Attempting to read CR token from file: %s',
                       cr_token_filename)
 
         try:

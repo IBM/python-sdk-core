@@ -35,6 +35,8 @@ from .utils import (has_bad_first_or_last_char, remove_null_values,
                     cleanup_values, read_external_sources, strip_extra_slashes)
 from .version import __version__
 
+logger = logging.getLogger(__name__)
+
 # Uncomment this to enable http debugging
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 1
@@ -295,7 +297,7 @@ class BaseService:
         for key in reserved_keys:
             if key in kwargs:
                 del kwargs[key]
-                logging.warning('"%s" has been removed from the request', key)
+                logger.warning('"%s" has been removed from the request', key)
         try:
             response = self.http_client.request(**request,
                                                 cookies=self.jar,
@@ -320,7 +322,7 @@ class BaseService:
 
             raise ApiException(response.status_code, http_response=response)
         except requests.exceptions.SSLError:
-            logging.exception(self.ERROR_MSG_DISABLE_SSL)
+            logger.exception(self.ERROR_MSG_DISABLE_SSL)
             raise
 
     def set_enable_gzip_compression(self,

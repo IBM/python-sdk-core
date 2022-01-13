@@ -20,6 +20,7 @@ from typing import Optional
 
 from .jwt_token_manager import JWTTokenManager
 
+logger = logging.getLogger(__name__)
 
 class VPCInstanceTokenManager(JWTTokenManager):
     """The VPCInstanceTokenManager retrieves an "instance identity token" and exchanges that
@@ -91,7 +92,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             'Authorization': 'Bearer ' + instance_identity_token
         }
 
-        logging.debug(
+        logger.debug(
             'Invoking VPC \'create_iam_token\' operation: %s', url)
         response = self._request(
             method='POST',
@@ -99,7 +100,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             headers=headers,
             params={'version': self.METADATA_SERVICE_VERSION},
             data=json.dumps(request_payload) if request_payload else None)
-        logging.debug('Returned from VPC \'create_iam_token\' operation."')
+        logger.debug('Returned from VPC \'create_iam_token\' operation."')
 
         return response
 
@@ -139,7 +140,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
 
         request_body = {'expires_in': 300}
 
-        logging.debug(
+        logger.debug(
             'Invoking VPC \'create_access_token\' operation: %s', url)
         response = self._request(
             method='PUT',
@@ -147,6 +148,6 @@ class VPCInstanceTokenManager(JWTTokenManager):
             headers=headers,
             params={'version': self.METADATA_SERVICE_VERSION},
             data=json.dumps(request_body))
-        logging.debug('Returned from VPC \'create_access_token\' operation."')
+        logger.debug('Returned from VPC \'create_access_token\' operation."')
 
         return response['access_token']
