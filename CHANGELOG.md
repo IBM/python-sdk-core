@@ -1,3 +1,10 @@
+# [3.14.0](https://github.com/IBM/python-sdk-core/compare/v3.13.2...v3.14.0) (2022-01-14)
+
+
+### Features
+
+* use module names for loggers ([#136](https://github.com/IBM/python-sdk-core/issues/136)) ([36523c8](https://github.com/IBM/python-sdk-core/commit/36523c869627323374afc7b246959969a8a1c9a3))
+
 ## [3.13.2](https://github.com/IBM/python-sdk-core/compare/v3.13.1...v3.13.2) (2021-11-15)
 
 
