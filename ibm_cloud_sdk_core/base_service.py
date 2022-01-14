@@ -40,6 +40,9 @@ from .version import __version__
 # http_client.HTTPConnection.debuglevel = 1
 
 
+logger = logging.getLogger(__name__)
+
+
 #pylint: disable=too-many-instance-attributes
 #pylint: disable=too-many-locals
 class BaseService:
@@ -295,7 +298,7 @@ class BaseService:
         for key in reserved_keys:
             if key in kwargs:
                 del kwargs[key]
-                logging.warning('"%s" has been removed from the request', key)
+                logger.warning('"%s" has been removed from the request', key)
         try:
             response = self.http_client.request(**request,
                                                 cookies=self.jar,
@@ -320,7 +323,7 @@ class BaseService:
 
             raise ApiException(response.status_code, http_response=response)
         except requests.exceptions.SSLError:
-            logging.exception(self.ERROR_MSG_DISABLE_SSL)
+            logger.exception(self.ERROR_MSG_DISABLE_SSL)
             raise
 
     def set_enable_gzip_compression(self,
