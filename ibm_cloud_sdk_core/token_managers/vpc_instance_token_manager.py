@@ -20,7 +20,9 @@ from typing import Optional
 
 from .jwt_token_manager import JWTTokenManager
 
+
 logger = logging.getLogger(__name__)
+
 
 class VPCInstanceTokenManager(JWTTokenManager):
     """The VPCInstanceTokenManager retrieves an "instance identity token" and exchanges that

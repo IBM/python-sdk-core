@@ -19,7 +19,9 @@ from typing import Dict, Optional
 
 from .iam_request_based_token_manager import IAMRequestBasedTokenManager
 
+
 logger = logging.getLogger(__name__)
+
 
 class ContainerTokenManager(IAMRequestBasedTokenManager):
     """The ContainerTokenManager takes a compute resource token and performs the necessary interactions with

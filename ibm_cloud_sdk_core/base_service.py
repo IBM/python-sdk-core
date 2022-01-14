@@ -35,11 +35,12 @@ from .utils import (has_bad_first_or_last_char, remove_null_values,
                     cleanup_values, read_external_sources, strip_extra_slashes)
 from .version import __version__
 
-logger = logging.getLogger(__name__)
-
 # Uncomment this to enable http debugging
 # import http.client as http_client
 # http_client.HTTPConnection.debuglevel = 1
+
+
+logger = logging.getLogger(__name__)
 
 
 #pylint: disable=too-many-instance-attributes
