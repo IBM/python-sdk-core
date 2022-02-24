@@ -34,7 +34,7 @@ If you want to contribute to the repository, here's a quick guide:
     * Only use spaces for indentation.
     * Create minimal diffs - disable on save actions like reformat source code or organize imports. If you feel the source code should be reformatted create a separate PR for this change.
     * Check for unnecessary whitespace with `git diff --check` before committing.
-    * Make sure your code supports Python 3.5, 3.6, and 3.7. You can use `pyenv` and `tox` for this
+    * Make sure your code supports Python 3.7, 3.8, 3.9 and 3.10. You can use `pyenv` and `tox` for this
 1. Make the test pass
 1. Check code coverage. Add tests for all new functionality and ensure overall coverage does not decrease.
 1. Commit your changes
