@@ -19,7 +19,7 @@ import pkg_resources
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-__version__ = '3.14.0'
+__version__ = '3.15.0'
 
 if sys.argv[-1] == 'publish':
     # test server
@@ -68,10 +68,10 @@ setup(name='ibm-cloud-sdk-core',
       classifiers=[
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
           'Programming Language :: Python :: 3.9',
+          'Programming Language :: Python :: 3.10',
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: Apache Software License',

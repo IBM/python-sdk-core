@@ -4,11 +4,11 @@ language: python
 
 matrix:
   include:
-    - python: 3.6
     - python: 3.7
     - python: 3.8
     - python: 3.9
-    
+    - python: 3.10
+
 cache: pip3
 
 before_install:
@@ -36,7 +36,7 @@ deploy:
     script: npx semantic-release
     skip_cleanup: true
     on:
-      python: '3.6'
+      python: '3.7'
       branch: main
   - provider: pypi
     user: $PYPI_USER
@@ -44,5 +44,5 @@ deploy:
     repository: https://upload.pypi.org/legacy
     skip_cleanup: true
     on:
-      python: '3.6'
+      python: '3.7'
       tags: true
