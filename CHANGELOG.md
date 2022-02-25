@@ -1,3 +1,10 @@
+# [3.15.0](https://github.com/IBM/python-sdk-core/compare/v3.14.0...v3.15.0) (2022-02-25)
+
+
+### Features
+
+* update Python versions ([#138](https://github.com/IBM/python-sdk-core/issues/138)) ([a8c201e](https://github.com/IBM/python-sdk-core/commit/a8c201ed7eb88bf3509da0db6da84619190c7bfb))
+
 # [3.14.0](https://github.com/IBM/python-sdk-core/compare/v3.13.2...v3.14.0) (2022-01-14)
 
 
