@@ -929,5 +929,6 @@ def test_configure_service_error():
 def test_min_ssl_version():
     service = AnyServiceV1('2022-03-08', authenticator=NoAuthAuthenticator())
     adapter = service.http_client.get_adapter('https://')
-    poolmanager = adapter.poolmanager
-    assert poolmanager.connection_pool_kw.get('ssl_minimum_version', None) == ssl.TLSVersion.TLSv1_2
+    ssl_context = adapter.poolmanager.connection_pool_kw.get('ssl_context', None)
+    assert ssl_context is not None
+    assert ssl_context.minimum_version == ssl.TLSVersion.TLSv1_2

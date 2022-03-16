@@ -23,6 +23,7 @@ from typing import List, Union
 from urllib.parse import urlparse, parse_qs
 
 from requests.adapters import HTTPAdapter
+from urllib3.util.ssl_ import create_urllib3_context
 
 import dateutil.parser as date_parser
 
@@ -37,7 +38,9 @@ class SSLHTTPAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block):
         """Extends the parent's method by adding minimum SSL version to the args.
         """
-        super().init_poolmanager(connections, maxsize, block, ssl_minimum_version=ssl.TLSVersion.TLSv1_2)
+        ssl_context = create_urllib3_context()
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+        super().init_poolmanager(connections, maxsize, block, ssl_context=ssl_context)
 
 
 def has_bad_first_or_last_char(val: str) -> bool:
