@@ -16,12 +16,31 @@
 # from ibm_cloud_sdk_core.authenticators import Authenticator
 import datetime
 import json as json_import
+import ssl
 from os import getenv, environ, getcwd
 from os.path import isfile, join, expanduser
 from typing import List, Union
 from urllib.parse import urlparse, parse_qs
 
+from requests.adapters import HTTPAdapter
+from urllib3.util.ssl_ import create_urllib3_context
+
 import dateutil.parser as date_parser
+
+
+class SSLHTTPAdapter(HTTPAdapter):
+    """Wraps the original HTTP adapter and adds additional SSL context.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    #pylint: disable=arguments-differ
+    def init_poolmanager(self, connections, maxsize, block):
+        """Extends the parent's method by adding minimum SSL version to the args.
+        """
+        ssl_context = create_urllib3_context()
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+        super().init_poolmanager(connections, maxsize, block, ssl_context=ssl_context)
 
 
 def has_bad_first_or_last_char(val: str) -> bool:

@@ -24,7 +24,6 @@ from typing import Dict, List, Optional, Tuple, Union
 from urllib3.util.retry import Retry
 
 import requests
-from requests.adapters import HTTPAdapter
 from requests.structures import CaseInsensitiveDict
 
 from ibm_cloud_sdk_core.authenticators import Authenticator
@@ -32,7 +31,8 @@ from .api_exception import ApiException
 from .detailed_response import DetailedResponse
 from .token_managers.token_manager import TokenManager
 from .utils import (has_bad_first_or_last_char, remove_null_values,
-                    cleanup_values, read_external_sources, strip_extra_slashes)
+                    cleanup_values, read_external_sources, strip_extra_slashes,
+                    SSLHTTPAdapter)
 from .version import __version__
 
 # Uncomment this to enable http debugging
@@ -94,11 +94,14 @@ class BaseService:
         self.enable_gzip_compression = enable_gzip_compression
         self._set_user_agent_header(self._build_user_agent())
         self.retry_config = None
-        self.http_adapter = HTTPAdapter()
+        self.http_adapter = SSLHTTPAdapter()
         if not self.authenticator:
             raise ValueError('authenticator must be provided')
         if not isinstance(self.authenticator, Authenticator):
             raise ValueError('authenticator should be of type Authenticator')
+
+        self.http_client.mount('http://', self.http_adapter)
+        self.http_client.mount('https://', self.http_adapter)
 
     def enable_retries(self, max_retries: int = 4, retry_interval: float = 1.0) -> None:
         """Enable automatic retries on the underlying http client used by the BaseService instance.
@@ -121,14 +124,14 @@ class BaseService:
             allowed_methods=['HEAD', 'GET', 'PUT',
                              'DELETE', 'OPTIONS', 'TRACE', 'POST']
         )
-        self.http_adapter = HTTPAdapter(max_retries=self.retry_config)
+        self.http_adapter = SSLHTTPAdapter(max_retries=self.retry_config)
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
 
     def disable_retries(self):
         """Remove retry config from http_adapter"""
         self.retry_config = None
-        self.http_adapter = HTTPAdapter()
+        self.http_adapter = SSLHTTPAdapter()
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
 

@@ -3,6 +3,7 @@
 import gzip
 import json
 import os
+import ssl
 import tempfile
 import time
 from shutil import copyfile
@@ -923,3 +924,11 @@ def test_configure_service_error():
     with pytest.raises(ValueError) as err:
         service.configure_service(None)
     assert str(err.value) == 'Service_name must be of type string.'
+
+
+def test_min_ssl_version():
+    service = AnyServiceV1('2022-03-08', authenticator=NoAuthAuthenticator())
+    adapter = service.http_client.get_adapter('https://')
+    ssl_context = adapter.poolmanager.connection_pool_kw.get('ssl_context', None)
+    assert ssl_context is not None
+    assert ssl_context.minimum_version == ssl.TLSVersion.TLSv1_2
