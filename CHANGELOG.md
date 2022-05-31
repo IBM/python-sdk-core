@@ -1,3 +1,10 @@
+## [3.15.2](https://github.com/IBM/python-sdk-core/compare/v3.15.1...v3.15.2) (2022-05-31)
+
+
+### Bug Fixes
+
+* bump PyJWT version to avoid CVE ([#141](https://github.com/IBM/python-sdk-core/issues/141)) ([bea54f0](https://github.com/IBM/python-sdk-core/commit/bea54f03fab6d9ebef1a26f170280b6e8698c04e))
+
 ## [3.15.1](https://github.com/IBM/python-sdk-core/compare/v3.15.0...v3.15.1) (2022-03-21)
 
 
