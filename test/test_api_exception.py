@@ -70,4 +70,4 @@ def test_api_exception():
     mock_response = requests.get('https://test-for-text.com')
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'plain text error'
-    assert exception.__str__() == 'Error: plain text error, Code: 500 , X-global-transaction-id: xx'
+    assert str(exception) == 'Error: plain text error, Code: 500 , X-global-transaction-id: xx'

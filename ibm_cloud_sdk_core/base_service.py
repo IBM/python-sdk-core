@@ -298,10 +298,12 @@ class BaseService:
 
         # Remove the keys we set manually, don't let the user to overwrite these.
         reserved_keys = ['method', 'url', 'headers', 'params', 'cookies']
+        silent_keys = ['headers']
         for key in reserved_keys:
             if key in kwargs:
                 del kwargs[key]
-                logger.warning('"%s" has been removed from the request', key)
+                if key not in silent_keys:
+                    logger.warning('"%s" has been removed from the request', key)
         try:
             response = self.http_client.request(**request,
                                                 cookies=self.jar,

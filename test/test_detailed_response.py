@@ -29,10 +29,10 @@ def test_detailed_response_dict():
     assert detailed_response.get_headers() == {'Content-Type': 'application/json'}
     assert detailed_response.get_status_code() == 200
 
-    response_str = clean(detailed_response.__str__())
-    assert clean(detailed_response.get_result().__str__()) in response_str
-    #assert clean(detailed_response.get_headers().__str__()) in response_str
-    assert clean(detailed_response.get_status_code().__str__()) in response_str
+    response_str = clean(str(detailed_response))
+    assert clean(str(detailed_response.get_result())) in response_str
+    #assert clean(str(detailed_response.get_headers())) in response_str
+    assert clean(str(detailed_response.get_status_code())) in response_str
 
 
 @responses.activate
@@ -51,7 +51,7 @@ def test_detailed_response_list():
     assert detailed_response.get_headers() == {'Content-Type': 'application/json'}
     assert detailed_response.get_status_code() == 200
 
-    response_str = clean(detailed_response.__str__())
-    assert clean(detailed_response.get_result().__str__()) in response_str
-    #assert clean(detailed_response.get_headers().__str__()) in response_str
-    assert clean(detailed_response.get_status_code().__str__()) in response_str
+    response_str = clean(str(detailed_response))
+    assert clean(str(detailed_response.get_result())) in response_str
+    #assert clean(str(detailed_response.get_headers())) in response_str
+    assert clean(str(detailed_response.get_status_code())) in response_str
