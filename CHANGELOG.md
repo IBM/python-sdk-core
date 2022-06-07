@@ -1,3 +1,10 @@
+## [3.15.3](https://github.com/IBM/python-sdk-core/compare/v3.15.2...v3.15.3) (2022-06-07)
+
+
+### Bug Fixes
+
+* avoid warning when custom headers are used ([#142](https://github.com/IBM/python-sdk-core/issues/142)) ([a87d66d](https://github.com/IBM/python-sdk-core/commit/a87d66da4b9ed98b9ac910ca67c86b674aab7ef6))
+
 ## [3.15.2](https://github.com/IBM/python-sdk-core/compare/v3.15.1...v3.15.2) (2022-05-31)
 
 
