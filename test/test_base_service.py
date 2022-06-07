@@ -690,12 +690,12 @@ def test_user_agent_header():
         'user-agent': 'my_user_agent'
     })
     response = service.send(prepped)
-    assert response.get_result().request.headers.__getitem__(
+    assert response.get_result().request.headers.get(
         'user-agent') == 'my_user_agent'
 
     prepped = service.prepare_request('GET', url='', headers=None)
     response = service.send(prepped)
-    assert response.get_result().request.headers.__getitem__(
+    assert response.get_result().request.headers.get(
         'user-agent') == user_agent_header['User-Agent']
 
 
@@ -715,14 +715,13 @@ def test_reserved_keys(caplog):
         url='localhost',
         cookies=None,
         hooks={'response': []})
-    assert response.get_result().request.headers.__getitem__('key') == 'OK'
+    assert response.get_result().request.headers.get('key') == 'OK'
     assert response.get_result().request.url == 'https://gateway.watsonplatform.net/test/api'
     assert response.get_result().request.method == 'GET'
     assert response.get_result().request.hooks == {'response': []}
     assert caplog.record_tuples[0][2] == '"method" has been removed from the request'
     assert caplog.record_tuples[1][2] == '"url" has been removed from the request'
-    assert caplog.record_tuples[2][2] == '"headers" has been removed from the request'
-    assert caplog.record_tuples[3][2] == '"cookies" has been removed from the request'
+    assert caplog.record_tuples[2][2] == '"cookies" has been removed from the request'
 
 
 @responses.activate

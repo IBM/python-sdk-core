@@ -52,7 +52,6 @@ class Authenticator(ABC):
         """
         pass
 
-    # pylint: disable=R0201
     def authentication_type(self) -> str:
         """Returns the authenticator's type.  This method should be overridden by each authenticator implementation."""
         return Authenticator.AUTHTYPE_UNKNOWN
