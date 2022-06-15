@@ -54,4 +54,4 @@ class Authenticator(ABC):
 
     def authentication_type(self) -> str:
         """Returns the authenticator's type.  This method should be overridden by each authenticator implementation."""
-        return Authenticator.AUTHTYPE_UNKNOWN
+        return self.AUTHTYPE_UNKNOWN
