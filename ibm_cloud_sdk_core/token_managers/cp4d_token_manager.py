@@ -57,9 +57,11 @@ class CP4DTokenManager(JWTTokenManager):
                  apikey: str = None,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None) -> None:
+                 proxies: Optional[Dict[str, str]] = None,
+                 verify: Optional[str] = None) -> None:
         self.username = username
         self.password = password
+        self.verify = verify
         if url and not self.VALIDATE_AUTH_PATH in url:
             url = url + '/v1/authorize'
         self.apikey = apikey
@@ -83,7 +85,8 @@ class CP4DTokenManager(JWTTokenManager):
                 "password": self.password,
                 "api_key": self.apikey
             }),
-            proxies=self.proxies)
+            proxies=self.proxies,
+            verify=self.verify)
         return response
 
     def set_headers(self, headers: Dict[str, str]) -> None:

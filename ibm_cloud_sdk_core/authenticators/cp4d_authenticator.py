@@ -59,14 +59,15 @@ class CloudPakForDataAuthenticator(Authenticator):
                  apikey: str = None,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None) -> None:
+                 proxies: Optional[Dict[str, str]] = None,
+                 verify: Optional[str] = None) -> None:
         # Check the type of `disable_ssl_verification`. Must be a bool.
         if not isinstance(disable_ssl_verification, bool):
             raise TypeError('disable_ssl_verification must be a bool')
 
         self.token_manager = CP4DTokenManager(
             username=username, password=password, apikey=apikey, url=url,
-            disable_ssl_verification=disable_ssl_verification, headers=headers, proxies=proxies)
+            disable_ssl_verification=disable_ssl_verification, headers=headers, proxies=proxies, verify=verify)
 
         self.validate()
 
