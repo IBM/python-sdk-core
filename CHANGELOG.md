@@ -1,3 +1,10 @@
+# [3.16.0](https://github.com/IBM/python-sdk-core/compare/v3.15.3...v3.16.0) (2022-08-01)
+
+
+### Features
+
+* **CP4D Authentication:** add ssl verification for self-signed certificates ([#147](https://github.com/IBM/python-sdk-core/issues/147)) ([a16685d](https://github.com/IBM/python-sdk-core/commit/a16685d83641e467f2dcaf610194fd3f84f13a84))
+
 ## [3.15.3](https://github.com/IBM/python-sdk-core/compare/v3.15.2...v3.15.3) (2022-06-07)
 
 
