@@ -36,6 +36,7 @@ class CP4DTokenManager(JWTTokenManager):
         proxies: Proxies to use for making request. Defaults to None.
         proxies.http (optional): The proxy endpoint to use for HTTP requests.
         proxies.https (optional): The proxy endpoint to use for HTTPS requests.
+        verify (optional): The path to the certificate to use for HTTPS requests.
 
     Attributes:
         username (str): The username for authentication.
@@ -45,6 +46,7 @@ class CP4DTokenManager(JWTTokenManager):
         proxies (dict): Proxies to use for making token requests.
         proxies.http (str): The proxy endpoint to use for HTTP requests.
         proxies.https (str): The proxy endpoint to use for HTTPS requests.
+        verify (str): The path to the certificate to use for HTTPS requests.
     """
     TOKEN_NAME = 'token'
     VALIDATE_AUTH_PATH = '/v1/authorize'

@@ -42,6 +42,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         proxies: Dictionary for mapping request protocol to proxy URL.
         proxies.http (optional): The proxy endpoint to use for HTTP requests.
         proxies.https (optional): The proxy endpoint to use for HTTPS requests.
+        verify (optional): The path to the certificate to use for HTTPS requests.
 
     Attributes:
         token_manager (CP4DTokenManager): Retrieves and manages CP4D tokens from the endpoint specified by the url.
