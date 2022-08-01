@@ -36,6 +36,7 @@ class CP4DTokenManager(JWTTokenManager):
         proxies: Proxies to use for making request. Defaults to None.
         proxies.http (optional): The proxy endpoint to use for HTTP requests.
         proxies.https (optional): The proxy endpoint to use for HTTPS requests.
+        verify (optional): The path to the certificate to use for HTTPS requests.
 
     Attributes:
         username (str): The username for authentication.
@@ -45,6 +46,7 @@ class CP4DTokenManager(JWTTokenManager):
         proxies (dict): Proxies to use for making token requests.
         proxies.http (str): The proxy endpoint to use for HTTP requests.
         proxies.https (str): The proxy endpoint to use for HTTPS requests.
+        verify (str): The path to the certificate to use for HTTPS requests.
     """
     TOKEN_NAME = 'token'
     VALIDATE_AUTH_PATH = '/v1/authorize'
@@ -57,9 +59,11 @@ class CP4DTokenManager(JWTTokenManager):
                  apikey: str = None,
                  disable_ssl_verification: bool = False,
                  headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None) -> None:
+                 proxies: Optional[Dict[str, str]] = None,
+                 verify: Optional[str] = None) -> None:
         self.username = username
         self.password = password
+        self.verify = verify
         if url and not self.VALIDATE_AUTH_PATH in url:
             url = url + '/v1/authorize'
         self.apikey = apikey
@@ -83,7 +87,8 @@ class CP4DTokenManager(JWTTokenManager):
                 "password": self.password,
                 "api_key": self.apikey
             }),
-            proxies=self.proxies)
+            proxies=self.proxies,
+            verify=self.verify)
         return response
 
     def set_headers(self, headers: Dict[str, str]) -> None:
