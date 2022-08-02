@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import json
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import requests
 
@@ -29,33 +29,36 @@ class DetailedResponse:
         status_code: The status code of there response, defaults to None.
 
     Attributes:
-        response (requests.Response): The response to the service request.
+        result (dict, requests.Response, None): The response to the service request.
         headers (dict): The headers of the response.
         status_code (int): The status code of the response.
 
     """
     def __init__(self,
                  *,
-                 response: Optional[requests.Response] = None,
+                 response: Optional[Union[dict, requests.Response]] = None,
                  headers: Optional[Dict[str, str]] = None,
                  status_code: Optional[int] = None) -> None:
         self.result = response
         self.headers = headers
         self.status_code = status_code
 
-    def get_result(self) -> requests.Response:
-        """Get the HTTP response of the service request.
+    def get_result(self) -> Optional[Union[dict, requests.Response]]:
+        """Get the response returned by the service request.
 
         Returns:
-            The response to the service request
+            The response to the service request. This could be one of the following:
+            1. a dict that represents an instance of a response model
+            2. a requests.Response instance if the operation returns a streamed response
+            3. None if the server returned no response body
         """
         return self.result
 
-    def get_headers(self) -> dict:
+    def get_headers(self) -> Optional[dict]:
         """The HTTP response headers of the service request.
 
         Returns:
-            A dictionary of response headers
+            A dictionary of response headers or None if no headers are present.
         """
         return self.headers
 
@@ -63,7 +66,7 @@ class DetailedResponse:
         """The HTTP status code of the service request.
 
         Returns:
-            The status code of the service request.
+            The status code associated with the service request.
         """
         return self.status_code
 
