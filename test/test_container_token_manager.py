@@ -29,6 +29,7 @@ def mock_iam_response(func):
     """This is decorator function which extends `responses.activate`.
     This sets up all the mock response stuffs.
     """
+
     def callback(request):
         assert request.headers['Accept'] == 'application/json'
         assert request.headers['Content-Type'] == 'application/x-www-form-urlencoded'
@@ -53,13 +54,15 @@ def mock_iam_response(func):
         else:
             access_token = TEST_ACCESS_TOKEN_1
 
-        response = json.dumps({
-            'access_token': access_token,
-            'token_type': 'Bearer',
-            'expires_in': 3600,
-            'expiration': _get_current_time()+3600,
-            'refresh_token': TEST_REFRESH_TOKEN,
-        })
+        response = json.dumps(
+            {
+                'access_token': access_token,
+                'token_type': 'Bearer',
+                'expires_in': 3600,
+                'expiration': _get_current_time() + 3600,
+                'refresh_token': TEST_REFRESH_TOKEN,
+            }
+        )
 
         return (status_code, {}, response)
 
@@ -98,10 +101,8 @@ def test_request_token_auth_default():
 def test_request_token_auth_in_ctor():
     default_auth_header = 'Basic Yng6Yng='
     token_manager = ContainerTokenManager(
-        cr_token_filename=cr_token_file,
-        iam_profile_name=MOCK_IAM_PROFILE_NAME,
-        client_id='foo',
-        client_secret='bar')
+        cr_token_filename=cr_token_file, iam_profile_name=MOCK_IAM_PROFILE_NAME, client_id='foo', client_secret='bar'
+    )
 
     token_manager.request_token()
 
@@ -119,7 +120,8 @@ def test_request_token_auth_in_ctor_with_scope():
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
         client_id='foo',
         client_secret='bar',
-        scope='john snow')
+        scope='john snow',
+    )
 
     token_manager.request_token()
 
@@ -147,7 +149,10 @@ def test_retrieve_cr_token_fail():
     with pytest.raises(Exception) as err:
         token_manager.retrieve_cr_token()
 
-    assert str(err.value) == 'Unable to retrieve the CR token value from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
+    assert (
+        str(err.value)
+        == 'Unable to retrieve the CR token value from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
+    )
 
 
 @mock_iam_response
@@ -194,9 +199,7 @@ def test_request_token_success():
 
 @mock_iam_response
 def test_authenticate_success():
-    authenticator = ContainerAuthenticator(
-        cr_token_filename=cr_token_file,
-        iam_profile_name=MOCK_IAM_PROFILE_NAME)
+    authenticator = ContainerAuthenticator(cr_token_filename=cr_token_file, iam_profile_name=MOCK_IAM_PROFILE_NAME)
 
     request = {'headers': {}}
 
@@ -223,22 +226,25 @@ def test_authenticate_fail_no_cr_token():
     authenticator = ContainerAuthenticator(
         cr_token_filename='bogus-cr-token-file',
         iam_profile_name=MOCK_IAM_PROFILE_NAME,
-        url='https://bogus.iam.endpoint')
+        url='https://bogus.iam.endpoint',
+    )
 
     request = {'headers': {}}
 
     with pytest.raises(Exception) as err:
         authenticator.authenticate(request)
 
-    assert str(err.value) == 'Unable to retrieve the CR token value from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
+    assert (
+        str(err.value)
+        == 'Unable to retrieve the CR token value from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
+    )
 
 
 @mock_iam_response
 def test_authenticate_fail_iam():
     authenticator = ContainerAuthenticator(
-        cr_token_filename=cr_token_file,
-        iam_profile_name=MOCK_IAM_PROFILE_NAME,
-        scope='status-bad-request')
+        cr_token_filename=cr_token_file, iam_profile_name=MOCK_IAM_PROFILE_NAME, scope='status-bad-request'
+    )
 
     request = {'headers': {}}
 
@@ -259,6 +265,7 @@ def test_client_id_and_secret():
     token_manager.set_scope('check-basic-auth')
     access_token = token_manager.get_token()
     assert access_token == TEST_ACCESS_TOKEN_1
+
 
 @mock_iam_response
 def test_setter_methods():

@@ -25,8 +25,7 @@ def test_container_authenticator():
     # because both of the profile and ID are None.
     with pytest.raises(ValueError) as err:
         authenticator.set_iam_profile_name(None)
-    assert str(
-        err.value) == 'At least one of iam_profile_name or iam_profile_id must be specified.'
+    assert str(err.value) == 'At least one of iam_profile_name or iam_profile_id must be specified.'
 
     authenticator.set_iam_profile_id('iam-id-123')
     assert authenticator.token_manager.iam_profile_id == 'iam-id-123'
@@ -57,8 +56,7 @@ def test_container_authenticator():
 
 
 def test_disable_ssl_verification():
-    authenticator = ContainerAuthenticator(
-        iam_profile_name='iam-user-123', disable_ssl_verification=True)
+    authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123', disable_ssl_verification=True)
     assert authenticator.token_manager.disable_ssl_verification is True
 
     authenticator.set_disable_ssl_verification(False)
@@ -67,8 +65,7 @@ def test_disable_ssl_verification():
 
 def test_invalid_disable_ssl_verification_type():
     with pytest.raises(TypeError) as err:
-        authenticator = ContainerAuthenticator(
-            iam_profile_name='iam-user-123', disable_ssl_verification='True')
+        authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123', disable_ssl_verification='True')
     assert str(err.value) == 'disable_ssl_verification must be a bool'
 
     authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123')
@@ -80,8 +77,7 @@ def test_invalid_disable_ssl_verification_type():
 
 
 def test_container_authenticator_with_scope():
-    authenticator = ContainerAuthenticator(
-        iam_profile_name='iam-user-123', scope='scope1 scope2')
+    authenticator = ContainerAuthenticator(iam_profile_name='iam-user-123', scope='scope1 scope2')
     assert authenticator is not None
     assert authenticator.token_manager.scope == 'scope1 scope2'
 
@@ -89,17 +85,12 @@ def test_container_authenticator_with_scope():
 def test_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
         ContainerAuthenticator(None)
-    assert str(
-        err.value) == 'At least one of iam_profile_name or iam_profile_id must be specified.'
+    assert str(err.value) == 'At least one of iam_profile_name or iam_profile_id must be specified.'
 
     with pytest.raises(ValueError) as err:
-        ContainerAuthenticator(
-            iam_profile_name='iam-user-123', client_id='my_client_id')
-    assert str(
-        err.value) == 'Both client_id and client_secret should be initialized.'
+        ContainerAuthenticator(iam_profile_name='iam-user-123', client_id='my_client_id')
+    assert str(err.value) == 'Both client_id and client_secret should be initialized.'
 
     with pytest.raises(ValueError) as err:
-        ContainerAuthenticator(
-            iam_profile_name='iam-user-123', client_secret='my_client_secret')
-    assert str(
-        err.value) == 'Both client_id and client_secret should be initialized.'
+        ContainerAuthenticator(iam_profile_name='iam-user-123', client_secret='my_client_secret')
+    assert str(err.value) == 'Both client_id and client_secret should be initialized.'

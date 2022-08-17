@@ -79,22 +79,31 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         scope: The "scope" to use when fetching the bearer token from the IAM token server.
         This can be used to obtain an access token with a specific scope.
     """
+
     DEFAULT_CR_TOKEN_FILENAME = '/var/run/secrets/tokens/vault-token'
 
-    def __init__(self,
-                 cr_token_filename: Optional[str] = None,
-                 iam_profile_name: Optional[str] = None,
-                 iam_profile_id: Optional[str] = None,
-                 url: Optional[str] = None,
-                 client_id: Optional[str] = None,
-                 client_secret: Optional[str] = None,
-                 disable_ssl_verification: bool = False,
-                 scope: Optional[str] = None,
-                 proxies: Optional[Dict[str, str]] = None,
-                 headers: Optional[Dict[str, str]] = None) -> None:
+    def __init__(
+        self,
+        cr_token_filename: Optional[str] = None,
+        iam_profile_name: Optional[str] = None,
+        iam_profile_id: Optional[str] = None,
+        url: Optional[str] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
+        disable_ssl_verification: bool = False,
+        scope: Optional[str] = None,
+        proxies: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+    ) -> None:
         super().__init__(
-            url=url, client_id=client_id, client_secret=client_secret,
-            disable_ssl_verification=disable_ssl_verification, headers=headers, proxies=proxies, scope=scope)
+            url=url,
+            client_id=client_id,
+            client_secret=client_secret,
+            disable_ssl_verification=disable_ssl_verification,
+            headers=headers,
+            proxies=proxies,
+            scope=scope,
+        )
 
         self.cr_token_filename = cr_token_filename
         self.iam_profile_name = iam_profile_name
@@ -113,8 +122,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         """
         cr_token_filename = self.cr_token_filename if self.cr_token_filename else self.DEFAULT_CR_TOKEN_FILENAME
 
-        logger.debug('Attempting to read CR token from file: %s',
-                      cr_token_filename)
+        logger.debug('Attempting to read CR token from file: %s', cr_token_filename)
 
         try:
             with open(cr_token_filename, 'r', encoding='utf-8') as file:
@@ -123,7 +131,8 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         # pylint: disable=broad-except
         except Exception as ex:
             raise Exception(
-                'Unable to retrieve the CR token value from file {}: {}'.format(cr_token_filename, ex)) from None
+                'Unable to retrieve the CR token value from file {}: {}'.format(cr_token_filename, ex)
+            ) from None
 
     def request_token(self) -> dict:
         """Retrieves a CR token value from the current compute resource,

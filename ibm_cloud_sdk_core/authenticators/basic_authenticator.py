@@ -57,16 +57,15 @@ class BasicAuthenticator(Authenticator):
         if self.username is None or self.password is None:
             raise ValueError('The username and password shouldn\'t be None.')
 
-        if has_bad_first_or_last_char(
-                self.username) or has_bad_first_or_last_char(self.password):
+        if has_bad_first_or_last_char(self.username) or has_bad_first_or_last_char(self.password):
             raise ValueError(
                 'The username and password shouldn\'t start or end with curly brackets or quotes. '
-                'Please remove any surrounding {, }, or \" characters.')
+                'Please remove any surrounding {, }, or \" characters.'
+            )
 
     def __construct_basic_auth_header(self) -> str:
         authstring = "{0}:{1}".format(self.username, self.password)
-        base64_authorization = base64.b64encode(
-            authstring.encode('utf-8')).decode('utf-8')
+        base64_authorization = base64.b64encode(authstring.encode('utf-8')).decode('utf-8')
         return 'Basic {0}'.format(base64_authorization)
 
     def authenticate(self, req: Request) -> None:

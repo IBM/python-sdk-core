@@ -14,9 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .authenticators import (Authenticator, BasicAuthenticator, BearerTokenAuthenticator, ContainerAuthenticator,
-                             CloudPakForDataAuthenticator, IAMAuthenticator, NoAuthAuthenticator,
-                             VPCInstanceAuthenticator)
+from .authenticators import (
+    Authenticator,
+    BasicAuthenticator,
+    BearerTokenAuthenticator,
+    ContainerAuthenticator,
+    CloudPakForDataAuthenticator,
+    IAMAuthenticator,
+    NoAuthAuthenticator,
+    VPCInstanceAuthenticator,
+)
 from .utils import read_external_sources
 
 
@@ -59,12 +66,9 @@ def __construct_authenticator(config: dict) -> Authenticator:
     authenticator = None
 
     if auth_type == Authenticator.AUTHTYPE_BASIC.lower():
-        authenticator = BasicAuthenticator(
-            username=config.get('USERNAME'),
-            password=config.get('PASSWORD'))
+        authenticator = BasicAuthenticator(username=config.get('USERNAME'), password=config.get('PASSWORD'))
     elif auth_type == Authenticator.AUTHTYPE_BEARERTOKEN.lower():
-        authenticator = BearerTokenAuthenticator(
-            bearer_token=config.get('BEARER_TOKEN'))
+        authenticator = BearerTokenAuthenticator(bearer_token=config.get('BEARER_TOKEN'))
     elif auth_type == Authenticator.AUTHTYPE_CONTAINER.lower():
         authenticator = ContainerAuthenticator(
             cr_token_filename=config.get('CR_TOKEN_FILENAME'),
@@ -73,30 +77,32 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get(
-                'AUTH_DISABLE_SSL', 'false').lower() == 'true',
-            scope=config.get('SCOPE'))
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            scope=config.get('SCOPE'),
+        )
     elif auth_type == Authenticator.AUTHTYPE_CP4D.lower():
         authenticator = CloudPakForDataAuthenticator(
             username=config.get('USERNAME'),
             password=config.get('PASSWORD'),
             url=config.get('AUTH_URL'),
             apikey=config.get('APIKEY'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true')
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+        )
     elif auth_type == Authenticator.AUTHTYPE_IAM.lower() and config.get('APIKEY'):
         authenticator = IAMAuthenticator(
             apikey=config.get('APIKEY'),
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get(
-                'AUTH_DISABLE_SSL', 'false').lower() == 'true',
-            scope=config.get('SCOPE'))
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            scope=config.get('SCOPE'),
+        )
     elif auth_type == Authenticator.AUTHTYPE_VPC.lower():
         authenticator = VPCInstanceAuthenticator(
             iam_profile_crn=config.get('IAM_PROFILE_CRN'),
             iam_profile_id=config.get('IAM_PROFILE_ID'),
-            url=config.get('AUTH_URL'))
+            url=config.get('AUTH_URL'),
+        )
     elif auth_type == Authenticator.AUTHTYPE_NOAUTH.lower():
         authenticator = NoAuthAuthenticator()
 

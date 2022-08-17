@@ -52,23 +52,32 @@ class CloudPakForDataAuthenticator(Authenticator):
         ValueError: The username, password/apikey, and/or url are not valid for CP4D token requests.
     """
 
-    def __init__(self,
-                 username: str = None,
-                 password: str = None,
-                 url: str = None,
-                 *,
-                 apikey: str = None,
-                 disable_ssl_verification: bool = False,
-                 headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None,
-                 verify: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        username: str = None,
+        password: str = None,
+        url: str = None,
+        *,
+        apikey: str = None,
+        disable_ssl_verification: bool = False,
+        headers: Optional[Dict[str, str]] = None,
+        proxies: Optional[Dict[str, str]] = None,
+        verify: Optional[str] = None
+    ) -> None:
         # Check the type of `disable_ssl_verification`. Must be a bool.
         if not isinstance(disable_ssl_verification, bool):
             raise TypeError('disable_ssl_verification must be a bool')
 
         self.token_manager = CP4DTokenManager(
-            username=username, password=password, apikey=apikey, url=url,
-            disable_ssl_verification=disable_ssl_verification, headers=headers, proxies=proxies, verify=verify)
+            username=username,
+            password=password,
+            apikey=apikey,
+            url=url,
+            disable_ssl_verification=disable_ssl_verification,
+            headers=headers,
+            proxies=proxies,
+            verify=verify,
+        )
 
         self.validate()
 
@@ -88,24 +97,27 @@ class CloudPakForDataAuthenticator(Authenticator):
         if self.token_manager.username is None:
             raise ValueError('The username shouldn\'t be None.')
 
-        if ((self.token_manager.password is None and self.token_manager.apikey is None)
-                or (self.token_manager.password is not None and self.token_manager.apikey is not None)):
-            raise ValueError(
-                'Exactly one of `apikey` or `password` must be specified.')
+        if (self.token_manager.password is None and self.token_manager.apikey is None) or (
+            self.token_manager.password is not None and self.token_manager.apikey is not None
+        ):
+            raise ValueError('Exactly one of `apikey` or `password` must be specified.')
 
         if self.token_manager.url is None:
             raise ValueError('The url shouldn\'t be None.')
 
-        if has_bad_first_or_last_char(
-                self.token_manager.username) or has_bad_first_or_last_char(self.token_manager.password):
+        if has_bad_first_or_last_char(self.token_manager.username) or has_bad_first_or_last_char(
+            self.token_manager.password
+        ):
             raise ValueError(
                 'The username and password shouldn\'t start or end with curly brackets or quotes. '
-                'Please remove any surrounding {, }, or \" characters.')
+                'Please remove any surrounding {, }, or \" characters.'
+            )
 
         if has_bad_first_or_last_char(self.token_manager.url):
             raise ValueError(
                 'The url shouldn\'t start or end with curly brackets or quotes. '
-                'Please remove any surrounding {, }, or \" characters.')
+                'Please remove any surrounding {, }, or \" characters.'
+            )
 
     def authenticate(self, req: Request) -> None:
         """Adds CP4D authentication information to the request.

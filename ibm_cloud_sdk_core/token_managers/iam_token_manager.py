@@ -60,19 +60,27 @@ class IAMTokenManager(IAMRequestBasedTokenManager):
         This can be used to obtain an access token with a specific scope.
     """
 
-    def __init__(self,
-                 apikey: str,
-                 *,
-                 url: Optional[str] = None,
-                 client_id: Optional[str] = None,
-                 client_secret: Optional[str] = None,
-                 disable_ssl_verification: bool = False,
-                 headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None,
-                 scope: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        apikey: str,
+        *,
+        url: Optional[str] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
+        disable_ssl_verification: bool = False,
+        headers: Optional[Dict[str, str]] = None,
+        proxies: Optional[Dict[str, str]] = None,
+        scope: Optional[str] = None
+    ) -> None:
         super().__init__(
-            url=url, client_id=client_id, client_secret=client_secret,
-            disable_ssl_verification=disable_ssl_verification, headers=headers, proxies=proxies, scope=scope)
+            url=url,
+            client_id=client_id,
+            client_secret=client_secret,
+            disable_ssl_verification=disable_ssl_verification,
+            headers=headers,
+            proxies=proxies,
+            scope=scope,
+        )
 
         self.apikey = apikey
 

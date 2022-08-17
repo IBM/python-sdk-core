@@ -30,9 +30,14 @@ from ibm_cloud_sdk_core.authenticators import Authenticator
 from .api_exception import ApiException
 from .detailed_response import DetailedResponse
 from .token_managers.token_manager import TokenManager
-from .utils import (has_bad_first_or_last_char, remove_null_values,
-                    cleanup_values, read_external_sources, strip_extra_slashes,
-                    SSLHTTPAdapter)
+from .utils import (
+    has_bad_first_or_last_char,
+    remove_null_values,
+    cleanup_values,
+    read_external_sources,
+    strip_extra_slashes,
+    SSLHTTPAdapter,
+)
 from .version import __version__
 
 # Uncomment this to enable http debugging
@@ -43,8 +48,8 @@ from .version import __version__
 logger = logging.getLogger(__name__)
 
 
-#pylint: disable=too-many-instance-attributes
-#pylint: disable=too-many-locals
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-locals
 class BaseService:
     """Common functionality shared by generated service classes.
 
@@ -72,18 +77,23 @@ class BaseService:
     Raises:
         ValueError: If Authenticator is not provided or invalid type.
     """
-    SDK_NAME = 'ibm-python-sdk-core'
-    ERROR_MSG_DISABLE_SSL = 'The connection failed because the SSL certificate is not valid. To use a self-signed '\
-                            'certificate, disable verification of the server\'s SSL certificate by invoking the '\
-                            'set_disable_ssl_verification(True) on your service instance and/ or use the '\
-                            'disable_ssl_verification option of the authenticator.'
 
-    def __init__(self,
-                 *,
-                 service_url: str = None,
-                 authenticator: Authenticator = None,
-                 disable_ssl_verification: bool = False,
-                 enable_gzip_compression: bool = False) -> None:
+    SDK_NAME = 'ibm-python-sdk-core'
+    ERROR_MSG_DISABLE_SSL = (
+        'The connection failed because the SSL certificate is not valid. To use a self-signed '
+        'certificate, disable verification of the server\'s SSL certificate by invoking the '
+        'set_disable_ssl_verification(True) on your service instance and/ or use the '
+        'disable_ssl_verification option of the authenticator.'
+    )
+
+    def __init__(
+        self,
+        *,
+        service_url: str = None,
+        authenticator: Authenticator = None,
+        disable_ssl_verification: bool = False,
+        enable_gzip_compression: bool = False
+    ) -> None:
         self.set_service_url(service_url)
         self.http_client = requests.Session()
         self.http_config = {}
@@ -121,8 +131,7 @@ class BaseService:
             status_forcelist=[429, 500, 502, 503, 504],
             # List of HTTP methods to retry on
             # Omitting this will default to all methods except POST
-            allowed_methods=['HEAD', 'GET', 'PUT',
-                             'DELETE', 'OPTIONS', 'TRACE', 'POST']
+            allowed_methods=['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'POST'],
         )
         self.http_adapter = SSLHTTPAdapter(max_retries=self.retry_config)
         self.http_client.mount('http://', self.http_adapter)
@@ -138,14 +147,11 @@ class BaseService:
     @staticmethod
     def _get_system_info() -> str:
         return '{0} {1} {2}'.format(
-            platform.system(),  # OS
-            platform.release(),  # OS version
-            platform.python_version()  # Python version
+            platform.system(), platform.release(), platform.python_version()  # OS  # OS version  # Python version
         )
 
     def _build_user_agent(self) -> str:
-        return '{0}-{1} {2}'.format(self.SDK_NAME, __version__,
-                                    self._get_system_info())
+        return '{0}-{1} {2}'.format(self.SDK_NAME, __version__, self._get_system_info())
 
     def configure_service(self, service_name: str) -> None:
         """Look for external configuration of a service. Set service properties.
@@ -168,19 +174,16 @@ class BaseService:
         if config.get('URL'):
             self.set_service_url(config.get('URL'))
         if config.get('DISABLE_SSL'):
-            self.set_disable_ssl_verification(
-                config.get('DISABLE_SSL').lower() == 'true')
+            self.set_disable_ssl_verification(config.get('DISABLE_SSL').lower() == 'true')
         if config.get('ENABLE_GZIP'):
-            self.set_enable_gzip_compression(
-                config.get('ENABLE_GZIP').lower() == 'true')
+            self.set_enable_gzip_compression(config.get('ENABLE_GZIP').lower() == 'true')
         if config.get('ENABLE_RETRIES'):
             if config.get('ENABLE_RETRIES').lower() == 'true':
                 kwargs = {}
                 if config.get('MAX_RETRIES'):
                     kwargs["max_retries"] = int(config.get('MAX_RETRIES'))
                 if config.get('RETRY_INTERVAL'):
-                    kwargs["retry_interval"] = float(
-                        config.get('RETRY_INTERVAL'))
+                    kwargs["retry_interval"] = float(config.get('RETRY_INTERVAL'))
                 self.enable_retries(**kwargs)
 
     def _set_user_agent_header(self, user_agent_string: str) -> None:
@@ -199,10 +202,11 @@ class BaseService:
         """
         if isinstance(http_config, dict):
             self.http_config = http_config
-            if (self.authenticator
-                    and hasattr(self.authenticator, 'token_manager')
-                    and isinstance(self.authenticator.token_manager,
-                                   TokenManager)):
+            if (
+                self.authenticator
+                and hasattr(self.authenticator, 'token_manager')
+                and isinstance(self.authenticator.token_manager, TokenManager)
+            ):
                 self.authenticator.token_manager.http_config = http_config
         else:
             raise TypeError("http_config parameter must be a dictionary")
@@ -251,8 +255,7 @@ class BaseService:
         if isinstance(http_client, requests.sessions.Session):
             self.http_client = http_client
         else:
-            raise TypeError(
-                "http_client parameter must be a requests.sessions.Session")
+            raise TypeError("http_client parameter must be a requests.sessions.Session")
 
     def get_authenticator(self) -> Authenticator:
         """Get the authenticator currently used by the service.
@@ -305,9 +308,7 @@ class BaseService:
                 if key not in silent_keys:
                     logger.warning('"%s" has been removed from the request', key)
         try:
-            response = self.http_client.request(**request,
-                                                cookies=self.jar,
-                                                **kwargs)
+            response = self.http_client.request(**request, cookies=self.jar, **kwargs)
 
             if 200 <= response.status_code <= 299:
                 if response.status_code == 204 or request['method'] == 'HEAD':
@@ -322,18 +323,14 @@ class BaseService:
                         result = response.json()
                     except:
                         result = response
-                return DetailedResponse(response=result,
-                                        headers=response.headers,
-                                        status_code=response.status_code)
+                return DetailedResponse(response=result, headers=response.headers, status_code=response.status_code)
 
             raise ApiException(response.status_code, http_response=response)
         except requests.exceptions.SSLError:
             logger.exception(self.ERROR_MSG_DISABLE_SSL)
             raise
 
-    def set_enable_gzip_compression(self,
-                                    should_enable_compression: bool = False
-                                    ) -> None:
+    def set_enable_gzip_compression(self, should_enable_compression: bool = False) -> None:
         """Set value to enable gzip compression on request bodies"""
         self.enable_gzip_compression = should_enable_compression
 
@@ -341,18 +338,17 @@ class BaseService:
         """Get value for enabling gzip compression on request bodies"""
         return self.enable_gzip_compression
 
-    def prepare_request(self,
-                        method: str,
-                        url: str,
-                        *,
-                        headers: Optional[dict] = None,
-                        params: Optional[dict] = None,
-                        data: Optional[Union[str, dict]] = None,
-                        files: Optional[Union[Dict[str, Tuple[str]],
-                                              List[Tuple[str,
-                                                         Tuple[str,
-                                                               ...]]]]] = None,
-                        **kwargs) -> dict:
+    def prepare_request(
+        self,
+        method: str,
+        url: str,
+        *,
+        headers: Optional[dict] = None,
+        params: Optional[dict] = None,
+        data: Optional[Union[str, dict]] = None,
+        files: Optional[Union[Dict[str, Tuple[str]], List[Tuple[str, Tuple[str, ...]]]]] = None,
+        **kwargs
+    ) -> dict:
         """Build a dict that represents an HTTP service request.
 
         Clean up headers, add default http configuration, convert data
@@ -409,9 +405,7 @@ class BaseService:
         self.authenticator.authenticate(request)
 
         # Compress the request body if applicable
-        if (self.get_enable_gzip_compression()
-                and 'content-encoding' not in headers
-                and request['data'] is not None):
+        if self.get_enable_gzip_compression() and 'content-encoding' not in headers and request['data'] is not None:
             headers['content-encoding'] = 'gzip'
             uncompressed_data = request['data']
             request_body = gzip.compress(uncompressed_data)
@@ -431,8 +425,7 @@ class BaseService:
                 files = files.items()
             # Next, fill in any missing filenames from file tuples.
             for part_name, file_tuple in files:
-                if file_tuple and len(
-                        file_tuple) == 3 and file_tuple[0] is None:
+                if file_tuple and len(file_tuple) == 3 and file_tuple[0] is None:
                     file = file_tuple[1]
                     if file and hasattr(file, 'name'):
                         filename = basename(file.name)

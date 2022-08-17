@@ -48,19 +48,22 @@ class CP4DTokenManager(JWTTokenManager):
         proxies.https (str): The proxy endpoint to use for HTTPS requests.
         verify (str): The path to the certificate to use for HTTPS requests.
     """
+
     TOKEN_NAME = 'token'
     VALIDATE_AUTH_PATH = '/v1/authorize'
 
-    def __init__(self,
-                 username: str = None,
-                 password: str = None,
-                 url: str = None,
-                 *,
-                 apikey: str = None,
-                 disable_ssl_verification: bool = False,
-                 headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None,
-                 verify: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        username: str = None,
+        password: str = None,
+        url: str = None,
+        *,
+        apikey: str = None,
+        disable_ssl_verification: bool = False,
+        headers: Optional[Dict[str, str]] = None,
+        proxies: Optional[Dict[str, str]] = None,
+        verify: Optional[str] = None
+    ) -> None:
         self.username = username
         self.password = password
         self.verify = verify
@@ -72,23 +75,18 @@ class CP4DTokenManager(JWTTokenManager):
             self.headers = {}
         self.headers['Content-Type'] = 'application/json'
         self.proxies = proxies
-        super().__init__(url, disable_ssl_verification=disable_ssl_verification,
-                         token_name=self.TOKEN_NAME)
+        super().__init__(url, disable_ssl_verification=disable_ssl_verification, token_name=self.TOKEN_NAME)
 
     def request_token(self) -> dict:
-        """Makes a request for a token.
-        """
+        """Makes a request for a token."""
         response = self._request(
             method='POST',
             headers=self.headers,
             url=self.url,
-            data=json.dumps({
-                "username": self.username,
-                "password": self.password,
-                "api_key": self.apikey
-            }),
+            data=json.dumps({"username": self.username, "password": self.password, "api_key": self.apikey}),
             proxies=self.proxies,
-            verify=self.verify)
+            verify=self.verify,
+        )
         return response
 
     def set_headers(self, headers: Dict[str, str]) -> None:

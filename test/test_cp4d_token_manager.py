@@ -15,21 +15,18 @@ def test_request_token():
     access_token_layout = {
         "username": "dummy",
         "role": "Admin",
-        "permissions": [
-            "administrator",
-            "manage_catalog"
-        ],
+        "permissions": ["administrator", "manage_catalog"],
         "sub": "admin",
         "iss": "sss",
         "aud": "sss",
         "uid": "sss",
         "iat": now,
-        "exp": now + 3600
+        "exp": now + 3600,
     }
 
-    access_token = jwt.encode(access_token_layout,
-                              'secret', algorithm='HS256',
-                              headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    access_token = jwt.encode(
+        access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'}
+    )
     response = {
         "token": access_token,
     }

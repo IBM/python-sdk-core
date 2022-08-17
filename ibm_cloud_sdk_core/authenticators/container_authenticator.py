@@ -64,25 +64,35 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
             or client_id, and/or client_secret are not valid for IAM token requests.
     """
 
-    def __init__(self,
-                 cr_token_filename: Optional[str] = None,
-                 iam_profile_name: Optional[str] = None,
-                 iam_profile_id: Optional[str] = None,
-                 url: Optional[str] = None,
-                 client_id: Optional[str] = None,
-                 client_secret: Optional[str] = None,
-                 disable_ssl_verification: bool = False,
-                 scope: Optional[str] = None,
-                 proxies: Optional[Dict[str, str]] = None,
-                 headers: Optional[Dict[str, str]] = None) -> None:
+    def __init__(
+        self,
+        cr_token_filename: Optional[str] = None,
+        iam_profile_name: Optional[str] = None,
+        iam_profile_id: Optional[str] = None,
+        url: Optional[str] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
+        disable_ssl_verification: bool = False,
+        scope: Optional[str] = None,
+        proxies: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = None,
+    ) -> None:
         # Check the type of `disable_ssl_verification`. Must be a bool.
         if not isinstance(disable_ssl_verification, bool):
             raise TypeError('disable_ssl_verification must be a bool')
 
         self.token_manager = ContainerTokenManager(
-            cr_token_filename=cr_token_filename, iam_profile_name=iam_profile_name, iam_profile_id=iam_profile_id,
-            url=url, client_id=client_id, client_secret=client_secret,
-            disable_ssl_verification=disable_ssl_verification, scope=scope, proxies=proxies, headers=headers)
+            cr_token_filename=cr_token_filename,
+            iam_profile_name=iam_profile_name,
+            iam_profile_id=iam_profile_id,
+            url=url,
+            client_id=client_id,
+            client_secret=client_secret,
+            disable_ssl_verification=disable_ssl_verification,
+            scope=scope,
+            proxies=proxies,
+            headers=headers,
+        )
 
         self.validate()
 
@@ -103,8 +113,7 @@ class ContainerAuthenticator(IAMRequestBasedAuthenticator):
         super().validate()
 
         if not self.token_manager.iam_profile_name and not self.token_manager.iam_profile_id:
-            raise ValueError(
-                'At least one of iam_profile_name or iam_profile_id must be specified.')
+            raise ValueError('At least one of iam_profile_name or iam_profile_id must be specified.')
 
     def set_cr_token_filename(self, cr_token_filename: str) -> None:
         """Set the location of the compute resource token on the local filesystem.

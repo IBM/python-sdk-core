@@ -34,11 +34,14 @@ class DetailedResponse:
         status_code (int): The status code of the response.
 
     """
-    def __init__(self,
-                 *,
-                 response: Optional[Union[dict, requests.Response]] = None,
-                 headers: Optional[Dict[str, str]] = None,
-                 status_code: Optional[int] = None) -> None:
+
+    def __init__(
+        self,
+        *,
+        response: Optional[Union[dict, requests.Response]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        status_code: Optional[int] = None
+    ) -> None:
         self.result = response
         self.headers = headers
         self.status_code = status_code
