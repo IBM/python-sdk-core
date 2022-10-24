@@ -8,7 +8,7 @@ from ibm_cloud_sdk_core import get_authenticator_from_environment
 # In order to test with a live CP4D server, rename "ibm-credentials-cp4dtest.env.example" to
 # "ibm-credentials-cp4dtest.env" in the resources folder and populate the fields.
 # Then run this command:
-# pytest test_integration
+# pytest test_integration/test_cp4d_authenticator_integration.py
 
 IBM_CREDENTIALS_FILE = '../resources/ibm-credentials-cp4dtest.env'
 
