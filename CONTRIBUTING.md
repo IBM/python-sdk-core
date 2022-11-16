@@ -36,6 +36,7 @@ If you want to contribute to the repository, here's a quick guide:
     * Check for unnecessary whitespace with `git diff --check` before committing.
     * Make sure your code supports Python 3.7, 3.8, 3.9 and 3.10. You can use `pyenv` and `tox` for this
 1. Make the test pass
+    *  Linting errors can be fixed by running `make lint-fix` in most cases
 1. Check code coverage. Add tests for all new functionality and ensure overall coverage does not decrease.
 1. Commit your changes
 * Commits should follow the [Angular commit message guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-guidelines). This is because our release tool uses this format for determining release versions and generating changelogs. To make this easier, we recommend using the [Commitizen CLI](https://github.com/commitizen/cz-cli) with the `cz-conventional-changelog` adapter.
