@@ -23,7 +23,7 @@ def test_detailed_response_dict():
         content_type='application/json',
     )
 
-    mock_response = requests.get('https://test.com')
+    mock_response = requests.get('https://test.com', timeout=None)
     detailed_response = DetailedResponse(
         response=mock_response.json(), headers=mock_response.headers, status_code=mock_response.status_code
     )
@@ -48,7 +48,7 @@ def test_detailed_response_list():
         content_type='application/json',
     )
 
-    mock_response = requests.get('https://test.com')
+    mock_response = requests.get('https://test.com', timeout=None)
     detailed_response = DetailedResponse(
         response=mock_response.json(), headers=mock_response.headers, status_code=mock_response.status_code
     )

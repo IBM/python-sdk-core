@@ -18,7 +18,7 @@ def test_api_exception():
         content_type='application/json',
     )
 
-    mock_response = requests.get('https://test.com')
+    mock_response = requests.get('https://test.com', timeout=None)
     exception = ApiException(500, http_response=mock_response)
     assert exception is not None
     assert exception.message == 'sorry'
@@ -38,7 +38,7 @@ def test_api_exception():
         ),
         content_type='application/json',
     )
-    mock_response = requests.get('https://test-again.com')
+    mock_response = requests.get('https://test-again.com', timeout=None)
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'sorry again'
 
@@ -49,7 +49,7 @@ def test_api_exception():
         body=json.dumps({'message': 'sorry once more'}),
         content_type='application/json',
     )
-    mock_response = requests.get('https://test-once-more.com')
+    mock_response = requests.get('https://test-once-more.com', timeout=None)
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'sorry once more'
 
@@ -60,7 +60,7 @@ def test_api_exception():
         body=json.dumps({'msg': 'serious error'}),
         content_type='application/json',
     )
-    mock_response = requests.get('https://test-msg.com')
+    mock_response = requests.get('https://test-msg.com', timeout=None)
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'Internal Server Error'
 
@@ -71,7 +71,7 @@ def test_api_exception():
         body=json.dumps({'errorMessage': 'IAM error message'}),
         content_type='application/json',
     )
-    mock_response = requests.get('https://test-errormessage.com')
+    mock_response = requests.get('https://test-errormessage.com', timeout=None)
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'IAM error message'
 
@@ -82,7 +82,7 @@ def test_api_exception():
         headers={'X-Global-Transaction-ID': 'xx'},
         body="plain text error",
     )
-    mock_response = requests.get('https://test-for-text.com')
+    mock_response = requests.get('https://test-for-text.com', timeout=None)
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'plain text error'
     assert str(exception) == 'Error: plain text error, Code: 500 , X-global-transaction-id: xx'
