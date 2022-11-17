@@ -19,7 +19,7 @@ from typing import Dict, Optional
 from .jwt_token_manager import JWTTokenManager
 
 
-#pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes
 class IAMRequestBasedTokenManager(JWTTokenManager):
     """The IamRequestBasedTokenManager class contains code relevant to any token manager that
     interacts with the IAM service to manage a token. It stores information relevant to all
@@ -60,21 +60,24 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
         scope: The "scope" to use when fetching the bearer token from the IAM token server.
         This can be used to obtain an access token with a specific scope.
     """
+
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com'
     OPERATION_PATH = "/identity/token"
 
-    def __init__(self,
-                 url: Optional[str] = None,
-                 client_id: Optional[str] = None,
-                 client_secret: Optional[str] = None,
-                 disable_ssl_verification: bool = False,
-                 headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None,
-                 scope: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        url: Optional[str] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
+        disable_ssl_verification: bool = False,
+        headers: Optional[Dict[str, str]] = None,
+        proxies: Optional[Dict[str, str]] = None,
+        scope: Optional[str] = None,
+    ) -> None:
         if not url:
             url = self.DEFAULT_IAM_URL
         if url.endswith(self.OPERATION_PATH):
-            url = url[:-len(self.OPERATION_PATH)]
+            url = url[: -len(self.OPERATION_PATH)]
         self.url = url
         self.client_id = client_id
         self.client_secret = client_secret
@@ -83,8 +86,7 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
         self.proxies = proxies
         self.scope = scope
         self.request_payload = {}
-        super().__init__(
-            self.url, disable_ssl_verification=disable_ssl_verification, token_name='access_token')
+        super().__init__(self.url, disable_ssl_verification=disable_ssl_verification, token_name='access_token')
 
     def request_token(self) -> dict:
         """Request an IAM OAuth token given an API Key.
@@ -95,10 +97,7 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
         Returns:
              A dictionary containing the bearer token to be subsequently used service requests.
         """
-        headers = {
-            'Content-type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
-        }
+        headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}
         if self.headers is not None and isinstance(self.headers, dict):
             headers.update(self.headers)
 
@@ -118,7 +117,8 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
             headers=headers,
             data=data,
             auth_tuple=auth_tuple,
-            proxies=self.proxies)
+            proxies=self.proxies,
+        )
         return response
 
     def set_client_id_and_secret(self, client_id: str, client_secret: str) -> None:

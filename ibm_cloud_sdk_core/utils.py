@@ -29,15 +29,14 @@ import dateutil.parser as date_parser
 
 
 class SSLHTTPAdapter(HTTPAdapter):
-    """Wraps the original HTTP adapter and adds additional SSL context.
-    """
+    """Wraps the original HTTP adapter and adds additional SSL context."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def init_poolmanager(self, connections, maxsize, block):
-        """Extends the parent's method by adding minimum SSL version to the args.
-        """
+        """Extends the parent's method by adding minimum SSL version to the args."""
         ssl_context = create_urllib3_context()
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
         super().init_poolmanager(connections, maxsize, block, ssl_context=ssl_context)
@@ -52,8 +51,7 @@ def has_bad_first_or_last_char(val: str) -> bool:
     Returns:
         Whether or not the string starts or ends with bad characters.
     """
-    return val is not None and (val.startswith('{') or val.startswith('"')
-                                or val.endswith('}') or val.endswith('"'))
+    return val is not None and (val.startswith('{') or val.startswith('"') or val.endswith('}') or val.endswith('"'))
 
 
 def remove_null_values(dictionary: dict) -> dict:
@@ -146,8 +144,9 @@ def string_to_datetime_list(string_list: List[str]) -> List[datetime.datetime]:
         the de-serialized list of strings as a list of datetime objects.
     """
     if not isinstance(string_list, list):
-        raise ValueError("Invalid argument type: " + str(type(string_list))
-            + ". Argument string_list must be of type List[str]")
+        raise ValueError(
+            "Invalid argument type: " + str(type(string_list)) + ". Argument string_list must be of type List[str]"
+        )
     datetime_list = []
     for string_val in string_list:
         datetime_list.append(string_to_datetime(string_val))
@@ -164,8 +163,11 @@ def datetime_to_string_list(datetime_list: List[datetime.datetime]) -> List[str]
         list of datetimes serialized as strings in iso8601 format.
     """
     if not isinstance(datetime_list, list):
-        raise ValueError("Invalid argument type: " + str(type(datetime_list))
-            + ". Argument datetime_list must be of type List[datetime.datetime]")
+        raise ValueError(
+            "Invalid argument type: "
+            + str(type(datetime_list))
+            + ". Argument datetime_list must be of type List[datetime.datetime]"
+        )
     string_list = []
     for datetime_val in datetime_list:
         string_list.append(datetime_to_string(datetime_val))
@@ -299,9 +301,7 @@ def __read_from_env_variables(service_name: str) -> dict:
     return config
 
 
-def __read_from_credential_file(service_name: str,
-                                *,
-                                separator: str = '=') -> dict:
+def __read_from_credential_file(service_name: str, *, separator: str = '=') -> dict:
     """Return a config object based on credentials file for a service.
 
     Args:
@@ -339,8 +339,7 @@ def __read_from_credential_file(service_name: str,
                     if len(key_val) == 2:
                         key = key_val[0]
                         value = key_val[1]
-                        _parse_key_and_update_config(config, service_name, key,
-                                                     value)
+                        _parse_key_and_update_config(config, service_name, key, value)
         except OSError:
             # just absorb the exception and make sure we return an empty response
             config = {}
@@ -348,11 +347,10 @@ def __read_from_credential_file(service_name: str,
     return config
 
 
-def _parse_key_and_update_config(config: dict, service_name: str, key: str,
-                                 value: str) -> None:
+def _parse_key_and_update_config(config: dict, service_name: str, key: str, value: str) -> None:
     service_name = service_name.replace(' ', '_').replace('-', '_').upper()
     if key.startswith(service_name):
-        config[key[len(service_name) + 1:]] = value
+        config[key[len(service_name) + 1 :]] = value
 
 
 def __read_from_vcap_services(service_name: str) -> dict:
@@ -370,39 +368,30 @@ def __read_from_vcap_services(service_name: str) -> dict:
         services = json_import.loads(vcap_services)
         for key in services.keys():
             for i in range(len(services[key])):
-                if vcap_service_credentials and isinstance(
-                        vcap_service_credentials, dict):
+                if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
                     break
                 if services[key][i].get('name') == service_name:
-                    vcap_service_credentials = services[key][i].get(
-                        'credentials', {})
+                    vcap_service_credentials = services[key][i].get('credentials', {})
         if not vcap_service_credentials:
             if service_name in services.keys():
                 service = services.get(service_name)
                 if service:
-                    vcap_service_credentials = service[0].get(
-                        'credentials', {})
+                    vcap_service_credentials = service[0].get('credentials', {})
 
-        if vcap_service_credentials and isinstance(vcap_service_credentials,
-                                                   dict):
+        if vcap_service_credentials and isinstance(vcap_service_credentials, dict):
             new_vcap_creds = {}
             # cf
-            if vcap_service_credentials.get(
-                    'username') and vcap_service_credentials.get('password'):
+            if vcap_service_credentials.get('username') and vcap_service_credentials.get('password'):
                 new_vcap_creds['AUTH_TYPE'] = 'basic'
-                new_vcap_creds['USERNAME'] = vcap_service_credentials.get(
-                    'username')
-                new_vcap_creds['PASSWORD'] = vcap_service_credentials.get(
-                    'password')
+                new_vcap_creds['USERNAME'] = vcap_service_credentials.get('username')
+                new_vcap_creds['PASSWORD'] = vcap_service_credentials.get('password')
                 vcap_service_credentials = new_vcap_creds
             elif vcap_service_credentials.get('iam_apikey'):
                 new_vcap_creds['AUTH_TYPE'] = 'iam'
-                new_vcap_creds['APIKEY'] = vcap_service_credentials.get(
-                    'iam_apikey')
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('iam_apikey')
                 vcap_service_credentials = new_vcap_creds
             elif vcap_service_credentials.get('apikey'):
                 new_vcap_creds['AUTH_TYPE'] = 'iam'
-                new_vcap_creds['APIKEY'] = vcap_service_credentials.get(
-                    'apikey')
+                new_vcap_creds['APIKEY'] = vcap_service_credentials.get('apikey')
                 vcap_service_credentials = new_vcap_creds
     return vcap_service_credentials

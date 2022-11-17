@@ -41,12 +41,10 @@ class IAMRequestBasedAuthenticator(Authenticator):
         Raises:
             ValueError: The client_id, and/or client_secret are not valid for IAM token requests.
         """
-        if (self.token_manager.client_id and
-                not self.token_manager.client_secret) or (
-                    not self.token_manager.client_id and
-                    self.token_manager.client_secret):
-            raise ValueError(
-                'Both client_id and client_secret should be initialized.')
+        if (self.token_manager.client_id and not self.token_manager.client_secret) or (
+            not self.token_manager.client_id and self.token_manager.client_secret
+        ):
+            raise ValueError('Both client_id and client_secret should be initialized.')
 
     def authenticate(self, req: Request) -> None:
         """Adds IAM authentication information to the request.

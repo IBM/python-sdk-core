@@ -24,4 +24,7 @@ test-unit:
 	python -m pytest --cov=ibm_cloud_sdk_core test
 
 lint:
-	./pylint.sh
+	./pylint.sh && black --check .
+
+lint-fix:
+	black .

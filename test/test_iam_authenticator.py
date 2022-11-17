@@ -47,8 +47,7 @@ def test_iam_authenticator():
 
 
 def test_disable_ssl_verification():
-    authenticator = IAMAuthenticator(
-        apikey='my_apikey', disable_ssl_verification=True)
+    authenticator = IAMAuthenticator(apikey='my_apikey', disable_ssl_verification=True)
     assert authenticator.token_manager.disable_ssl_verification is True
 
     authenticator.set_disable_ssl_verification(False)
@@ -57,8 +56,7 @@ def test_disable_ssl_verification():
 
 def test_invalid_disable_ssl_verification_type():
     with pytest.raises(TypeError) as err:
-        authenticator = IAMAuthenticator(
-            apikey='my_apikey', disable_ssl_verification='True')
+        authenticator = IAMAuthenticator(apikey='my_apikey', disable_ssl_verification='True')
     assert str(err.value) == 'disable_ssl_verification must be a bool'
 
     authenticator = IAMAuthenticator(apikey='my_apikey')
@@ -82,20 +80,18 @@ def test_iam_authenticator_validate_failed():
 
     with pytest.raises(ValueError) as err:
         IAMAuthenticator('{apikey}')
-    assert str(
-        err.value
-    ) == 'The apikey shouldn\'t start or end with curly brackets or quotes. '\
-         'Please remove any surrounding {, }, or \" characters.'
+    assert (
+        str(err.value) == 'The apikey shouldn\'t start or end with curly brackets or quotes. '
+        'Please remove any surrounding {, }, or \" characters.'
+    )
 
     with pytest.raises(ValueError) as err:
         IAMAuthenticator('my_apikey', client_id='my_client_id')
-    assert str(
-        err.value) == 'Both client_id and client_secret should be initialized.'
+    assert str(err.value) == 'Both client_id and client_secret should be initialized.'
 
     with pytest.raises(ValueError) as err:
         IAMAuthenticator('my_apikey', client_secret='my_client_secret')
-    assert str(
-        err.value) == 'Both client_id and client_secret should be initialized.'
+    assert str(err.value) == 'Both client_id and client_secret should be initialized.'
 
 
 @responses.activate
@@ -110,25 +106,20 @@ def test_get_token():
         "aud": "sss",
         "uid": "sss",
         "iat": 1559324664,
-        "exp": 1559324664
+        "exp": 1559324664,
     }
 
     access_token = jwt.encode(
-        access_token_layout,
-        'secret',
-        algorithm='HS256',
-        headers={
-            'kid': '230498151c214b788dd97f22b85410a5'
-        })
+        access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'}
+    )
     response = {
         "access_token": access_token,
         "token_type": "Bearer",
         "expires_in": 3600,
         "expiration": 1524167011,
-        "refresh_token": "jy4gl91BQ"
+        "refresh_token": "jy4gl91BQ",
     }
-    responses.add(
-        responses.POST, url=url, body=json.dumps(response), status=200)
+    responses.add(responses.POST, url=url, body=json.dumps(response), status=200)
 
     auth_headers = {'Host': 'iam.cloud.ibm.com:443'}
     authenticator = IAMAuthenticator('my_apikey', headers=auth_headers)
@@ -143,8 +134,7 @@ def test_get_token():
     assert request['headers']['Authorization'] is not None
 
     # Verify that the "get token" call contained the Host header.
-    assert responses.calls[0].request.headers.get(
-        'Host') == 'iam.cloud.ibm.com:443'
+    assert responses.calls[0].request.headers.get('Host') == 'iam.cloud.ibm.com:443'
 
 
 def test_multiple_iam_authenticators():

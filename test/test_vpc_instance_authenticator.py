@@ -9,7 +9,7 @@ TEST_IAM_PROFILE_ID = 'iam-id-123'
 
 
 def test_constructor():
-    authenticator =VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID, url='someurl.com')
+    authenticator = VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID, url='someurl.com')
     assert authenticator is not None
     assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
     assert authenticator.token_manager.iam_profile_crn is None
@@ -18,7 +18,7 @@ def test_constructor():
 
 
 def test_setters():
-    authenticator =VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID, url='someurl.com')
+    authenticator = VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID, url='someurl.com')
     assert authenticator is not None
     assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
     assert authenticator.token_manager.iam_profile_crn is None
@@ -29,8 +29,7 @@ def test_setters():
     # because at most one of iam_profile_crn or iam_profile_id may be specified.
     with pytest.raises(ValueError) as err:
         authenticator.set_iam_profile_crn(TEST_IAM_PROFILE_CRN)
-    assert str(
-        err.value) == 'At most one of "iam_profile_id" or "iam_profile_crn" may be specified.'
+    assert str(err.value) == 'At most one of "iam_profile_id" or "iam_profile_crn" may be specified.'
 
     authenticator.set_iam_profile_id(None)
     assert authenticator.token_manager.iam_profile_id is None
@@ -42,11 +41,10 @@ def test_setters():
 def test_constructor_validate_failed():
     with pytest.raises(ValueError) as err:
         VPCInstanceAuthenticator(
-		iam_profile_crn=TEST_IAM_PROFILE_CRN,
-		iam_profile_id=TEST_IAM_PROFILE_ID,
-	)
-    assert str(
-        err.value) == 'At most one of "iam_profile_id" or "iam_profile_crn" may be specified.'
+            iam_profile_crn=TEST_IAM_PROFILE_CRN,
+            iam_profile_id=TEST_IAM_PROFILE_ID,
+        )
+    assert str(err.value) == 'At most one of "iam_profile_id" or "iam_profile_crn" may be specified.'
 
 
 def test_authenticate():

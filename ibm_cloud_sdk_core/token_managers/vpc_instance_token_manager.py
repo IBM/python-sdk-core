@@ -56,10 +56,9 @@ class VPCInstanceTokenManager(JWTTokenManager):
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
     TOKEN_NAME = 'access_token'
 
-    def __init__(self,
-                 iam_profile_crn: Optional[str] = None,
-                 iam_profile_id: Optional[str] = None,
-                 url: Optional[str] = None) -> None:
+    def __init__(
+        self, iam_profile_crn: Optional[str] = None, iam_profile_id: Optional[str] = None, url: Optional[str] = None
+    ) -> None:
         if not url:
             url = self.DEFAULT_IMS_ENDPOINT
 
@@ -91,17 +90,17 @@ class VPCInstanceTokenManager(JWTTokenManager):
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'Authorization': 'Bearer ' + instance_identity_token
+            'Authorization': 'Bearer ' + instance_identity_token,
         }
 
-        logger.debug(
-            'Invoking VPC \'create_iam_token\' operation: %s', url)
+        logger.debug('Invoking VPC \'create_iam_token\' operation: %s', url)
         response = self._request(
             method='POST',
             url=url,
             headers=headers,
             params={'version': self.METADATA_SERVICE_VERSION},
-            data=json.dumps(request_payload) if request_payload else None)
+            data=json.dumps(request_payload) if request_payload else None,
+        )
         logger.debug('Returned from VPC \'create_iam_token\' operation."')
 
         return response
@@ -142,14 +141,14 @@ class VPCInstanceTokenManager(JWTTokenManager):
 
         request_body = {'expires_in': 300}
 
-        logger.debug(
-            'Invoking VPC \'create_access_token\' operation: %s', url)
+        logger.debug('Invoking VPC \'create_access_token\' operation: %s', url)
         response = self._request(
             method='PUT',
             url=url,
             headers=headers,
             params={'version': self.METADATA_SERVICE_VERSION},
-            data=json.dumps(request_body))
+            data=json.dumps(request_body),
+        )
         logger.debug('Returned from VPC \'create_access_token\' operation."')
 
         return response['access_token']

@@ -75,15 +75,7 @@ class JWTTokenManager(TokenManager, ABC):
         buffer = (exp - iat) * 0.2
         self.refresh_time = self.expire_time - buffer
 
-    def _request(self,
-                 method,
-                 url,
-                 *,
-                 headers=None,
-                 params=None,
-                 data=None,
-                 auth_tuple=None,
-                 **kwargs) -> dict:
+    def _request(self, method, url, *, headers=None, params=None, data=None, auth_tuple=None, **kwargs) -> dict:
         kwargs = dict({"timeout": 60}, **kwargs)
         kwargs = dict(kwargs, **self.http_config)
 
@@ -91,13 +83,8 @@ class JWTTokenManager(TokenManager, ABC):
             kwargs['verify'] = False
 
         response = requests.request(
-            method=method,
-            url=url,
-            headers=headers,
-            params=params,
-            data=data,
-            auth=auth_tuple,
-            **kwargs)
+            method=method, url=url, headers=headers, params=params, data=data, auth=auth_tuple, **kwargs
+        )
         if 200 <= response.status_code <= 299:
             return response.json()
 

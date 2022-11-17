@@ -53,16 +53,16 @@ class VPCInstanceAuthenticator(Authenticator):
 
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
 
-    def __init__(self,
-                 iam_profile_crn: Optional[str] = None,
-                 iam_profile_id: Optional[str] = None,
-                 url: Optional[str] = None) -> None:
+    def __init__(
+        self, iam_profile_crn: Optional[str] = None, iam_profile_id: Optional[str] = None, url: Optional[str] = None
+    ) -> None:
 
         if not url:
             url = self.DEFAULT_IMS_ENDPOINT
 
         self.token_manager = VPCInstanceTokenManager(
-            url=url, iam_profile_crn=iam_profile_crn, iam_profile_id=iam_profile_id)
+            url=url, iam_profile_crn=iam_profile_crn, iam_profile_id=iam_profile_id
+        )
 
         self.validate()
 
@@ -74,8 +74,7 @@ class VPCInstanceAuthenticator(Authenticator):
         super().validate()
 
         if self.token_manager.iam_profile_crn and self.token_manager.iam_profile_id:
-            raise ValueError(
-                'At most one of "iam_profile_id" or "iam_profile_crn" may be specified.')
+            raise ValueError('At most one of "iam_profile_id" or "iam_profile_crn" may be specified.')
 
     def authenticate(self, req: Request) -> None:
         """Adds IAM authentication information to the request.
@@ -91,7 +90,6 @@ class VPCInstanceAuthenticator(Authenticator):
         headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
-
 
     def set_iam_profile_crn(self, iam_profile_crn: str) -> None:
         """Sets CRN of the IAM profile.

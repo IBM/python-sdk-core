@@ -36,6 +36,7 @@ with open('requirements.txt') as f:
 with open('requirements-dev.txt') as f:
     tests_require = [str(req) for req in pkg_resources.parse_requirements(f)]
 
+
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -44,40 +45,43 @@ class PyTest(TestCommand):
 
     def run_tests(self):
         import pytest
+
         errcode = pytest.main(self.test_args)
         sys.exit(errcode)
+
 
 with open("README.md", "r") as fh:
     readme = fh.read()
 
-setup(name='ibm-cloud-sdk-core',
-      version=__version__,
-      description='Core library used by SDKs for IBM Cloud Services',
-      license='Apache 2.0',
-      install_requires=install_requires,
-      tests_require=tests_require,
-      cmdclass={'test': PyTest},
-      author='IBM',
-      author_email='devxsdk@us.ibm.com',
-      long_description=readme,
-      long_description_content_type='text/markdown',
-      url='https://github.com/IBM/python-sdk-core',
-      packages=find_packages(),
-      include_package_data=True,
-      keywords='watson, ibm, cloud, ibm cloud services',
-      classifiers=[
-          'Programming Language :: Python',
-          'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.7',
-          'Programming Language :: Python :: 3.8',
-          'Programming Language :: Python :: 3.9',
-          'Programming Language :: Python :: 3.10',
-          'Development Status :: 5 - Production/Stable',
-          'Intended Audience :: Developers',
-          'License :: OSI Approved :: Apache Software License',
-          'Operating System :: OS Independent',
-          'Topic :: Software Development :: Libraries :: Python Modules',
-          'Topic :: Software Development :: Libraries :: Application Frameworks',
-      ],
-      zip_safe=True
-     )
+setup(
+    name='ibm-cloud-sdk-core',
+    version=__version__,
+    description='Core library used by SDKs for IBM Cloud Services',
+    license='Apache 2.0',
+    install_requires=install_requires,
+    tests_require=tests_require,
+    cmdclass={'test': PyTest},
+    author='IBM',
+    author_email='devxsdk@us.ibm.com',
+    long_description=readme,
+    long_description_content_type='text/markdown',
+    url='https://github.com/IBM/python-sdk-core',
+    packages=find_packages(),
+    include_package_data=True,
+    keywords='watson, ibm, cloud, ibm cloud services',
+    classifiers=[
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
+    ],
+    zip_safe=True,
+)

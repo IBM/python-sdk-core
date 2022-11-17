@@ -51,12 +51,7 @@ class TokenManager(ABC):
         access_token (str): The latest stored access token
     """
 
-    def __init__(
-            self,
-            url: str,
-            *,
-            disable_ssl_verification: bool = False
-    ):
+    def __init__(self, url: str, *, disable_ssl_verification: bool = False):
         self.url = url
         self.disable_ssl_verification = disable_ssl_verification
         self.expire_time = 0
@@ -190,15 +185,7 @@ class TokenManager(ABC):
         """
         pass
 
-    def _request(self,
-                 method,
-                 url,
-                 *,
-                 headers=None,
-                 params=None,
-                 data=None,
-                 auth_tuple=None,
-                 **kwargs):
+    def _request(self, method, url, *, headers=None, params=None, data=None, auth_tuple=None, **kwargs):
         kwargs = dict({"timeout": 60}, **kwargs)
         kwargs = dict(kwargs, **self.http_config)
 
@@ -206,13 +193,8 @@ class TokenManager(ABC):
             kwargs['verify'] = False
 
         response = requests.request(
-            method=method,
-            url=url,
-            headers=headers,
-            params=params,
-            data=data,
-            auth=auth_tuple,
-            **kwargs)
+            method=method, url=url, headers=headers, params=params, data=data, auth=auth_tuple, **kwargs
+        )
         if 200 <= response.status_code <= 299:
             return response
 

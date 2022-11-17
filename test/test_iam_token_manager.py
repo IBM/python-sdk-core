@@ -13,20 +13,18 @@ def get_access_token() -> str:
     access_token_layout = {
         "username": "dummy",
         "role": "Admin",
-        "permissions": [
-            "administrator",
-            "manage_catalog"
-        ],
+        "permissions": ["administrator", "manage_catalog"],
         "sub": "admin",
         "iss": "sss",
         "aud": "sss",
         "uid": "sss",
         "iat": 3600,
-        "exp": int(time.time())
+        "exp": int(time.time()),
     }
 
-    access_token = jwt.encode(access_token_layout, 'secret', algorithm='HS256',
-                              headers={'kid': '230498151c214b788dd97f22b85410a5'})
+    access_token = jwt.encode(
+        access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'}
+    )
     return access_token
 
 
@@ -64,8 +62,7 @@ def test_request_token_auth_in_ctor():
     default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager(
-        "apikey", url=iam_url, client_id='foo', client_secret='bar')
+    token_manager = IAMTokenManager("apikey", url=iam_url, client_id='foo', client_secret='bar')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -88,8 +85,7 @@ def test_request_token_auth_in_ctor_with_scope():
     default_auth_header = 'Basic Yng6Yng='
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager(
-        "apikey", url=iam_url, client_id='foo', client_secret='bar', scope='john snow')
+    token_manager = IAMTokenManager("apikey", url=iam_url, client_id='foo', client_secret='bar', scope='john snow')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -166,8 +162,7 @@ def test_request_token_auth_in_ctor_secret_only():
     }"""
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
-    token_manager = IAMTokenManager(
-        "iam_apikey", url=iam_url, client_id=None, client_secret='bar')
+    token_manager = IAMTokenManager("iam_apikey", url=iam_url, client_id=None, client_secret='bar')
     token_manager.request_token()
 
     assert len(responses.calls) == 1
@@ -283,7 +278,9 @@ def test_get_refresh_token():
         "expires_in": 3600,
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
-    }""" % (access_token_str)
+    }""" % (
+        access_token_str
+    )
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey")
@@ -291,6 +288,7 @@ def test_get_refresh_token():
 
     assert len(responses.calls) == 2
     assert token_manager.refresh_token == "jy4gl91BQ"
+
 
 #
 # In order to run the following integration test with a live IAM server:

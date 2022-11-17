@@ -41,17 +41,13 @@ def datetime_test(datestr: str, expected: str):
 def test_datetime():
     # RFC 3339 with various flavors of tz-offset
     datetime_test('2016-06-20T04:25:16.218Z', '2016-06-20T04:25:16.218000Z')
-    datetime_test('2016-06-20T04:25:16.218+0000',
-                  '2016-06-20T04:25:16.218000Z')
+    datetime_test('2016-06-20T04:25:16.218+0000', '2016-06-20T04:25:16.218000Z')
     datetime_test('2016-06-20T04:25:16.218+00', '2016-06-20T04:25:16.218000Z')
-    datetime_test('2016-06-20T04:25:16.218-0000',
-                  '2016-06-20T04:25:16.218000Z')
+    datetime_test('2016-06-20T04:25:16.218-0000', '2016-06-20T04:25:16.218000Z')
     datetime_test('2016-06-20T04:25:16.218-00', '2016-06-20T04:25:16.218000Z')
-    datetime_test('2016-06-20T00:25:16.218-0400',
-                  '2016-06-20T04:25:16.218000Z')
+    datetime_test('2016-06-20T00:25:16.218-0400', '2016-06-20T04:25:16.218000Z')
     datetime_test('2016-06-20T00:25:16.218-04', '2016-06-20T04:25:16.218000Z')
-    datetime_test('2016-06-20T07:25:16.218+0300',
-                  '2016-06-20T04:25:16.218000Z')
+    datetime_test('2016-06-20T07:25:16.218+0300', '2016-06-20T04:25:16.218000Z')
     datetime_test('2016-06-20T07:25:16.218+03', '2016-06-20T04:25:16.218000Z')
     datetime_test('2016-06-20T04:25:16Z', '2016-06-20T04:25:16Z')
     datetime_test('2016-06-20T04:25:16+0000', '2016-06-20T04:25:16Z')
@@ -62,12 +58,9 @@ def test_datetime():
     datetime_test('2016-06-20T16:25:16+12:00', '2016-06-20T04:25:16Z')
 
     # RFC 3339 with nanoseconds for the Catalog-Managements of the world.
-    datetime_test('2020-03-12T10:52:12.866305005-04:00',
-                  '2020-03-12T14:52:12.866305Z')
-    datetime_test('2020-03-12T10:52:12.866305005Z',
-                  '2020-03-12T10:52:12.866305Z')
-    datetime_test('2020-03-12T10:52:12.866305005+02:30',
-                  '2020-03-12T08:22:12.866305Z')
+    datetime_test('2020-03-12T10:52:12.866305005-04:00', '2020-03-12T14:52:12.866305Z')
+    datetime_test('2020-03-12T10:52:12.866305005Z', '2020-03-12T10:52:12.866305Z')
+    datetime_test('2020-03-12T10:52:12.866305005+02:30', '2020-03-12T08:22:12.866305Z')
     datetime_test('2020-03-12T10:52:12.866305Z', '2020-03-12T10:52:12.866305Z')
 
     # UTC datetime with no TZ.
@@ -109,8 +102,7 @@ def test_datetime_to_string():
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338Z'
     # Test date with UTC timezone
-    date = datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
-                             datetime.timezone.utc)
+    date = datetime.datetime(2017, 3, 6, 16, 0, 4, 159338, datetime.timezone.utc)
     res = datetime_to_string(date)
     assert res == '2017-03-06T16:00:04.159338Z'
     # Test date with non-UTC timezone
@@ -128,8 +120,7 @@ def test_string_to_datetime_list():
     date_list = string_to_datetime_list(['2017-03-06 16:00:04.159338'])
     assert date_list[0].day == 6
     assert date_list[0].hour == 16
-    assert date_list[0].tzinfo.utcoffset(
-        None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
     # Test date string with TZ specified as '+xxxx'
     date_list = string_to_datetime_list(['2017-03-06 16:00:04.159338+0600'])
     assert date_list[0].day == 6
@@ -139,19 +130,15 @@ def test_string_to_datetime_list():
     date_list = string_to_datetime_list(['2017-03-06 16:00:04.159338Z'])
     assert date_list[0].day == 6
     assert date_list[0].hour == 16
-    assert date_list[0].tzinfo.utcoffset(
-        None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
     # Test multiple datetimes in a list
-    date_list = string_to_datetime_list(
-        ['2017-03-06 16:00:04.159338', '2017-03-07 17:00:04.159338'])
+    date_list = string_to_datetime_list(['2017-03-06 16:00:04.159338', '2017-03-07 17:00:04.159338'])
     assert date_list[0].day == 6
     assert date_list[0].hour == 16
-    assert date_list[0].tzinfo.utcoffset(
-        None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[0].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
     assert date_list[1].day == 7
     assert date_list[1].hour == 17
-    assert date_list[1].tzinfo.utcoffset(
-        None) == datetime.timezone.utc.utcoffset(None)
+    assert date_list[1].tzinfo.utcoffset(None) == datetime.timezone.utc.utcoffset(None)
 
 
 def test_datetime_to_string_list():
@@ -167,8 +154,7 @@ def test_datetime_to_string_list():
     res = datetime_to_string_list(date_list)
     assert res == ['2017-03-06T16:00:04.159338Z']
     # Test date list item with UTC timezone
-    date_list = [datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
-                                   datetime.timezone.utc)]
+    date_list = [datetime.datetime(2017, 3, 6, 16, 0, 4, 159338, datetime.timezone.utc)]
     res = datetime_to_string_list(date_list)
     assert res == ['2017-03-06T16:00:04.159338Z']
     # Test date list item with non-UTC timezone
@@ -177,12 +163,12 @@ def test_datetime_to_string_list():
     res = datetime_to_string_list(date_list)
     assert res == ['2017-03-06T16:00:04.159338Z']
     # Test specified date list with multiple items
-    date_list = [datetime.datetime(2017, 3, 6, 16, 0, 4, 159338),
-                 datetime.datetime(2017, 3, 6, 16, 0, 4, 159338,
-                                   datetime.timezone.utc)]
+    date_list = [
+        datetime.datetime(2017, 3, 6, 16, 0, 4, 159338),
+        datetime.datetime(2017, 3, 6, 16, 0, 4, 159338, datetime.timezone.utc),
+    ]
     res = datetime_to_string_list(date_list)
-    assert res == ['2017-03-06T16:00:04.159338Z',
-                   '2017-03-06T16:00:04.159338Z']
+    assert res == ['2017-03-06T16:00:04.159338Z', '2017-03-06T16:00:04.159338Z']
 
 
 def test_date_conversion():
@@ -283,8 +269,7 @@ def test_convert_list():
 
 # pylint: disable=too-many-statements
 def test_get_authenticator_from_credential_file():
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-iam.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-iam.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('ibm watson')
     assert authenticator is not None
@@ -297,8 +282,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.scope is None
     del os.environ['IBM_CREDENTIALS_FILE']
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-basic.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-basic.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
@@ -306,8 +290,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.username == 'my_username'
     del os.environ['IBM_CREDENTIALS_FILE']
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-container.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-container.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service 1')
     assert authenticator is not None
@@ -334,8 +317,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.disable_ssl_verification is False
     del os.environ['IBM_CREDENTIALS_FILE']
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-cp4d.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-cp4d.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
@@ -347,16 +329,14 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.disable_ssl_verification is False
     del os.environ['IBM_CREDENTIALS_FILE']
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-no-auth.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-no-auth.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
     assert authenticator.authentication_type() == Authenticator.AUTHTYPE_NOAUTH
     del os.environ['IBM_CREDENTIALS_FILE']
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-bearer.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-bearer.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')
     assert authenticator is not None
@@ -364,8 +344,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.bearer_token is not None
     del os.environ['IBM_CREDENTIALS_FILE']
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service_1')
     assert authenticator is not None
@@ -377,8 +356,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.scope is None
     del os.environ['IBM_CREDENTIALS_FILE']
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-vpc.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-vpc.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service1')
     assert authenticator is not None
@@ -387,8 +365,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.iam_profile_id is None
     assert authenticator.token_manager.url == 'http://169.254.169.254'
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-vpc.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-vpc.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service2')
     assert authenticator is not None
@@ -397,8 +374,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.iam_profile_id is None
     assert authenticator.token_manager.url == 'http://vpc.imds.com/api'
 
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials-vpc.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-vpc.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service3')
     assert authenticator is not None
@@ -409,8 +385,7 @@ def test_get_authenticator_from_credential_file():
 
 
 def test_get_authenticator_from_credential_file_scope():
-    file_path = os.path.join(os.path.dirname(__file__),
-                             '../resources/ibm-credentials.env')
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service_2')
     assert authenticator is not None
@@ -608,8 +583,7 @@ def test_read_external_sources_1():
 
 def test_read_external_sources_2():
     # The config file should take precedence over the env variable.
-    config_file = os.path.join(os.path.dirname(__file__),
-                               '../resources/ibm-credentials.env')
+    config_file = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials.env')
     os.environ['IBM_CREDENTIALS_FILE'] = config_file
 
     # This should be ignored since IBM_CREDENTIALS_FILE points to a valid file.
@@ -630,5 +604,4 @@ def test_strip_extra_slashes():
     assert strip_extra_slashes('https://host/path/') == 'https://host/path/'
     assert strip_extra_slashes('https://host/path//') == 'https://host/path/'
     assert strip_extra_slashes('https://host//path//') == 'https://host//path/'
-    assert strip_extra_slashes(
-        'https://host//path//////////') == 'https://host//path/'
+    assert strip_extra_slashes('https://host//path//////////') == 'https://host//path/'

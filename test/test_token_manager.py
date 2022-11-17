@@ -25,12 +25,8 @@ from ibm_cloud_sdk_core.token_managers.token_manager import TokenManager
 
 
 class MockTokenManager(TokenManager):
-
     def request_token(self) -> None:
-        response = self._request(
-            method='GET',
-            url=self.url
-        )
+        response = self._request(method='GET', url=self.url)
         return response
 
     def _save_token_info(self, token_response: dict) -> None:
@@ -40,10 +36,12 @@ class MockTokenManager(TokenManager):
 def test_abstract_class_instantiation():
     with pytest.raises(TypeError) as err:
         TokenManager(None)
-    assert str(err.value) == "Can't instantiate abstract class " \
-                             "TokenManager with abstract methods " \
-                             "_save_token_info, " \
-                             "request_token"
+    assert (
+        str(err.value) == "Can't instantiate abstract class "
+        "TokenManager with abstract methods "
+        "_save_token_info, "
+        "request_token"
+    )
 
 
 def requests_request_spy(*args, **kwargs):

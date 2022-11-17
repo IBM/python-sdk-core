@@ -24,7 +24,7 @@ import responses
 from ibm_cloud_sdk_core import ApiException, VPCInstanceTokenManager
 
 
-#pylint: disable=line-too-long
+# pylint: disable=line-too-long
 TEST_ACCESS_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImhlbGxvIiwicm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6WyJhZG1pbmlzdHJhdG9yIiwiZGVwbG95bWVudF9hZG1pbiJdLCJzdWIiOiJoZWxsbyIsImlzcyI6IkpvaG4iLCJhdWQiOiJEU1giLCJ1aWQiOiI5OTkiLCJpYXQiOjE1NjAyNzcwNTEsImV4cCI6MTU2MDI4MTgxOSwianRpIjoiMDRkMjBiMjUtZWUyZC00MDBmLTg2MjMtOGNkODA3MGI1NDY4In0.cIodB4I6CCcX8vfIImz7Cytux3GpWyObt9Gkur5g1QI'
 TEST_TOKEN = 'abc123'
 TEST_IAM_TOKEN = 'iam-abc123'
@@ -71,8 +71,7 @@ def test_retrieve_instance_identity_token(caplog):
         'access_token': TEST_TOKEN,
     }
 
-    responses.add(responses.PUT, 'http://someurl.com/instance_identity/v1/token',
-                  body=json.dumps(response), status=200)
+    responses.add(responses.PUT, 'http://someurl.com/instance_identity/v1/token', body=json.dumps(response), status=200)
 
     ii_token = token_manager.retrieve_instance_identity_token()
     assert len(responses.calls) == 1
@@ -83,8 +82,11 @@ def test_retrieve_instance_identity_token(caplog):
     assert responses.calls[0].request.body == '{"expires_in": 300}'
     assert ii_token == TEST_TOKEN
     # Check the logs.
-    #pylint: disable=line-too-long
-    assert caplog.record_tuples[0][2] == 'Invoking VPC \'create_access_token\' operation: http://someurl.com/instance_identity/v1/token'
+    # pylint: disable=line-too-long
+    assert (
+        caplog.record_tuples[0][2]
+        == 'Invoking VPC \'create_access_token\' operation: http://someurl.com/instance_identity/v1/token'
+    )
     assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_access_token\' operation."'
 
 
@@ -101,16 +103,18 @@ def test_retrieve_instance_identity_token_failed(caplog):
         'errors': ['Ooops'],
     }
 
-    responses.add(responses.PUT, 'http://someurl.com/instance_identity/v1/token',
-                  body=json.dumps(response), status=400)
+    responses.add(responses.PUT, 'http://someurl.com/instance_identity/v1/token', body=json.dumps(response), status=400)
 
     with pytest.raises(ApiException):
         token_manager.retrieve_instance_identity_token()
 
     assert len(responses.calls) == 1
     # Check the logs.
-    #pylint: disable=line-too-long
-    assert caplog.record_tuples[0][2] == 'Invoking VPC \'create_access_token\' operation: http://someurl.com/instance_identity/v1/token'
+    # pylint: disable=line-too-long
+    assert (
+        caplog.record_tuples[0][2]
+        == 'Invoking VPC \'create_access_token\' operation: http://someurl.com/instance_identity/v1/token'
+    )
 
 
 @responses.activate
@@ -124,14 +128,16 @@ def test_request_token_with_crn(caplog):
     # Mock the retrieve instance identity token method.
     def mock_retrieve_instance_identity_token():
         return TEST_TOKEN
+
     token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
 
     response = {
         'access_token': TEST_IAM_TOKEN,
     }
 
-    responses.add(responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token',
-                  body=json.dumps(response), status=200)
+    responses.add(
+        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=200
+    )
 
     response = token_manager.request_token()
     assert len(responses.calls) == 1
@@ -141,8 +147,11 @@ def test_request_token_with_crn(caplog):
     assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
     assert responses.calls[0].request.params['version'] == '2021-09-20'
     # Check the logs.
-    #pylint: disable=line-too-long
-    assert caplog.record_tuples[0][2] == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    # pylint: disable=line-too-long
+    assert (
+        caplog.record_tuples[0][2]
+        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    )
     assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_iam_token\' operation."'
 
 
@@ -157,14 +166,16 @@ def test_request_token_with_id(caplog):
     # Mock the retrieve instance identity token method.
     def mock_retrieve_instance_identity_token():
         return TEST_TOKEN
+
     token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
 
     response = {
         'access_token': TEST_IAM_TOKEN,
     }
 
-    responses.add(responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token',
-                  body=json.dumps(response), status=200)
+    responses.add(
+        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=200
+    )
 
     response = token_manager.request_token()
     assert len(responses.calls) == 1
@@ -174,8 +185,11 @@ def test_request_token_with_id(caplog):
     assert responses.calls[0].request.body == '{"trusted_profile": {"id": "iam-id-123"}}'
     assert responses.calls[0].request.params['version'] == '2021-09-20'
     # Check the logs.
-    #pylint: disable=line-too-long
-    assert caplog.record_tuples[0][2] == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    # pylint: disable=line-too-long
+    assert (
+        caplog.record_tuples[0][2]
+        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    )
     assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_iam_token\' operation."'
 
 
@@ -188,14 +202,16 @@ def test_request_token(caplog):
     # Mock the retrieve instance identity token method.
     def mock_retrieve_instance_identity_token():
         return TEST_TOKEN
+
     token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
 
     response = {
         'access_token': TEST_IAM_TOKEN,
     }
 
-    responses.add(responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token',
-                  body=json.dumps(response), status=200)
+    responses.add(
+        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=200
+    )
 
     response = token_manager.request_token()
     assert len(responses.calls) == 1
@@ -205,8 +221,11 @@ def test_request_token(caplog):
     assert responses.calls[0].request.body is None
     assert responses.calls[0].request.params['version'] == '2021-09-20'
     # Check the logs.
-    #pylint: disable=line-too-long
-    assert caplog.record_tuples[0][2] == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    # pylint: disable=line-too-long
+    assert (
+        caplog.record_tuples[0][2]
+        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    )
     assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_iam_token\' operation."'
 
 
@@ -221,21 +240,26 @@ def test_request_token_failed(caplog):
     # Mock the retrieve instance identity token method.
     def mock_retrieve_instance_identity_token():
         return TEST_TOKEN
+
     token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
 
     response = {
         'errors': ['Ooops'],
     }
 
-    responses.add(responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token',
-                  body=json.dumps(response), status=400)
+    responses.add(
+        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=400
+    )
 
     with pytest.raises(ApiException):
         token_manager.request_token()
     assert len(responses.calls) == 1
     # Check the logs.
-    #pylint: disable=line-too-long
-    assert caplog.record_tuples[0][2] == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    # pylint: disable=line-too-long
+    assert (
+        caplog.record_tuples[0][2]
+        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
+    )
 
 
 @responses.activate
@@ -251,10 +275,15 @@ def test_access_token():
         'access_token': TEST_ACCESS_TOKEN,
     }
 
-    responses.add(responses.PUT, 'http://169.254.169.254/instance_identity/v1/token',
-                  body=json.dumps(response_ii), status=200)
-    responses.add(responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token',
-                  body=json.dumps(response_iam), status=200)
+    responses.add(
+        responses.PUT, 'http://169.254.169.254/instance_identity/v1/token', body=json.dumps(response_ii), status=200
+    )
+    responses.add(
+        responses.POST,
+        'http://169.254.169.254/instance_identity/v1/iam_token',
+        body=json.dumps(response_iam),
+        status=200,
+    )
 
     assert token_manager.access_token is None
     assert token_manager.expire_time == 0

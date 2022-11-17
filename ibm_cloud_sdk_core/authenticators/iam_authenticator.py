@@ -56,24 +56,32 @@ class IAMAuthenticator(IAMRequestBasedAuthenticator):
         ValueError: The apikey, client_id, and/or client_secret are not valid for IAM token requests.
     """
 
-    def __init__(self,
-                 apikey: str,
-                 *,
-                 url: Optional[str] = None,
-                 client_id: Optional[str] = None,
-                 client_secret: Optional[str] = None,
-                 disable_ssl_verification: bool = False,
-                 headers: Optional[Dict[str, str]] = None,
-                 proxies: Optional[Dict[str, str]] = None,
-                 scope: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        apikey: str,
+        *,
+        url: Optional[str] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
+        disable_ssl_verification: bool = False,
+        headers: Optional[Dict[str, str]] = None,
+        proxies: Optional[Dict[str, str]] = None,
+        scope: Optional[str] = None
+    ) -> None:
         # Check the type of `disable_ssl_verification`. Must be a bool.
         if not isinstance(disable_ssl_verification, bool):
             raise TypeError('disable_ssl_verification must be a bool')
 
         self.token_manager = IAMTokenManager(
-            apikey, url=url, client_id=client_id, client_secret=client_secret,
+            apikey,
+            url=url,
+            client_id=client_id,
+            client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
-            headers=headers, proxies=proxies, scope=scope)
+            headers=headers,
+            proxies=proxies,
+            scope=scope,
+        )
 
         self.validate()
 
@@ -98,4 +106,5 @@ class IAMAuthenticator(IAMRequestBasedAuthenticator):
         if has_bad_first_or_last_char(self.token_manager.apikey):
             raise ValueError(
                 'The apikey shouldn\'t start or end with curly brackets or quotes. '
-                'Please remove any surrounding {, }, or \" characters.')
+                'Please remove any surrounding {, }, or \" characters.'
+            )

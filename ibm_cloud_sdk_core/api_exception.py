@@ -50,7 +50,7 @@ class ApiException(Exception):
         msg = 'Error: ' + str(self.message) + ', Code: ' + str(self.code)
         if self.global_transaction_id is not None:
             msg += ' , X-global-transaction-id: ' + str(self.global_transaction_id)
-        return  msg
+        return msg
 
     @staticmethod
     def _get_error_message(response: Response) -> str:

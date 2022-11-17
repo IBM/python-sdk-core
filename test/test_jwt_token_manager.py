@@ -13,9 +13,8 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
     def __init__(self, url: Optional[str] = None, access_token: Optional[str] = None) -> None:
         self.url = url
         self.access_token = access_token
-        self.request_count = 0 # just for tests to see how  many times request was called
-        super().__init__(url, disable_ssl_verification=access_token,
-                         token_name='access_token')
+        self.request_count = 0  # just for tests to see how  many times request was called
+        super().__init__(url, disable_ssl_verification=access_token, token_name='access_token')
 
     def request_token(self) -> DetailedResponse:
         self.request_count += 1
@@ -23,27 +22,26 @@ class JWTTokenManagerMockImpl(JWTTokenManager):
         token_layout = {
             "username": "dummy",
             "role": "Admin",
-            "permissions": [
-                "administrator",
-                "manage_catalog"
-            ],
+            "permissions": ["administrator", "manage_catalog"],
             "sub": "admin",
             "iss": "sss",
             "aud": "sss",
             "uid": "sss",
             "iat": current_time,
-            "exp": current_time + 3600
+            "exp": current_time + 3600,
         }
 
-        access_token = jwt.encode(token_layout, 'secret', algorithm='HS256',
-                                  headers={'kid': '230498151c214b788dd97f22b85410a5'})
-        response = {"access_token": access_token,
-                    "token_type": "Bearer",
-                    "expires_in": 3600,
-                    "expiration": current_time + 3600,
-                    "refresh_token": "jy4gl91BQ",
-                    "from_token_manager": True
-                   }
+        access_token = jwt.encode(
+            token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'}
+        )
+        response = {
+            "access_token": access_token,
+            "token_type": "Bearer",
+            "expires_in": 3600,
+            "expiration": current_time + 3600,
+            "refresh_token": "jy4gl91BQ",
+            "from_token_manager": True,
+        }
         time.sleep(0.5)
         return response
 
@@ -59,12 +57,13 @@ def test_get_token():
     assert token_manager.token_info.get('expires_in') == 3600
     assert token_manager._is_token_expired() is False
 
-    token_manager.token_info = {"access_token": "old_dummy",
-                                "token_type": "Bearer",
-                                "expires_in": 3600,
-                                "expiration": time.time(),
-                                "refresh_token": "jy4gl91BQ"
-                               }
+    token_manager.token_info = {
+        "access_token": "old_dummy",
+        "token_type": "Bearer",
+        "expires_in": 3600,
+        "expiration": time.time(),
+        "refresh_token": "jy4gl91BQ",
+    }
     token = token_manager.get_token()
     assert token == old_token
 
