@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2021 IBM All Rights Reserved.
+# Copyright 2021, 2023 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
         url (str, optional): The VPC Instance Metadata Service's base endpoint URL.
     """
 
-    METADATA_SERVICE_VERSION = '2021-09-20'
+    METADATA_SERVICE_VERSION = '2022-03-01'
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
     TOKEN_NAME = 'access_token'
 
