@@ -34,7 +34,7 @@ before_deploy:
 
 deploy:
   - provider: script
-    script: npx semantic-release
+    script: npx semantic-release@19
     skip_cleanup: true
     on:
       python: '3.7'
