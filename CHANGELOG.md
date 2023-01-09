@@ -1,3 +1,11 @@
+## [3.16.1](https://github.com/IBM/python-sdk-core/compare/v3.16.0...v3.16.1) (2023-01-09)
+
+
+### Bug Fixes
+
+* pin build to semantic-release v19 ([03c5474](https://github.com/IBM/python-sdk-core/commit/03c547442c91e0fc497a2a9ba202b8231674562d))
+* **VPCInstanceAuthenticator:** use correct version string ([93729a3](https://github.com/IBM/python-sdk-core/commit/93729a3ee09b8011989b7679b4820d042f79964b))
+
 # [3.16.0](https://github.com/IBM/python-sdk-core/compare/v3.15.3...v3.16.0) (2022-08-01)
 
 
