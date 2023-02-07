@@ -56,7 +56,6 @@ class VPCInstanceAuthenticator(Authenticator):
     def __init__(
         self, iam_profile_crn: Optional[str] = None, iam_profile_id: Optional[str] = None, url: Optional[str] = None
     ) -> None:
-
         if not url:
             url = self.DEFAULT_IMS_ENDPOINT
 
