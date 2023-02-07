@@ -126,7 +126,7 @@ authenticator type is intended for situations in which the application will be m
 token itself in terms of initial acquisition and refreshing as needed.
 
 
-## Identity and Access Management Authentication (IAM)
+## Identity and Access Management (IAM) Authentication
 The `IamAuthenticator` will accept a user-supplied api key and will perform
 the necessary interactions with the IAM token service to obtain a suitable
 bearer token for the specified api key.  The authenticator will also obtain
@@ -198,7 +198,7 @@ service = ExampleServiceV1.new_instance(service_name='example_service')
 ```
 
 
-## Container
+## Container Authentication
 The `ContainerAuthenticator` is intended to be used by application code
 running inside a compute resource managed by the IBM Kubernetes Service (IKS)
 in which a secure compute resource token (CR token) has been stored in a file
@@ -321,7 +321,8 @@ The IAM access token is added to each outbound request in the `Authorization` he
 - iam_profile_id: (optional) the id of the linked trusted IAM profile to be used when obtaining the IAM access token.
 
 - url: (optional) The VPC Instance Metadata Service's base URL.  
-The default value of this property is `http://169.254.169.254`, and should not need to be specified in normal situations.
+The default value of this property is `http://169.254.169.254`.  However, if the VPC Instance Metadata Service is configured
+with the HTTP Secure Protocol setting (`https`), then you should configure this property to be `https://api.metadata.cloud.ibm.com`.
 
 Usage Notes:
 1. At most one of `iam_profile_crn` or `iam_profile_id` may be specified.  The specified value must map
