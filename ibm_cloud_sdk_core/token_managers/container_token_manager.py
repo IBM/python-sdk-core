@@ -128,8 +128,8 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
             with open(cr_token_filename, 'r', encoding='utf-8') as file:
                 cr_token = file.read()
             return cr_token
-        # pylint: disable=broad-except
         except Exception as ex:
+            # pylint: disable=broad-exception-raised
             raise Exception(
                 'Unable to retrieve the CR token value from file {}: {}'.format(cr_token_filename, ex)
             ) from None
