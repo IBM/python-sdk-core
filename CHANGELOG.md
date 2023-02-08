@@ -1,3 +1,10 @@
+## [3.16.2](https://github.com/IBM/python-sdk-core/compare/v3.16.1...v3.16.2) (2023-02-08)
+
+
+### Bug Fixes
+
+* avoid pylint errors ([00ee90b](https://github.com/IBM/python-sdk-core/commit/00ee90bf223a1f620e211fe9de2ed95ccfff8233))
+
 ## [3.16.1](https://github.com/IBM/python-sdk-core/compare/v3.16.0...v3.16.1) (2023-01-09)
 
 
