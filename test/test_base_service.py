@@ -345,19 +345,20 @@ def test_has_bad_first_or_last_char():
 
 @responses.activate
 def test_request_server_error():
-    responses.add(
-        responses.GET,
-        'https://gateway.watsonplatform.net/test/api',
-        status=500,
-        body=json.dumps({'error': 'internal server error'}),
-        content_type='application/json',
-    )
-    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
-    try:
+    with pytest.raises(ApiException, match=r'internal server error') as err:
+        responses.add(
+            responses.GET,
+            'https://gateway.watsonplatform.net/test/api',
+            status=500,
+            body=json.dumps({'error': 'internal server error'}),
+            content_type='application/json',
+        )
+        service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    except ApiException as err:
-        assert err.message == 'internal server error'
+    assert err.value.code == 500
+    assert err.value.http_response.headers['Content-Type'] == 'application/json'
+    assert err.value.message == 'internal server error'
 
 
 @responses.activate
@@ -383,6 +384,22 @@ def test_request_success_json():
 
 
 @responses.activate
+def test_request_success_invalid_json():
+    # expect a JSONDecodeError when a "success" response contains invalid JSON in response body.
+    with pytest.raises(requests.exceptions.JSONDecodeError, match=r'Expecting \':\' delimiter:'):
+        responses.add(
+            responses.GET,
+            'https://gateway.watsonplatform.net/test/api',
+            status=200,
+            body='{ "invalid": "json", "response"',
+            content_type='application/json; charset=utf8',
+        )
+        service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
+
+
+@responses.activate
 def test_request_success_response():
     responses.add(
         responses.GET,
@@ -398,20 +415,79 @@ def test_request_success_response():
 
 
 @responses.activate
-def test_request_fail_401():
+def test_request_success_nonjson():
     responses.add(
         responses.GET,
         'https://gateway.watsonplatform.net/test/api',
-        status=401,
-        body=json.dumps({'foo': 'bar'}),
-        content_type='application/json',
+        status=200,
+        body='<h1>Hola, amigo!</h1>',
+        content_type='text/html',
     )
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
-    try:
+    prepped = service.prepare_request('GET', url='')
+    detailed_response = service.send(prepped)
+    # It's odd that we have to call ".text" to get the string value
+    # (see issue 3557)
+    assert detailed_response.get_result().text == '<h1>Hola, amigo!</h1>'
+
+
+@responses.activate
+def test_request_fail_401_nonerror_json():
+    # response body not an error object, so we expect the default error message.
+    error_msg = 'Unauthorized: Access is denied due to invalid credentials'
+    with pytest.raises(ApiException, match=error_msg) as err:
+        responses.add(
+            responses.GET,
+            'https://gateway.watsonplatform.net/test/api',
+            status=401,
+            body=json.dumps({'foo': 'bar'}),
+            content_type='application/json',
+        )
+        service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    except ApiException as err:
-        assert err.message == 'Unauthorized: Access is denied due to invalid credentials'
+    assert err.value.code == 401
+    assert err.value.http_response.headers['Content-Type'] == 'application/json'
+    assert err.value.message == error_msg
+
+
+@responses.activate
+def test_request_fail_401_error_json():
+    # response body is an error object, so we expect to get the message from there.
+    error_msg = 'You dont need to know...'
+    with pytest.raises(ApiException, match=error_msg) as err:
+        responses.add(
+            responses.GET,
+            'https://gateway.watsonplatform.net/test/api',
+            status=401,
+            body=json.dumps({'message': error_msg}),
+            content_type='application/json',
+        )
+        service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
+    assert err.value.code == 401
+    assert err.value.http_response.headers['Content-Type'] == 'application/json'
+    assert err.value.message == error_msg
+
+
+@responses.activate
+def test_request_fail_401_nonjson():
+    response_body = 'You dont have a need to know...'
+    with pytest.raises(ApiException, match=response_body) as err:
+        responses.add(
+            responses.GET,
+            'https://gateway.watsonplatform.net/test/api',
+            status=401,
+            body=response_body,
+            content_type='text/plain',
+        )
+        service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
+    assert err.value.code == 401
+    assert err.value.http_response.headers['Content-Type'] == 'text/plain'
+    assert err.value.message == response_body
 
 
 def test_misc_methods():

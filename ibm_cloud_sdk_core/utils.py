@@ -16,6 +16,7 @@
 # from ibm_cloud_sdk_core.authenticators import Authenticator
 import datetime
 import json as json_import
+import re
 import ssl
 from os import getenv, environ, getcwd
 from os.path import isfile, join, expanduser
@@ -395,3 +396,19 @@ def __read_from_vcap_services(service_name: str) -> dict:
                 new_vcap_creds['APIKEY'] = vcap_service_credentials.get('apikey')
                 vcap_service_credentials = new_vcap_creds
     return vcap_service_credentials
+
+
+# A regex that matches an "application/json" mimetype.
+json_mimetype_pattern = re.compile('^application/json(\\s*;.*)?$')
+
+
+def is_json_mimetype(mimetype: str) -> bool:
+    """Returns true iff 'mimetype' is a JSON-like mimetype.
+
+    Args:
+        mimetype: The mimetype to check.
+
+    Returns:
+        true if mimetype is a JSON-line mimetype, false otherwise.
+    """
+    return mimetype is not None and json_mimetype_pattern.match(mimetype) is not None
