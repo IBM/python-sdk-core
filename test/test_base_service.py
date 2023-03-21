@@ -385,8 +385,9 @@ def test_request_success_json():
 
 @responses.activate
 def test_request_success_invalid_json():
-    # expect a JSONDecodeError when a "success" response contains invalid JSON in response body.
-    with pytest.raises(requests.exceptions.JSONDecodeError, match=r'Expecting \':\' delimiter:'):
+    # expect an ApiException with JSONDecodeError as the cause when a "success"
+    # response contains invalid JSON in response body.
+    with pytest.raises(ApiException, match=r'Error processing the HTTP response') as err:
         responses.add(
             responses.GET,
             'https://gateway.watsonplatform.net/test/api',
@@ -397,6 +398,10 @@ def test_request_success_invalid_json():
         service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
+    assert err.value.code == 200
+    assert err.value.http_response.headers['Content-Type'] == 'application/json; charset=utf8'
+    assert isinstance(err.value.__cause__, requests.exceptions.JSONDecodeError)
+    assert "Expecting ':' delimiter: line 1" in str(err.value.__cause__)
 
 
 @responses.activate
@@ -487,6 +492,28 @@ def test_request_fail_401_nonjson():
         service.send(prepped)
     assert err.value.code == 401
     assert err.value.http_response.headers['Content-Type'] == 'text/plain'
+    assert err.value.message == response_body
+
+
+@responses.activate
+def test_request_fail_401_badjson():
+    # if an error response contains invalid JSON, then we should
+    # end up with 'Unknown error' as the message since we couldn't get
+    # the actual error message from the response body.
+    response_body = 'This is not a JSON object'
+    with pytest.raises(ApiException, match=response_body) as err:
+        responses.add(
+            responses.GET,
+            'https://gateway.watsonplatform.net/test/api',
+            status=401,
+            body=response_body,
+            content_type='application/json',
+        )
+        service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+        prepped = service.prepare_request('GET', url='')
+        service.send(prepped)
+    assert err.value.code == 401
+    assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == response_body
 
 

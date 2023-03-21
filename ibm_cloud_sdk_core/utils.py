@@ -403,7 +403,7 @@ json_mimetype_pattern = re.compile('^application/json(\\s*;.*)?$')
 
 
 def is_json_mimetype(mimetype: str) -> bool:
-    """Returns true iff 'mimetype' is a JSON-like mimetype.
+    """Returns true if 'mimetype' is a JSON-like mimetype, false otherwise.
 
     Args:
         mimetype: The mimetype to check.

@@ -321,16 +321,16 @@ class BaseService:
                     result = response
                 elif not response.text:
                     result = None
-                elif is_json_mimetype(response.headers['Content-Type']):
+                elif is_json_mimetype(response.headers.get('Content-Type')):
                     # If this is a JSON response, then try to unmarshal it.
                     try:
                         result = response.json()
                     except JSONDecodeError as err:
-                        caused_by = str(err)
-                        logger.error(
-                            'Expected JSON content in response body, but a parsing error occurred:\n%s', caused_by
-                        )
-                        raise
+                        raise ApiException(
+                            code=response.status_code,
+                            http_response=response,
+                            message='Error processing the HTTP response',
+                        ) from err
                 else:
                     # Non-JSON response, just use response body as-is.
                     result = response
