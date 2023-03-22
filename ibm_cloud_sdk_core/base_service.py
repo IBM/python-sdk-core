@@ -25,6 +25,7 @@ from urllib3.util.retry import Retry
 
 import requests
 from requests.structures import CaseInsensitiveDict
+from requests.exceptions import JSONDecodeError
 
 from ibm_cloud_sdk_core.authenticators import Authenticator
 from .api_exception import ApiException
@@ -32,6 +33,7 @@ from .detailed_response import DetailedResponse
 from .token_managers.token_manager import TokenManager
 from .utils import (
     has_bad_first_or_last_char,
+    is_json_mimetype,
     remove_null_values,
     cleanup_values,
     read_external_sources,
@@ -310,21 +312,32 @@ class BaseService:
         try:
             response = self.http_client.request(**request, cookies=self.jar, **kwargs)
 
+            # Process a "success" response.
             if 200 <= response.status_code <= 299:
                 if response.status_code == 204 or request['method'] == 'HEAD':
-                    # There is no body content for a HEAD request or a 204 response
+                    # There is no body content for a HEAD response or a 204 response.
                     result = None
                 elif stream_response:
                     result = response
                 elif not response.text:
                     result = None
-                else:
+                elif is_json_mimetype(response.headers.get('Content-Type')):
+                    # If this is a JSON response, then try to unmarshal it.
                     try:
                         result = response.json()
-                    except:
-                        result = response
+                    except JSONDecodeError as err:
+                        raise ApiException(
+                            code=response.status_code,
+                            http_response=response,
+                            message='Error processing the HTTP response',
+                        ) from err
+                else:
+                    # Non-JSON response, just use response body as-is.
+                    result = response
+
                 return DetailedResponse(response=result, headers=response.headers, status_code=response.status_code)
 
+            # Received error status code from server, raise an APIException.
             raise ApiException(response.status_code, http_response=response)
         except requests.exceptions.SSLError:
             logger.exception(self.ERROR_MSG_DISABLE_SSL)

@@ -26,7 +26,7 @@ class DetailedResponse:
     Keyword Args:
         response: The response to the service request, defaults to None.
         headers: The headers of the response, defaults to None.
-        status_code: The status code of there response, defaults to None.
+        status_code: The status code of the response, defaults to None.
 
     Attributes:
         result (dict, requests.Response, None): The response to the service request.
