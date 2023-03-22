@@ -1,3 +1,10 @@
+## [3.16.3](https://github.com/IBM/python-sdk-core/compare/v3.16.2...v3.16.3) (2023-03-22)
+
+
+### Bug Fixes
+
+* detect JSON unmarshal errors in responses ([#157](https://github.com/IBM/python-sdk-core/issues/157)) ([30d7c52](https://github.com/IBM/python-sdk-core/commit/30d7c52659f92f8d9218b66372ef0d707a297232))
+
 ## [3.16.2](https://github.com/IBM/python-sdk-core/compare/v3.16.1...v3.16.2) (2023-02-08)
 
 
