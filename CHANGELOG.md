@@ -1,3 +1,10 @@
+## [3.16.4](https://github.com/IBM/python-sdk-core/compare/v3.16.3...v3.16.4) (2023-03-23)
+
+
+### Bug Fixes
+
+* bump requests version to avoid import error ([#159](https://github.com/IBM/python-sdk-core/issues/159)) ([e9ca94c](https://github.com/IBM/python-sdk-core/commit/e9ca94c4ddd707b84bfa72b6a04ee3c56d21c08a))
+
 ## [3.16.3](https://github.com/IBM/python-sdk-core/compare/v3.16.2...v3.16.3) (2023-03-22)
 
 
