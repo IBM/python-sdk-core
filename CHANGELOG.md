@@ -1,3 +1,10 @@
+## [3.16.5](https://github.com/IBM/python-sdk-core/compare/v3.16.4...v3.16.5) (2023-03-23)
+
+
+### Bug Fixes
+
+* allow control characters in JSON responses ([#160](https://github.com/IBM/python-sdk-core/issues/160)) ([2f09503](https://github.com/IBM/python-sdk-core/commit/2f09503ac4ebfb6f603f142f461122c402aa03d5))
+
 ## [3.16.4](https://github.com/IBM/python-sdk-core/compare/v3.16.3...v3.16.4) (2023-03-23)
 
 
