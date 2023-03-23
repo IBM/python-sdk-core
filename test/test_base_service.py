@@ -406,17 +406,18 @@ def test_request_success_invalid_json():
 
 @responses.activate
 def test_request_success_response():
+    expected_body = '{"foo": "bar", "description": "this\nis\na\ndescription"}'
     responses.add(
         responses.GET,
         'https://gateway.watsonplatform.net/test/api',
         status=200,
-        body=json.dumps({'foo': 'bar'}),
+        body=expected_body,
         content_type='application/json',
     )
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     prepped = service.prepare_request('GET', url='')
     detailed_response = service.send(prepped)
-    assert detailed_response.get_result() == {"foo": "bar"}
+    assert detailed_response.get_result() == {"foo": "bar", "description": "this\nis\na\ndescription"}
 
 
 @responses.activate

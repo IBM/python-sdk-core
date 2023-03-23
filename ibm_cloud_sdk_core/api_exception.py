@@ -56,7 +56,7 @@ class ApiException(Exception):
     def _get_error_message(response: Response) -> str:
         error_message = 'Unknown error'
         try:
-            error_json = response.json()
+            error_json = response.json(strict=False)
             if 'errors' in error_json:
                 if isinstance(error_json['errors'], list):
                     err = error_json['errors'][0]

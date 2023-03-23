@@ -324,7 +324,7 @@ class BaseService:
                 elif is_json_mimetype(response.headers.get('Content-Type')):
                     # If this is a JSON response, then try to unmarshal it.
                     try:
-                        result = response.json()
+                        result = response.json(strict=False)
                     except JSONDecodeError as err:
                         raise ApiException(
                             code=response.status_code,
