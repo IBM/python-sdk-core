@@ -34,6 +34,7 @@ from .token_managers.token_manager import TokenManager
 from .utils import (
     has_bad_first_or_last_char,
     is_json_mimetype,
+    is_text_mimetype,
     remove_null_values,
     cleanup_values,
     read_external_sources,
@@ -311,6 +312,7 @@ class BaseService:
                     logger.warning('"%s" has been removed from the request', key)
         try:
             response = self.http_client.request(**request, cookies=self.jar, **kwargs)
+            content_type = response.headers.get('Content-Type')
 
             # Process a "success" response.
             if 200 <= response.status_code <= 299:
@@ -321,7 +323,9 @@ class BaseService:
                     result = response
                 elif not response.text:
                     result = None
-                elif is_json_mimetype(response.headers.get('Content-Type')):
+                elif is_text_mimetype(content_type):
+                    result = response.text
+                elif is_json_mimetype(content_type):
                     # If this is a JSON response, then try to unmarshal it.
                     try:
                         result = response.json(strict=False)
