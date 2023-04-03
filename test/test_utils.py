@@ -28,7 +28,7 @@ from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core import get_query_param
 from ibm_cloud_sdk_core import read_external_sources
 from ibm_cloud_sdk_core.authenticators import Authenticator, BasicAuthenticator, IAMAuthenticator
-from ibm_cloud_sdk_core.utils import strip_extra_slashes, is_json_mimetype
+from ibm_cloud_sdk_core.utils import strip_extra_slashes, is_json_mimetype, is_text_mimetype
 
 
 def datetime_test(datestr: str, expected: str):
@@ -617,3 +617,13 @@ def test_is_json_mimetype():
 
     assert is_json_mimetype('application/json') is True
     assert is_json_mimetype('application/json; charset=utf8') is True
+
+
+def test_is_text_mimetype():
+    assert is_text_mimetype(None) is False
+    assert is_text_mimetype('') is False
+    assert is_text_mimetype('application/octet-stream') is False
+    assert is_text_mimetype('Text/Plain') is False
+
+    assert is_text_mimetype('text/plain') is True
+    assert is_text_mimetype('text/html') is True

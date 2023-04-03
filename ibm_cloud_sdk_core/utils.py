@@ -409,6 +409,18 @@ def is_json_mimetype(mimetype: str) -> bool:
         mimetype: The mimetype to check.
 
     Returns:
-        true if mimetype is a JSON-line mimetype, false otherwise.
+        true if mimetype is a JSON-like mimetype, false otherwise.
     """
     return mimetype is not None and json_mimetype_pattern.match(mimetype) is not None
+
+
+def is_text_mimetype(mimetype: str) -> bool:
+    """Returns true if 'mimetype' is a text-like mimetype, false otherwise.
+
+    Args:
+        mimetype: The mimetype to check.
+
+    Returns:
+        true if mimetype is a text-like mimetype, false otherwise.
+    """
+    return mimetype is not None and mimetype.startswith('text/')
