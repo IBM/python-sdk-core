@@ -310,42 +310,42 @@ class BaseService:
                 del kwargs[key]
                 if key not in silent_keys:
                     logger.warning('"%s" has been removed from the request', key)
+
         try:
             response = self.http_client.request(**request, cookies=self.jar, **kwargs)
-            content_type = response.headers.get('Content-Type')
-
-            # Process a "success" response.
-            if 200 <= response.status_code <= 299:
-                if response.status_code == 204 or request['method'] == 'HEAD':
-                    # There is no body content for a HEAD response or a 204 response.
-                    result = None
-                elif stream_response:
-                    result = response
-                elif not response.text:
-                    result = None
-                elif is_text_mimetype(content_type):
-                    result = response.text
-                elif is_json_mimetype(content_type):
-                    # If this is a JSON response, then try to unmarshal it.
-                    try:
-                        result = response.json(strict=False)
-                    except JSONDecodeError as err:
-                        raise ApiException(
-                            code=response.status_code,
-                            http_response=response,
-                            message='Error processing the HTTP response',
-                        ) from err
-                else:
-                    # Non-JSON response, just use response body as-is.
-                    result = response
-
-                return DetailedResponse(response=result, headers=response.headers, status_code=response.status_code)
-
-            # Received error status code from server, raise an APIException.
-            raise ApiException(response.status_code, http_response=response)
         except requests.exceptions.SSLError:
             logger.exception(self.ERROR_MSG_DISABLE_SSL)
             raise
+
+        if response.status_code < 200 or response.status_code > 299:
+            # Received error status code from server, raise an APIException.
+            raise ApiException(response.status_code, http_response=response)
+
+        content_type = response.headers.get('Content-Type')
+
+        # Process a "success" response.
+        if response.status_code == 204 or request['method'] == 'HEAD' or not response.text:
+            # There is no body content for a HEAD response, a 204 response or no content at all.
+            result = None
+        elif stream_response:
+            result = response
+        elif is_text_mimetype(content_type):
+            result = response.text
+        elif is_json_mimetype(content_type):
+            # If this is a JSON response, then try to unmarshal it.
+            try:
+                result = response.json(strict=False)
+            except JSONDecodeError as err:
+                raise ApiException(
+                    code=response.status_code,
+                    http_response=response,
+                    message='Error processing the HTTP response',
+                ) from err
+        else:
+            # Non-JSON response, just use response body as-is.
+            result = response
+
+        return DetailedResponse(response=result, headers=response.headers, status_code=response.status_code)
 
     def set_enable_gzip_compression(self, should_enable_compression: bool = False) -> None:
         """Set value to enable gzip compression on request bodies"""
