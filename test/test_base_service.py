@@ -432,9 +432,7 @@ def test_request_success_nonjson():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     prepped = service.prepare_request('GET', url='')
     detailed_response = service.send(prepped)
-    # It's odd that we have to call ".text" to get the string value
-    # (see issue 3557)
-    assert detailed_response.get_result().text == '<h1>Hola, amigo!</h1>'
+    assert detailed_response.get_result() == '<h1>Hola, amigo!</h1>'
 
 
 @responses.activate
@@ -735,7 +733,13 @@ def test_user_agent_header():
     assert user_agent_header is not None
     assert user_agent_header['User-Agent'] is not None
 
-    responses.add(responses.GET, 'https://gateway.watsonplatform.net/test/api', status=200, body='some text')
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        status=200,
+        body='<feed>something new<feed>',
+        content_type='application/atom-xml',
+    )
     prepped = service.prepare_request('GET', url='', headers={'user-agent': 'my_user_agent'})
     response = service.send(prepped)
     assert response.get_result().request.headers.get('user-agent') == 'my_user_agent'
@@ -748,7 +752,13 @@ def test_user_agent_header():
 @responses.activate
 def test_reserved_keys(caplog):
     service = AnyServiceV1('2021-07-02', authenticator=NoAuthAuthenticator())
-    responses.add(responses.GET, 'https://gateway.watsonplatform.net/test/api', status=200, body='some text')
+    responses.add(
+        responses.GET,
+        'https://gateway.watsonplatform.net/test/api',
+        status=200,
+        body='<feed>something new<feed>',
+        content_type='application/atom-xml',
+    )
     prepped = service.prepare_request('GET', url='', headers={'key': 'OK'})
     response = service.send(
         prepped, headers={'key': 'bad'}, method='POST', url='localhost', cookies=None, hooks={'response': []}
