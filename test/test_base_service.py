@@ -432,8 +432,8 @@ def test_request_success_nonjson():
     service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
     prepped = service.prepare_request('GET', url='')
     detailed_response = service.send(prepped)
-    # It's odd that we have to call ".text" to get the string value
-    # (see issue 3557)
+    assert repr(detailed_response.get_result()) == '<h1>Hola, amigo!</h1>'
+    assert str(detailed_response.get_result()) == '<h1>Hola, amigo!</h1>'
     assert detailed_response.get_result().text == '<h1>Hola, amigo!</h1>'
 
 

@@ -23,6 +23,7 @@ from os.path import isfile, join, expanduser
 from typing import List, Union
 from urllib.parse import urlparse, parse_qs
 
+from requests import Response
 from requests.adapters import HTTPAdapter
 from urllib3.util.ssl_ import create_urllib3_context
 
@@ -424,3 +425,21 @@ def is_text_mimetype(mimetype: str) -> bool:
         true if mimetype is a text-like mimetype, false otherwise.
     """
     return mimetype is not None and mimetype.startswith('text/')
+
+
+class TextResult(Response):
+    """Helper class to add better support for text responses.
+
+    Keyword Args:
+        response: The response to the service request.
+    """
+
+    def __init__(self, response: Response) -> None:
+        # Init parent.
+        super().__init__()
+        self.__dict__.update(response.__dict__)
+        # Overrides parent's `__repr__` method.
+        self.__repr__ = self.__repr__
+
+    def __repr__(self) -> str:
+        return self.text

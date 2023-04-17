@@ -40,6 +40,7 @@ from .utils import (
     read_external_sources,
     strip_extra_slashes,
     SSLHTTPAdapter,
+    TextResult,
 )
 from .version import __version__
 
@@ -330,7 +331,7 @@ class BaseService:
         elif stream_response:
             result = response
         elif is_text_mimetype(content_type):
-            result = response.text
+            result = TextResult(response)
         elif is_json_mimetype(content_type):
             # If this is a JSON response, then try to unmarshal it.
             try:
