@@ -265,7 +265,7 @@ made to the IAM token service.
 
 ### Programming example
 ```python
-from ibm_cloud_sdk_core.authenticators import ContainerAuthenticatior
+from ibm_cloud_sdk_core.authenticators import ContainerAuthenticator
 from <sdk-package-name>.example_service_v1 import *
 
 # Create the authenticator.
