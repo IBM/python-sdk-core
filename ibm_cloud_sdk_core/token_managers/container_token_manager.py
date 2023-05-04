@@ -80,7 +80,8 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         This can be used to obtain an access token with a specific scope.
     """
 
-    DEFAULT_CR_TOKEN_FILENAME = '/var/run/secrets/tokens/vault-token'
+    DEFAULT_CR_TOKEN_FILENAME1 = '/var/run/secrets/tokens/vault-token'
+    DEFAULT_CR_TOKEN_FILENAME2 = '/var/run/secrets/tokens/sa-token'
 
     def __init__(
         self,
@@ -115,24 +116,26 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         """Retrieves the CR token for the current compute resource by reading it from the local file system.
 
         Raises:
-            Exception: Cannot retrieve the compute resource token from.
+            Exception: Error retrieving the compute resource token.
 
         Returns:
             A string which contains the compute resource token.
         """
-        cr_token_filename = self.cr_token_filename if self.cr_token_filename else self.DEFAULT_CR_TOKEN_FILENAME
-
-        logger.debug('Attempting to read CR token from file: %s', cr_token_filename)
-
         try:
-            with open(cr_token_filename, 'r', encoding='utf-8') as file:
-                cr_token = file.read()
+            cr_token = None
+            if self.cr_token_filename:
+                # If the user specified a filename, then use that.
+                cr_token = self.read_file(self.cr_token_filename)
+            else:
+                # If the user didn't specify a filename, then try our two defaults.
+                try:
+                    cr_token = self.read_file(self.DEFAULT_CR_TOKEN_FILENAME1)
+                except:
+                    cr_token = self.read_file(self.DEFAULT_CR_TOKEN_FILENAME2)
             return cr_token
         except Exception as ex:
             # pylint: disable=broad-exception-raised
-            raise Exception(
-                'Unable to retrieve the CR token value from file {}: {}'.format(cr_token_filename, ex)
-            ) from None
+            raise Exception('Unable to retrieve the CR token: {}'.format(ex)) from None
 
     def request_token(self) -> dict:
         """Retrieves a CR token value from the current compute resource,
@@ -141,11 +144,9 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         Returns:
              A dictionary containing the bearer token to be subsequently used service requests.
         """
-        # Retrieve the CR token for this compute resource.
-        cr_token = self.retrieve_cr_token()
 
         # Set the request payload.
-        self.request_payload['cr_token'] = cr_token
+        self.request_payload['cr_token'] = self.retrieve_cr_token()
 
         if self.iam_profile_id:
             self.request_payload['profile_id'] = self.iam_profile_id
@@ -177,3 +178,22 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
             iam_profile_id: id of the linked trusted IAM profile to be used when obtaining the IAM access token
         """
         self.iam_profile_id = iam_profile_id
+
+    def read_file(self, filename: str) -> str:
+        """Read in the specified file and return the contents as a string.
+        Args:
+            filename: the name of the file to read
+        Returns:
+            The contents of the file as a string.
+        Raises:
+            Exception: An error occured reading the file.
+        """
+        try:
+            logger.debug('Attempting to read CR token from file: %s', filename)
+            with open(filename, 'r', encoding='utf-8') as file:
+                cr_token = file.read()
+            logger.debug('Successfully read CR token from file: %s', filename)
+            return cr_token
+        except Exception as ex:
+            # pylint: disable=broad-exception-raised
+            raise Exception('Error reading CR token from file {}: {}'.format(filename, ex)) from None

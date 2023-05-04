@@ -151,7 +151,7 @@ def test_retrieve_cr_token_fail():
 
     assert (
         str(err.value)
-        == 'Unable to retrieve the CR token value from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
+        == 'Unable to retrieve the CR token: Error reading CR token from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
     )
 
 
@@ -236,7 +236,7 @@ def test_authenticate_fail_no_cr_token():
 
     assert (
         str(err.value)
-        == 'Unable to retrieve the CR token value from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
+        == 'Unable to retrieve the CR token: Error reading CR token from file bogus-cr-token-file: [Errno 2] No such file or directory: \'bogus-cr-token-file\''
     )
 
 
