@@ -1,3 +1,10 @@
+## [3.16.6](https://github.com/IBM/python-sdk-core/compare/v3.16.5...v3.16.6) (2023-05-22)
+
+
+### Bug Fixes
+
+* **ContainerAuthenticator:** add sa-token as default CR token filename ([#165](https://github.com/IBM/python-sdk-core/issues/165)) ([7c6bd0f](https://github.com/IBM/python-sdk-core/commit/7c6bd0f1d3521628ef0fd593f7110d9174c5b771))
+
 ## [3.16.5](https://github.com/IBM/python-sdk-core/compare/v3.16.4...v3.16.5) (2023-03-23)
 
 
