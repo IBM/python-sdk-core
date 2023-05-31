@@ -1,3 +1,10 @@
+## [3.16.7](https://github.com/IBM/python-sdk-core/compare/v3.16.6...v3.16.7) (2023-05-31)
+
+
+### Bug Fixes
+
+* **build:** bump requests to latest version (2.31.0) ([#171](https://github.com/IBM/python-sdk-core/issues/171)) ([a293e76](https://github.com/IBM/python-sdk-core/commit/a293e760228492cb108ab41f5093355bae018cc2))
+
 ## [3.16.6](https://github.com/IBM/python-sdk-core/compare/v3.16.5...v3.16.6) (2023-05-22)
 
 
