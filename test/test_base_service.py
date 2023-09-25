@@ -647,6 +647,34 @@ def test_gzip_compression():
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
 
+def test_gzip_compression_file_input():
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    service.set_enable_gzip_compression(True)
+
+    # Should return file-like object with the compressed data when compression is on
+    # and the input is a file, opened for reading in binary mode.
+    raw_data = b'rawdata'
+    with tempfile.TemporaryFile(mode='w+b') as tmp_file:
+        tmp_file.write(raw_data)
+        tmp_file.seek(0)
+
+        prepped = service.prepare_request('GET', url='', data=tmp_file)
+        assert prepped['data'].read() == gzip.compress(raw_data)
+        assert prepped['headers'].get('content-encoding') == 'gzip'
+
+    # Should return file-like object with the compressed data when compression is on
+    # and the input is a file, opened for reading in text mode.
+    assert service.get_enable_gzip_compression()
+    text_data = 'textata'
+    with tempfile.TemporaryFile(mode='w+') as tmp_file:
+        tmp_file.write(text_data)
+        tmp_file.seek(0)
+
+        prepped = service.prepare_request('GET', url='', data=tmp_file)
+        assert prepped['data'].read() == gzip.compress(text_data.encode())
+        assert prepped['headers'].get('content-encoding') == 'gzip'
+
+
 def test_gzip_compression_external():
     # Should set gzip compression from external config
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-gzip.env')
