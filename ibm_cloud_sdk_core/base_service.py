@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import gzip
-import io
 import json as json_import
 import logging
 import platform
@@ -423,11 +421,7 @@ class BaseService:
         if self.get_enable_gzip_compression() and 'content-encoding' not in headers and request['data'] is not None:
             headers['content-encoding'] = 'gzip'
             request['headers'] = headers
-            raw = request['data']
-            # Handle the compression for file-like objects.
-            # We need to use a custom stream/pipe method to prevent
-            # reading the whole file into the memory.
-            request['data'] = GzipStream(raw) if isinstance(raw, io.IOBase) else gzip.compress(raw)
+            request['data'] = GzipStream(request['data'])
 
         # Next, we need to process the 'files' argument to try to fill in
         # any missing filenames where possible.

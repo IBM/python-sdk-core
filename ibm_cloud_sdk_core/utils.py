@@ -56,12 +56,22 @@ class GzipStream(io.IOBase):
     as a file-like object.
 
     Args:
-        input: a file-like object to be compressed
+        input: the source of the data to be compressed.
+               It can be a file-like object, bytes or string.
     """
 
-    def __init__(self, source: io.IOBase):
-        self.uncompressed = source
+    def __init__(self, source: Union[io.IOBase, bytes, str]):
         self.buffer = b''
+
+        if isinstance(source, io.IOBase):
+            # The input is already a file-like object, use it as-is.
+            self.uncompressed = source
+        elif isinstance(source, str):
+            # Strings must be handled with StringIO.
+            self.uncompressed = io.StringIO(source)
+        else:
+            # Handle the rest as raw bytes.
+            self.uncompressed = io.BytesIO(source)
 
         self.compressor = gzip.GzipFile(fileobj=self, mode='wb')
 
