@@ -66,7 +66,7 @@ class GzipStream(io.IOBase):
         self.compressor = gzip.GzipFile(fileobj=self, mode='wb')
 
     def read(self, size: int = -1):
-        """Compresses and returns the reqested size of data.
+        """Compresses and returns the requested size of data.
 
         Args:
             size: how many bytes to return. -1 to read and compress the whole file
@@ -106,7 +106,7 @@ class GzipStream(io.IOBase):
         pass
 
     def write(self, compressed: bytes):
-        """Appened the compressed data to the buffer
+        """Append the compressed data to the buffer
 
         This happens when the target stream calls the `read` method and
         that triggers the gzip "compressor".
