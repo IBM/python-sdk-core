@@ -662,10 +662,25 @@ def test_gzip_compression_file_input():
         assert prepped['data'].read() == gzip.compress(raw_data)
         assert prepped['headers'].get('content-encoding') == 'gzip'
 
+    # Simulate the requests (urllib3) package reading method for binary files.
+    with tempfile.TemporaryFile(mode='w+b') as tmp_file:
+        tmp_file.write(raw_data)
+        tmp_file.seek(0)
+
+        prepped = service.prepare_request('GET', url='', data=tmp_file)
+        compressed = b''
+        for chunk in prepped['data']:
+            compressed += chunk
+
+        assert compressed == gzip.compress(raw_data)
+
+    # Make sure the decompression works fine.
+    assert gzip.decompress(compressed) == raw_data
+
     # Should return file-like object with the compressed data when compression is on
     # and the input is a file, opened for reading in text mode.
     assert service.get_enable_gzip_compression()
-    text_data = 'textata'
+    text_data = 'textdata'
     with tempfile.TemporaryFile(mode='w+') as tmp_file:
         tmp_file.write(text_data)
         tmp_file.seek(0)
@@ -673,6 +688,21 @@ def test_gzip_compression_file_input():
         prepped = service.prepare_request('GET', url='', data=tmp_file)
         assert prepped['data'].read() == gzip.compress(text_data.encode())
         assert prepped['headers'].get('content-encoding') == 'gzip'
+
+    # Simulate the requests (urllib3) package reading method for text files.
+    with tempfile.TemporaryFile(mode='w+') as tmp_file:
+        tmp_file.write(text_data)
+        tmp_file.seek(0)
+
+        prepped = service.prepare_request('GET', url='', data=tmp_file)
+        compressed = b''
+        for chunk in prepped['data']:
+            compressed += chunk
+
+        assert compressed == gzip.compress(text_data.encode())
+
+    # Make sure the decompression works fine.
+    assert gzip.decompress(compressed).decode() == text_data
 
 
 def test_gzip_compression_external():
