@@ -661,6 +661,7 @@ def test_gzip_compression_file_input():
         prepped = service.prepare_request('GET', url='', data=tmp_file)
         assert prepped['data'].read() == gzip.compress(raw_data)
         assert prepped['headers'].get('content-encoding') == 'gzip'
+        assert prepped['data'].read() == b''
 
     # Simulate the requests (urllib3) package reading method for binary files.
     with tempfile.TemporaryFile(mode='w+b') as tmp_file:
@@ -688,6 +689,7 @@ def test_gzip_compression_file_input():
         prepped = service.prepare_request('GET', url='', data=tmp_file)
         assert prepped['data'].read() == gzip.compress(text_data.encode())
         assert prepped['headers'].get('content-encoding') == 'gzip'
+        assert prepped['data'].read() == b''
 
     # Simulate the requests (urllib3) package reading method for text files.
     with tempfile.TemporaryFile(mode='w+') as tmp_file:
