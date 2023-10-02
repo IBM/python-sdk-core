@@ -60,7 +60,7 @@ class GzipStream(io.IOBase):
                It can be a file-like object, bytes or string.
     """
 
-    def __init__(self, source: Union[io.IOBase, bytes, str]):
+    def __init__(self, source: Union[io.IOBase, bytes, str]) -> 'GzipStream':
         self.buffer = b''
 
         if isinstance(source, io.IOBase):
@@ -75,12 +75,14 @@ class GzipStream(io.IOBase):
 
         self.compressor = gzip.GzipFile(fileobj=self, mode='wb')
 
-    def read(self, size: int = -1):
+    def read(self, size: int = -1) -> bytes:
         """Compresses and returns the requested size of data.
 
         Args:
             size: how many bytes to return. -1 to read and compress the whole file
         """
+        compressed = b''
+
         if (size < 0) or (len(self.buffer) < size):
             for raw in self.uncompressed:
                 # We need to encode text like streams (e.g. TextIOWrapper) to bytes.
@@ -109,13 +111,13 @@ class GzipStream(io.IOBase):
 
         return compressed
 
-    def flush(self):
+    def flush(self) -> None:
         """Not implemented."""
         # Since this "pipe" sits between 2 other stream (source/read -> target/write)
         # it wouldn't be worth to implemet flushing.
         pass
 
-    def write(self, compressed: bytes):
+    def write(self, compressed: bytes) -> None:
         """Append the compressed data to the buffer
 
         This happens when the target stream calls the `read` method and
@@ -123,7 +125,7 @@ class GzipStream(io.IOBase):
         """
         self.buffer += compressed
 
-    def close(self):
+    def close(self) -> None:
         """Closes the underlying file-like object."""
         self.uncompressed.close()
 
