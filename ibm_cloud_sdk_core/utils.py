@@ -45,7 +45,7 @@ class SSLHTTPAdapter(HTTPAdapter):
         super().init_poolmanager(connections, maxsize, block, ssl_context=ssl_context)
 
 
-class GzipStream(io.IOBase):
+class GzipStream(io.RawIOBase):
     """Compress files on the fly.
 
     GzipStream is a helper class around the gzip library. It helps to
