@@ -1,3 +1,10 @@
+# [3.17.0](https://github.com/IBM/python-sdk-core/compare/v3.16.7...v3.17.0) (2023-10-03)
+
+
+### Features
+
+* bump min supported version of python to 3.8 ([#175](https://github.com/IBM/python-sdk-core/issues/175)) ([8933684](https://github.com/IBM/python-sdk-core/commit/8933684d8a4a5a4450239811d1169529982c3029))
+
 ## [3.16.7](https://github.com/IBM/python-sdk-core/compare/v3.16.6...v3.16.7) (2023-05-31)
 
 
