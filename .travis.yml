@@ -4,10 +4,10 @@ dist: jammy
 
 matrix:
   include:
-    - python: 3.7
     - python: 3.8
     - python: 3.9
     - python: 3.10
+    - python: 3.11
 
 cache: pip3
 
@@ -36,7 +36,7 @@ deploy:
     script: npm run semantic-release
     skip_cleanup: true
     on:
-      python: '3.7'
+      python: '3.8'
       branch: main
   - provider: pypi
     setuptools_version: "60.8.2"
@@ -45,5 +45,5 @@ deploy:
     repository: https://upload.pypi.org/legacy
     skip_cleanup: true
     on:
-      python: '3.7'
+      python: '3.8'
       tags: true
