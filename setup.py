@@ -31,13 +31,15 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload -r pypi')
     sys.exit()
 
-with open('requirements.txt') as f:
+with open('requirements.txt', encoding='utf-8') as f:
     install_requires = [str(req) for req in pkg_resources.parse_requirements(f)]
-with open('requirements-dev.txt') as f:
+with open('requirements-dev.txt', encoding='utf-8') as f:
     tests_require = [str(req) for req in pkg_resources.parse_requirements(f)]
 
 
 class PyTest(TestCommand):
+    """PyTest class."""
+
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = ['--strict', '--verbose', '--tb=long', 'test']
@@ -50,7 +52,7 @@ class PyTest(TestCommand):
         sys.exit(errcode)
 
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding='utf-8') as fh:
     readme = fh.read()
 
 setup(
@@ -68,14 +70,14 @@ setup(
     url='https://github.com/IBM/python-sdk-core',
     packages=find_packages(),
     include_package_data=True,
-    keywords='watson, ibm, cloud, ibm cloud services',
+    keywords='ibm, cloud, ibm cloud services',
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',

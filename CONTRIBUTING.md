@@ -34,7 +34,7 @@ If you want to contribute to the repository, here's a quick guide:
     * Only use spaces for indentation.
     * Create minimal diffs - disable on save actions like reformat source code or organize imports. If you feel the source code should be reformatted create a separate PR for this change.
     * Check for unnecessary whitespace with `git diff --check` before committing.
-    * Make sure your code supports Python 3.7, 3.8, 3.9 and 3.10. You can use `pyenv` and `tox` for this
+    * Make sure your code tests clean on the project's supported versions of Python.  You can use the `venv` module to create virtual environments for this.
 1. Make the test pass
     *  Linting errors can be fixed by running `make lint-fix` in most cases
 1. Check code coverage. Add tests for all new functionality and ensure overall coverage does not decrease.
@@ -44,23 +44,37 @@ If you want to contribute to the repository, here's a quick guide:
 
 # Running the tests
 
-You probably want to set up a [virtualenv].
+It is STRONGLY recommended that you set up and use a [virtualenv].
 
 1. Clone this repository:
     ```sh
     git clone git@github.com:IBM/python-sdk-core.git
     ```
-1. Install the SDK as an editable package using the current source:
+1. Create a virtual environment:
+   ```sh
+   python -m venv ./venv3    # create venv in directory './venv3' using "python" command
+   . venv3/bin/activate      # establish venv's environment
+   python -V                 # check version of "python" command in venv
+   ```
+1. Install the project dependencies and install the project as an editable package using the current source:
     ```sh
-    pip3 install --editable .
+    make setup
     ```
-1. Install the test dependencies with:
+1. Run the unit tests:
     ```sh
-    pip3 install -r requirements-dev.txt
+    make test-unit
     ```
-1. Run the test cases with:
+1. Run the lint checks on the source code:
     ```sh
-    py.test test
+    make lint
+    ```
+1. Run the code formatter on the source code to ensure compliance with the linter:
+    ```sh
+    make lint-fix
+    ```
+1. Run the entire build (install dependencies, run unit tests and perform lint checks):
+    ```sh
+    make all
     ```
 
 # Developer's Certificate of Origin 1.1
