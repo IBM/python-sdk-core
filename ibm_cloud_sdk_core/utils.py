@@ -15,6 +15,8 @@
 # limitations under the License.
 # from ibm_cloud_sdk_core.authenticators import Authenticator
 import datetime
+import gzip
+import io
 import json as json_import
 import re
 import ssl
@@ -41,6 +43,91 @@ class SSLHTTPAdapter(HTTPAdapter):
         ssl_context = create_urllib3_context()
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
         super().init_poolmanager(connections, maxsize, block, ssl_context=ssl_context)
+
+
+class GzipStream(io.RawIOBase):
+    """Compress files on the fly.
+
+    GzipStream is a helper class around the gzip library. It helps to
+    compress already opened files (file-like objects) on the fly, so
+    there is no need to read everything into the memory and call the
+    `compress` function on it.
+    The GzipFile is opened on the instance itself so it needs to act
+    as a file-like object.
+
+    Args:
+        input: the source of the data to be compressed.
+               It can be a file-like object, bytes or string.
+    """
+
+    def __init__(self, source: Union[io.IOBase, bytes, str]) -> 'GzipStream':
+        self.buffer = b''
+
+        if isinstance(source, io.IOBase):
+            # The input is already a file-like object, use it as-is.
+            self.uncompressed = source
+        elif isinstance(source, str):
+            # Strings must be handled with StringIO.
+            self.uncompressed = io.StringIO(source)
+        else:
+            # Handle the rest as raw bytes.
+            self.uncompressed = io.BytesIO(source)
+
+        self.compressor = gzip.GzipFile(fileobj=self, mode='wb')
+
+    def read(self, size: int = -1) -> bytes:
+        """Compresses and returns the requested size of data.
+
+        Args:
+            size: how many bytes to return. -1 to read and compress the whole file
+        """
+        compressed = b''
+
+        if (size < 0) or (len(self.buffer) < size):
+            for raw in self.uncompressed:
+                # We need to encode text like streams (e.g. TextIOWrapper) to bytes.
+                if isinstance(raw, str):
+                    raw = raw.encode()
+
+                self.compressor.write(raw)
+
+                # Stop compressing if we reached the max allowed size.
+                if 0 < size < len(self.buffer):
+                    self.compressor.flush()
+                    break
+            else:
+                self.compressor.close()
+
+            if size < 0:
+                # Return all data from the buffer.
+                compressed = self.buffer
+                self.buffer = b''
+        else:
+            # If we already have enough data in our buffer
+            # return the desired chunk of bytes
+            compressed = self.buffer[:size]
+            # then remove them from the buffer.
+            self.buffer = self.buffer[size:]
+
+        return compressed
+
+    def flush(self) -> None:
+        """Not implemented."""
+        # Since this "pipe" sits between 2 other stream (source/read -> target/write)
+        # it wouldn't be worth to implemet flushing.
+        pass
+
+    def write(self, compressed: bytes) -> None:
+        """Append the compressed data to the buffer
+
+        This happens when the target stream calls the `read` method and
+        that triggers the gzip "compressor".
+        """
+        self.buffer += compressed
+
+    def close(self) -> None:
+        """Closes the underlying file-like object."""
+        self.uncompressed.close()
 
 
 def has_bad_first_or_last_char(val: str) -> bool:
