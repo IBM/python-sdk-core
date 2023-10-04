@@ -1,3 +1,10 @@
+## [3.17.1](https://github.com/IBM/python-sdk-core/compare/v3.17.0...v3.17.1) (2023-10-04)
+
+
+### Bug Fixes
+
+* add correct support for compressing file-like objects ([#174](https://github.com/IBM/python-sdk-core/issues/174)) ([2f91105](https://github.com/IBM/python-sdk-core/commit/2f911055aac6ffe8e0bab056b861ce41a29ad58b))
+
 # [3.17.0](https://github.com/IBM/python-sdk-core/compare/v3.16.7...v3.17.0) (2023-10-03)
 
 
