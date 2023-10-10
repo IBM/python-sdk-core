@@ -1,3 +1,10 @@
+## [3.17.2](https://github.com/IBM/python-sdk-core/compare/v3.17.1...v3.17.2) (2023-10-10)
+
+
+### Bug Fixes
+
+* use on-the-fly compression only for file objects ([#177](https://github.com/IBM/python-sdk-core/issues/177)) ([dd1cd05](https://github.com/IBM/python-sdk-core/commit/dd1cd056ec030344e2b8fec5093b2acae53ae941))
+
 ## [3.17.1](https://github.com/IBM/python-sdk-core/compare/v3.17.0...v3.17.1) (2023-10-04)
 
 
