@@ -1,3 +1,10 @@
+## [3.17.3](https://github.com/IBM/python-sdk-core/compare/v3.17.2...v3.17.3) (2023-11-06)
+
+
+### Bug Fixes
+
+* **build:** bump urllib version to avoid vulnerability ([#180](https://github.com/IBM/python-sdk-core/issues/180)) ([5363104](https://github.com/IBM/python-sdk-core/commit/5363104a765d3b1928ec76e6fc75b314398029c5))
+
 ## [3.17.2](https://github.com/IBM/python-sdk-core/compare/v3.17.1...v3.17.2) (2023-10-10)
 
 
