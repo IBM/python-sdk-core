@@ -2,6 +2,9 @@
 # to be ready for development work in the local sandbox.
 # example: "make setup"
 
+PYTHON=python3
+LINT_DIRS=ibm_cloud_sdk_core test test_integration
+
 setup: deps dev_deps install_project
 
 all: upgrade_pip setup test-unit lint
@@ -9,22 +12,23 @@ all: upgrade_pip setup test-unit lint
 ci: setup test-unit lint
 
 upgrade_pip:
-	python -m pip install --upgrade pip
+	${PYTHON} -m pip install --upgrade pip
 
 deps:
-	python -m pip install -r requirements.txt
+	${PYTHON} -m pip install -r requirements.txt
 
 dev_deps:
-	python -m pip install -r requirements-dev.txt
+	${PYTHON} -m pip install -r requirements-dev.txt
 
 install_project:
-	python -m pip install -e .
+	${PYTHON} -m pip install -e .
 
 test-unit:
-	python -m pytest --cov=ibm_cloud_sdk_core test
+	${PYTHON} -m pytest --cov=ibm_cloud_sdk_core test
 
 lint:
-	./pylint.sh && black --check .
+	${PYTHON} -m pylint ${LINT_DIRS}
+	black --check ${LINT_DIRS}
 
 lint-fix:
-	black .
+	black ${LINT_DIRS}

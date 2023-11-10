@@ -54,7 +54,7 @@ class IAMRequestBasedAuthenticator(Authenticator):
             Authorization: Bearer <bearer-token>
 
         Args:
-            req: The request to add IAM authentication information too. Must contain a key to a dictionary
+            req: The request to add IAM authentication information to. Must contain a key to a dictionary
             called headers.
         """
         headers = req.get('headers')
