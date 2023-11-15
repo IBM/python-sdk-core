@@ -1,3 +1,10 @@
+# [3.18.0](https://github.com/IBM/python-sdk-core/compare/v3.17.3...v3.18.0) (2023-11-15)
+
+
+### Features
+
+* **MCSPAuthenticator:** add new authenticator for Multi-Cloud Saas Platform ([#181](https://github.com/IBM/python-sdk-core/issues/181)) ([1be97e5](https://github.com/IBM/python-sdk-core/commit/1be97e5712c7b62847d8412cfa75096c1bf51b9d))
+
 ## [3.17.3](https://github.com/IBM/python-sdk-core/compare/v3.17.2...v3.17.3) (2023-11-06)
 
 
