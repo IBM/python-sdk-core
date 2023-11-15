@@ -41,3 +41,4 @@ from .cp4d_authenticator import CloudPakForDataAuthenticator
 from .iam_authenticator import IAMAuthenticator
 from .vpc_instance_authenticator import VPCInstanceAuthenticator
 from .no_auth_authenticator import NoAuthAuthenticator
+from .mcsp_authenticator import MCSPAuthenticator

@@ -6,6 +6,7 @@ The python-sdk-core project supports the following types of authentication:
 - Container Authentication
 - VPC Instance Authentication
 - Cloud Pak for Data Authentication
+- Multi-Cloud Saas Platform (MCSP) Authentication
 - No Authentication (for testing)
 
 The SDK user configures the appropriate type of authentication for use with service instances.
@@ -426,6 +427,71 @@ service = ExampleServiceV1.new_instance(service_name='example_service')
 
 # 'service' can now be used to invoke operations.
 ```
+
+
+## Multi-Cloud Saas Platform (MCSP) Authentication
+The `MCSPAuthenticator` can be used in scenarios where an application needs to
+interact with an IBM Cloud service that has been deployed to a non-IBM Cloud environment (e.g. AWS).
+It accepts a user-supplied apikey and performs the necessary interactions with the
+Multi-Cloud Saas Platform token service to obtain a suitable MCSP access token (a bearer token)
+for the specified apikey.
+The authenticator will also obtain a new bearer token when the current token expires.
+The bearer token is then added to each outbound request in the `Authorization` header in the
+form:
+```
+   Authorization: Bearer <bearer-token>
+```
+
+### Properties
+
+- apikey: (required) the apikey to be used to obtain an MCSP access token.
+
+- url: (required) The URL representing the MCSP token service endpoint's base URL string. Do not include the
+operation path (e.g. `/siusermgr/api/1.0/apikeys/token`) as part of this property's value.
+
+- disable_ssl_verification: (optional) A flag that indicates whether verificaton of the server's SSL
+certificate should be disabled or not. The default value is `false`.
+
+- headers: (optional) A set of key/value pairs that will be sent as HTTP headers in requests
+made to the MCSP token service.
+
+### Usage Notes
+- When constructing an MCSPAuthenticator instance, you must specify the apikey and url properties.
+
+- The authenticator will use the token server's `POST /siusermgr/api/1.0/apikeys/token` operation to
+exchange the user-supplied apikey for an MCSP access token (the bearer token).
+
+### Programming example
+```python
+from ibm_cloud_sdk_core.authenticators import MCSPAuthenticator
+from <sdk-package-name>.example_service_v1 import *
+
+# Create the authenticator.
+authenticator = MCSPAuthenticator(apikey='myapikey', url='https://example.mcsp.token-exchange.com')
+
+# Construct the service instance.
+service = ExampleServiceV1(authenticator=authenticator)
+
+# 'service' can now be used to invoke operations.
+```
+
+### Configuration example
+External configuration:
+```
+export EXAMPLE_SERVICE_AUTH_TYPE=mcsp
+export EXAMPLE_SERVICE_APIKEY=myapikey
+export EXAMPLE_SERVICE_AUTH_URL=https://example.mcsp.token-exchange.com
+```
+Application code:
+```python
+from <sdk-package-name>.example_service_v1 import *
+
+# Construct the service instance.
+service = ExampleServiceV1.new_instance(service_name='example_service')
+
+# 'service' can now be used to invoke operations.
+```
+
 
 ## No Auth Authentication
 The `NoAuthAuthenticator` is a placeholder authenticator which performs no actual authentication function.

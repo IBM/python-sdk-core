@@ -23,6 +23,7 @@ from .authenticators import (
     IAMAuthenticator,
     NoAuthAuthenticator,
     VPCInstanceAuthenticator,
+    MCSPAuthenticator,
 )
 from .utils import read_external_sources
 
@@ -101,6 +102,11 @@ def __construct_authenticator(config: dict) -> Authenticator:
         authenticator = VPCInstanceAuthenticator(
             iam_profile_crn=config.get('IAM_PROFILE_CRN'),
             iam_profile_id=config.get('IAM_PROFILE_ID'),
+            url=config.get('AUTH_URL'),
+        )
+    elif auth_type == Authenticator.AUTHTYPE_MCSP.lower():
+        authenticator = MCSPAuthenticator(
+            apikey=config.get('APIKEY'),
             url=config.get('AUTH_URL'),
         )
     elif auth_type == Authenticator.AUTHTYPE_NOAUTH.lower():

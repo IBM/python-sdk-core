@@ -76,7 +76,7 @@ class BasicAuthenticator(Authenticator):
             Authorization: Basic <encoded username and password>
 
         Args:
-            req: The request to add basic auth information too. Must contain a key to a dictionary
+            req: The request to add basic auth information to. Must contain a key to a dictionary
             called headers.
         """
         headers = req.get('headers')

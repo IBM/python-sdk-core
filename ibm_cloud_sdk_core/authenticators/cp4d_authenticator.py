@@ -127,7 +127,7 @@ class CloudPakForDataAuthenticator(Authenticator):
             Authorization: Bearer <bearer-token>
 
         Args:
-            req:  The request to add CP4D authentication information too. Must contain a key to a dictionary
+            req:  The request to add CP4D authentication information to. Must contain a key to a dictionary
             called headers.
         """
         headers = req.get('headers')

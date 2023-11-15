@@ -364,6 +364,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.iam_profile_crn is None
     assert authenticator.token_manager.iam_profile_id is None
     assert authenticator.token_manager.url == 'http://169.254.169.254'
+    del os.environ['IBM_CREDENTIALS_FILE']
 
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-vpc.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
@@ -373,6 +374,7 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.iam_profile_crn == 'crn:iam-profile1'
     assert authenticator.token_manager.iam_profile_id is None
     assert authenticator.token_manager.url == 'http://vpc.imds.com/api'
+    del os.environ['IBM_CREDENTIALS_FILE']
 
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-vpc.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
@@ -382,6 +384,16 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.iam_profile_crn is None
     assert authenticator.token_manager.iam_profile_id == 'iam-profile1-id'
     assert authenticator.token_manager.url == 'http://169.254.169.254'
+    del os.environ['IBM_CREDENTIALS_FILE']
+
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-mcsp.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service1')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_MCSP
+    assert authenticator.token_manager.url == 'https://mcsp.ibm.com'
+    assert authenticator.token_manager.apikey == 'my-api-key'
+    del os.environ['IBM_CREDENTIALS_FILE']
 
 
 def test_get_authenticator_from_credential_file_scope():
@@ -428,6 +440,18 @@ def test_get_authenticator_from_env_variables():
     assert authenticator.token_manager.scope == 'A B C D'
     del os.environ['SERVICE_2_APIKEY']
     del os.environ['SERVICE_2_SCOPE']
+
+    os.environ['SERVICE3_AUTH_TYPE'] = 'mCsP'
+    os.environ['SERVICE3_AUTH_URL'] = 'https://mcsp.ibm.com'
+    os.environ['SERVICE3_APIKEY'] = 'my-api-key'
+    authenticator = get_authenticator_from_environment('service3')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_MCSP
+    assert authenticator.token_manager.apikey == 'my-api-key'
+    assert authenticator.token_manager.url == 'https://mcsp.ibm.com'
+    del os.environ['SERVICE3_APIKEY']
+    del os.environ['SERVICE3_AUTH_TYPE']
+    del os.environ['SERVICE3_AUTH_URL']
 
 
 def test_vcap_credentials():
