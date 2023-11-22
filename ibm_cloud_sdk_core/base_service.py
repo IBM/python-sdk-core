@@ -22,11 +22,13 @@ import platform
 from http.cookiejar import CookieJar
 from os.path import basename
 from typing import Dict, List, Optional, Tuple, Union
-from urllib3.util.retry import Retry
+from urllib.parse import urlparse
 
 import requests
 from requests.structures import CaseInsensitiveDict
 from requests.exceptions import JSONDecodeError
+from urllib3.exceptions import MaxRetryError
+from urllib3.util.retry import Retry
 
 from ibm_cloud_sdk_core.authenticators import Authenticator
 from .api_exception import ApiException
@@ -50,6 +52,10 @@ from .version import __version__
 
 
 logger = logging.getLogger(__name__)
+
+
+MAX_REDIRECTS = 10
+SAFE_HEADERS = ['authorization', 'www-authenticate', 'cookie', 'cookie2']
 
 
 # pylint: disable=too-many-instance-attributes
@@ -96,7 +102,7 @@ class BaseService:
         service_url: str = None,
         authenticator: Authenticator = None,
         disable_ssl_verification: bool = False,
-        enable_gzip_compression: bool = False
+        enable_gzip_compression: bool = False,
     ) -> None:
         self.set_service_url(service_url)
         self.http_client = requests.Session()
@@ -280,6 +286,7 @@ class BaseService:
         else:
             raise TypeError("headers parameter must be a dictionary")
 
+    # pylint: disable=too-many-branches
     def send(self, request: requests.Request, **kwargs) -> DetailedResponse:
         """Send a request and wrap the response in a DetailedResponse or APIException.
 
@@ -294,7 +301,9 @@ class BaseService:
         """
         # Use a one minute timeout when our caller doesn't give a timeout.
         # http://docs.python-requests.org/en/master/user/quickstart/#timeouts
-        kwargs = dict({"timeout": 60}, **kwargs)
+        # We also disable the default redirection, to have more granular control
+        # over the headers sent in each request.
+        kwargs = dict({'timeout': 60, 'allow_redirects': False}, **kwargs)
         kwargs = dict(kwargs, **self.http_config)
 
         if self.disable_ssl_verification:
@@ -313,6 +322,38 @@ class BaseService:
                     logger.warning('"%s" has been removed from the request', key)
         try:
             response = self.http_client.request(**request, cookies=self.jar, **kwargs)
+
+            # Handle HTTP redirects.
+            redirects_count = 0
+            # Check if the response is a redirect to another host.
+            while response.is_redirect and response.next is not None and redirects_count < MAX_REDIRECTS:
+                redirects_count += 1
+
+                # urllib3 has already prepared a request that can almost be used as-is.
+                next_request = response.next
+
+                # If both the original and the redirected URL are under the `.cloud.ibm.com` domain,
+                # copy the safe headers that are used for authentication purposes,
+                if self.service_url.endswith('.cloud.ibm.com') and urlparse(next_request.url).netloc.endswith(
+                    '.cloud.ibm.com'
+                ):
+                    original_headers = request.get('headers')
+                    for header, value in original_headers.items():
+                        if header.lower() in SAFE_HEADERS:
+                            next_request.headers[header] = value
+                # otherwise remove them manually, because `urllib3` doesn't strip all of them.
+                else:
+                    for header in SAFE_HEADERS:
+                        next_request.headers.pop(header, None)
+
+                response = self.http_client.send(next_request, **kwargs)
+
+            # If we reached the max number of redirects and the last response is still a redirect
+            # stop processing the response and return an error to the user.
+            if redirects_count == MAX_REDIRECTS and response.is_redirect:
+                raise MaxRetryError(
+                    None, response.url, reason=f'reached the maximum number of redirects: {MAX_REDIRECTS}'
+                )
 
             # Process a "success" response.
             if 200 <= response.status_code <= 299:
@@ -362,7 +403,7 @@ class BaseService:
         params: Optional[dict] = None,
         data: Optional[Union[str, dict]] = None,
         files: Optional[Union[Dict[str, Tuple[str]], List[Tuple[str, Tuple[str, ...]]]]] = None,
-        **kwargs
+        **kwargs,
     ) -> dict:
         """Build a dict that represents an HTTP service request.
 
