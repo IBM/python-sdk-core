@@ -326,17 +326,26 @@ class BaseService:
             # Handle HTTP redirects.
             redirects_count = 0
             # Check if the response is a redirect to another host.
-            while response.is_redirect and response.next is not None and redirects_count < MAX_REDIRECTS:
+            while response.is_redirect and response.next is not None:
                 redirects_count += 1
+
+                if redirects_count > MAX_REDIRECTS:
+                    # Raise an error if the maximum number of redirects has been reached.
+                    raise MaxRetryError(
+                        None, response.url, reason=f'reached the maximum number of redirects: {MAX_REDIRECTS}'
+                    )
 
                 # urllib3 has already prepared a request that can almost be used as-is.
                 next_request = response.next
 
+                from_domain = urlparse(response.request.url).netloc
+                to_domain = urlparse(next_request.url).netloc
+                same_host = from_domain == to_domain
+                safe_domain = from_domain.endswith('.cloud.ibm.com') and to_domain.endswith('.cloud.ibm.com')
+
                 # If both the original and the redirected URL are under the `.cloud.ibm.com` domain,
                 # copy the safe headers that are used for authentication purposes,
-                if self.service_url.endswith('.cloud.ibm.com') and urlparse(next_request.url).netloc.endswith(
-                    '.cloud.ibm.com'
-                ):
+                if same_host or safe_domain:
                     original_headers = request.get('headers')
                     for header, value in original_headers.items():
                         if header.lower() in SAFE_HEADERS:
@@ -347,13 +356,6 @@ class BaseService:
                         next_request.headers.pop(header, None)
 
                 response = self.http_client.send(next_request, **kwargs)
-
-            # If we reached the max number of redirects and the last response is still a redirect
-            # stop processing the response and return an error to the user.
-            if redirects_count == MAX_REDIRECTS and response.is_redirect:
-                raise MaxRetryError(
-                    None, response.url, reason=f'reached the maximum number of redirects: {MAX_REDIRECTS}'
-                )
 
             # Process a "success" response.
             if 200 <= response.status_code <= 299:
