@@ -789,9 +789,9 @@ def test_retry_config_external():
 
 
 @responses.activate
-def test_redirect_ibm_to_ibm_success():
-    url_from = 'http://region1.cloud.ibm.com/'
-    url_to = 'http://region2.cloud.ibm.com/'
+def test_redirect_ibm_to_ibm():
+    url_from = 'https://region1.cloud.ibm.com/'
+    url_to = 'https://region2.cloud.ibm.com/'
 
     safe_headers = {
         'Authorization': 'foo',
@@ -822,9 +822,9 @@ def test_redirect_ibm_to_ibm_success():
 
 
 @responses.activate
-def test_redirect_not_ibm_to_ibm_fail():
-    url_from = 'http://region1.notcloud.ibm.com/'
-    url_to = 'http://region2.cloud.ibm.com/'
+def test_redirect_not_ibm_to_ibm():
+    url_from = 'https://region1.notcloud.ibm.com/'
+    url_to = 'https://region2.cloud.ibm.com/'
 
     safe_headers = {
         'Authorization': 'foo',
@@ -855,9 +855,9 @@ def test_redirect_not_ibm_to_ibm_fail():
 
 
 @responses.activate
-def test_redirect_ibm_to_not_ibm_fail():
-    url_from = 'http://region1.cloud.ibm.com/'
-    url_to = 'http://region2.notcloud.ibm.com/'
+def test_redirect_ibm_to_not_ibm():
+    url_from = 'https://region1.cloud.ibm.com/'
+    url_to = 'https://region2.notcloud.ibm.com/'
 
     safe_headers = {
         'Authorization': 'foo',
@@ -888,9 +888,9 @@ def test_redirect_ibm_to_not_ibm_fail():
 
 
 @responses.activate
-def test_redirect_not_ibm_to_not_ibm_fail():
-    url_from = 'http://region1.notcloud.ibm.com/'
-    url_to = 'http://region2.notcloud.ibm.com/'
+def test_redirect_not_ibm_to_not_ibm():
+    url_from = 'https://region1.notcloud.ibm.com/'
+    url_to = 'https://region2.notcloud.ibm.com/'
 
     safe_headers = {
         'Authorization': 'foo',
@@ -921,7 +921,73 @@ def test_redirect_not_ibm_to_not_ibm_fail():
 
 
 @responses.activate
-def test_redirect_ibm_to_ibm_exhausted_fail():
+def test_redirect_ibm_same_host():
+    url_from = 'https://region1.cloud.ibm.com/'
+    url_to = 'https://region1.cloud.ibm.com/'
+
+    safe_headers = {
+        'Authorization': 'foo',
+        'WWW-Authenticate': 'bar',
+        'Cookie': 'baz',
+        'Cookie2': 'baz2',
+    }
+
+    responses.add(
+        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
+    )
+    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
+
+    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
+
+    prepped = service.prepare_request('GET', '', headers=safe_headers)
+    response = service.send(prepped)
+    result = response.get_result()
+
+    assert result.status_code == 200
+    assert result.url == url_to
+    assert result.text == 'successfully redirected'
+
+    # Make sure the headers have been excluded from the 2nd, redirected request.
+    redirected_headers = responses.calls[1].request.headers
+    for key in safe_headers:
+        assert key in redirected_headers
+
+
+@responses.activate
+def test_redirect_not_ibm_same_host():
+    url_from = 'https://region1.notcloud.ibm.com/'
+    url_to = 'https://region1.notcloud.ibm.com/'
+
+    safe_headers = {
+        'Authorization': 'foo',
+        'WWW-Authenticate': 'bar',
+        'Cookie': 'baz',
+        'Cookie2': 'baz2',
+    }
+
+    responses.add(
+        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
+    )
+    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
+
+    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
+
+    prepped = service.prepare_request('GET', '', headers=safe_headers)
+    response = service.send(prepped)
+    result = response.get_result()
+
+    assert result.status_code == 200
+    assert result.url == url_to
+    assert result.text == 'successfully redirected'
+
+    # Make sure the headers have been excluded from the 2nd, redirected request.
+    redirected_headers = responses.calls[1].request.headers
+    for key in safe_headers:
+        assert key in redirected_headers
+
+
+@responses.activate
+def test_redirect_ibm_to_ibm_exhausted():
     redirects = 11
     safe_headers = {
         'Authorization': 'foo',
@@ -933,13 +999,13 @@ def test_redirect_ibm_to_ibm_exhausted_fail():
     for i in range(redirects):
         responses.add(
             responses.GET,
-            f'http://region{i+1}.cloud.ibm.com/',
+            f'https://region{i+1}.cloud.ibm.com/',
             status=302,
-            adding_headers={'Location': f'http://region{i+2}.cloud.ibm.com/'},
+            adding_headers={'Location': f'https://region{i+2}.cloud.ibm.com/'},
             body='just about to redirect',
         )
 
-    service = BaseService(service_url='http://region1.cloud.ibm.com/', authenticator=NoAuthAuthenticator())
+    service = BaseService(service_url='https://region1.cloud.ibm.com/', authenticator=NoAuthAuthenticator())
 
     with pytest.raises(MaxRetryError) as ex:
         prepped = service.prepare_request('GET', '', headers=safe_headers)
