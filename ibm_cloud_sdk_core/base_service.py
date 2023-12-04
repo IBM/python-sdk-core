@@ -335,13 +335,13 @@ class BaseService:
                         None, response.url, reason=f'reached the maximum number of redirects: {MAX_REDIRECTS}'
                     )
 
-                # urllib3 has already prepared a request that can almost be used as-is.
+                # The `requests` package has already prepared a request that can almost be used as-is.
                 next_request = response.next
 
-                from_domain = urlparse(response.request.url).netloc
-                to_domain = urlparse(next_request.url).netloc
-                same_host = from_domain == to_domain
-                safe_domain = from_domain.endswith('.cloud.ibm.com') and to_domain.endswith('.cloud.ibm.com')
+                from_host = urlparse(response.request.url).hostname
+                to_host = urlparse(next_request.url).hostname
+                same_host = from_host == to_host
+                safe_domain = from_host.endswith('.cloud.ibm.com') and to_host.endswith('.cloud.ibm.com')
 
                 # If both the original and the redirected URL are under the `.cloud.ibm.com` domain,
                 # copy the safe headers that are used for authentication purposes,
