@@ -6,6 +6,7 @@ import os
 import ssl
 import tempfile
 import time
+from collections import namedtuple
 from shutil import copyfile
 from typing import Optional
 from urllib3.exceptions import ConnectTimeoutError, MaxRetryError
@@ -788,11 +789,7 @@ def test_retry_config_external():
     assert retry_err.value.reason == error
 
 
-@responses.activate
-def test_redirect_ibm_to_ibm():
-    url_from = 'https://region1.cloud.ibm.com/'
-    url_to = 'https://region2.cloud.ibm.com/'
-
+class TestRedirect:
     safe_headers = {
         'Authorization': 'foo',
         'WWW-Authenticate': 'bar',
@@ -800,218 +797,127 @@ def test_redirect_ibm_to_ibm():
         'Cookie2': 'baz2',
     }
 
-    responses.add(
-        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
-    )
-    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
+    url_cloud_1 = 'https://region1.cloud.ibm.com'
+    url_cloud_2 = 'https://region2.cloud.ibm.com'
+    url_notcloud_1 = 'https://region1.notcloud.ibm.com'
+    url_notcloud_2 = 'https://region2.notcloud.ibm.com'
 
-    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
+    # pylint: disable=too-many-locals
+    def run_test(self, url_from_base: str, url_to_base: str, safe_headers_included: bool):
+        paths = [
+            # 1. port, 1. path, 2. port with path
+            ['', '/', '/'],
+            [':3000', '/', '/'],
+            [':3000', '/', ':3333/'],
+            ['', '/a/very/long/path/with?some=query&params=the_end', '/'],
+            [':3000', '/a/very/long/path/with?some=query&params=the_end', '/'],
+            [':3000', '/a/very/long/path/with?some=query&params=the_end', '/api/v1'],
+            [':3000', '/a/very/long/path/with?some=query&params=the_end', ':3000/api/v1'],
+        ]
 
-    prepped = service.prepare_request('GET', '', headers=safe_headers)
-    response = service.send(prepped)
-    result = response.get_result()
-
-    assert result.status_code == 200
-    assert result.url == url_to
-    assert result.text == 'successfully redirected'
-
-    # Make sure the headers are included in the 2nd, redirected request.
-    redirected_headers = responses.calls[1].request.headers
-    for key in safe_headers:
-        assert key in redirected_headers
-
-
-@responses.activate
-def test_redirect_not_ibm_to_ibm():
-    url_from = 'https://region1.notcloud.ibm.com/'
-    url_to = 'https://region2.cloud.ibm.com/'
-
-    safe_headers = {
-        'Authorization': 'foo',
-        'WWW-Authenticate': 'bar',
-        'Cookie': 'baz',
-        'Cookie2': 'baz2',
-    }
-
-    responses.add(
-        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
-    )
-    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
-
-    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
-
-    prepped = service.prepare_request('GET', '', headers=safe_headers)
-    response = service.send(prepped)
-    result = response.get_result()
-
-    assert result.status_code == 200
-    assert result.url == url_to
-    assert result.text == 'successfully redirected'
-
-    # Make sure the headers have been excluded from the 2nd, redirected request.
-    redirected_headers = responses.calls[1].request.headers
-    for key in safe_headers:
-        assert key not in redirected_headers
-
-
-@responses.activate
-def test_redirect_ibm_to_not_ibm():
-    url_from = 'https://region1.cloud.ibm.com/'
-    url_to = 'https://region2.notcloud.ibm.com/'
-
-    safe_headers = {
-        'Authorization': 'foo',
-        'WWW-Authenticate': 'bar',
-        'Cookie': 'baz',
-        'Cookie2': 'baz2',
-    }
-
-    responses.add(
-        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
-    )
-    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
-
-    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
-
-    prepped = service.prepare_request('GET', '', headers=safe_headers)
-    response = service.send(prepped)
-    result = response.get_result()
-
-    assert result.status_code == 200
-    assert result.url == url_to
-    assert result.text == 'successfully redirected'
-
-    # Make sure the headers have been excluded from the 2nd, redirected request.
-    redirected_headers = responses.calls[1].request.headers
-    for key in safe_headers:
-        assert key not in redirected_headers
-
-
-@responses.activate
-def test_redirect_not_ibm_to_not_ibm():
-    url_from = 'https://region1.notcloud.ibm.com/'
-    url_to = 'https://region2.notcloud.ibm.com/'
-
-    safe_headers = {
-        'Authorization': 'foo',
-        'WWW-Authenticate': 'bar',
-        'Cookie': 'baz',
-        'Cookie2': 'baz2',
-    }
-
-    responses.add(
-        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
-    )
-    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
-
-    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
-
-    prepped = service.prepare_request('GET', '', headers=safe_headers)
-    response = service.send(prepped)
-    result = response.get_result()
-
-    assert result.status_code == 200
-    assert result.url == url_to
-    assert result.text == 'successfully redirected'
-
-    # Make sure the headers have been excluded from the 2nd, redirected request.
-    redirected_headers = responses.calls[1].request.headers
-    for key in safe_headers:
-        assert key not in redirected_headers
-
-
-@responses.activate
-def test_redirect_ibm_same_host():
-    url_from = 'https://region1.cloud.ibm.com/'
-    url_to = 'https://region1.cloud.ibm.com/'
-
-    safe_headers = {
-        'Authorization': 'foo',
-        'WWW-Authenticate': 'bar',
-        'Cookie': 'baz',
-        'Cookie2': 'baz2',
-    }
-
-    responses.add(
-        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
-    )
-    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
-
-    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
-
-    prepped = service.prepare_request('GET', '', headers=safe_headers)
-    response = service.send(prepped)
-    result = response.get_result()
-
-    assert result.status_code == 200
-    assert result.url == url_to
-    assert result.text == 'successfully redirected'
-
-    # Make sure the headers have been excluded from the 2nd, redirected request.
-    redirected_headers = responses.calls[1].request.headers
-    for key in safe_headers:
-        assert key in redirected_headers
-
-
-@responses.activate
-def test_redirect_not_ibm_same_host():
-    url_from = 'https://region1.notcloud.ibm.com/'
-    url_to = 'https://region1.notcloud.ibm.com/'
-
-    safe_headers = {
-        'Authorization': 'foo',
-        'WWW-Authenticate': 'bar',
-        'Cookie': 'baz',
-        'Cookie2': 'baz2',
-    }
-
-    responses.add(
-        responses.GET, url_from, status=302, adding_headers={'Location': url_to}, body='just about to redirect'
-    )
-    responses.add(responses.GET, url_to, status=200, body='successfully redirected')
-
-    service = BaseService(service_url=url_from, authenticator=NoAuthAuthenticator())
-
-    prepped = service.prepare_request('GET', '', headers=safe_headers)
-    response = service.send(prepped)
-    result = response.get_result()
-
-    assert result.status_code == 200
-    assert result.url == url_to
-    assert result.text == 'successfully redirected'
-
-    # Make sure the headers have been excluded from the 2nd, redirected request.
-    redirected_headers = responses.calls[1].request.headers
-    for key in safe_headers:
-        assert key in redirected_headers
-
-
-@responses.activate
-def test_redirect_ibm_to_ibm_exhausted():
-    redirects = 11
-    safe_headers = {
-        'Authorization': 'foo',
-        'WWW-Authenticate': 'bar',
-        'Cookie': 'baz',
-        'Cookie2': 'baz2',
-    }
-
-    for i in range(redirects):
-        responses.add(
-            responses.GET,
-            f'https://region{i+1}.cloud.ibm.com/',
-            status=302,
-            adding_headers={'Location': f'https://region{i+2}.cloud.ibm.com/'},
-            body='just about to redirect',
+        # Different test cases to make sure different status codes handled correctly.
+        TestCase = namedtuple(
+            'TestCase', ['status_1', 'status_2', 'method_1', 'method_2', 'method_expected', 'body_returned']
         )
+        test_matrix = [
+            TestCase(301, 200, responses.GET, responses.GET, responses.GET, False),
+            TestCase(301, 200, responses.POST, responses.GET, responses.GET, False),
+            TestCase(302, 200, responses.GET, responses.GET, responses.GET, False),
+            TestCase(302, 200, responses.POST, responses.GET, responses.GET, False),
+            TestCase(303, 200, responses.GET, responses.GET, responses.GET, False),
+            TestCase(303, 200, responses.POST, responses.GET, responses.GET, False),
+            TestCase(307, 200, responses.GET, responses.GET, responses.GET, True),
+            TestCase(307, 200, responses.POST, responses.POST, responses.POST, True),
+            TestCase(308, 200, responses.GET, responses.GET, responses.GET, True),
+            TestCase(308, 200, responses.POST, responses.POST, responses.POST, True),
+        ]
 
-    service = BaseService(service_url='https://region1.cloud.ibm.com/', authenticator=NoAuthAuthenticator())
+        for path in paths:
+            url_from = url_from_base + path[0] + path[1]
+            url_to = url_to_base + path[2]
 
-    with pytest.raises(MaxRetryError) as ex:
-        prepped = service.prepare_request('GET', '', headers=safe_headers)
-        service.send(prepped)
+            for test_case in test_matrix:
+                # Make sure we start with a clean "env".
+                responses.reset()
 
-    assert ex.value.reason == 'reached the maximum number of redirects: 10'
+                # Add our mock responses.
+                responses.add(
+                    test_case.method_1,
+                    url_from,
+                    status=test_case.status_1,
+                    adding_headers={'Location': url_to},
+                    body='just about to redirect',
+                )
+                responses.add(test_case.method_2, url_to, status=test_case.status_2, body='successfully redirected')
+
+                # Create the service, prepare the request and call it.
+                service = BaseService(service_url=url_from_base + path[0], authenticator=NoAuthAuthenticator())
+                prepped = service.prepare_request(test_case.method_1, path[1], headers=self.safe_headers)
+                response = service.send(prepped)
+                result = response.get_result()
+
+                # Check the status code, URL, body and the method of the last request (redirected).
+                assert result.status_code == test_case.status_2
+                assert result.url == url_to
+                assert result.text == 'successfully redirected'
+                assert result.request.method == test_case.method_expected
+
+                # Check each headers based on the kind of the current test.
+                redirected_request = responses.calls[1].request
+                for key in self.safe_headers:
+                    if safe_headers_included:
+                        assert key in redirected_request.headers
+                    else:
+                        assert key not in redirected_request.headers
+
+                # We don't always want to see a body in the last response.
+                if not test_case.body_returned:
+                    assert redirected_request.body is None
+
+    @responses.activate
+    def test_redirect_ibm_to_ibm(self):
+        self.run_test(self.url_cloud_1, self.url_cloud_2, True)
+
+    @responses.activate
+    def test_redirect_not_ibm_to_ibm(self):
+        self.run_test(self.url_notcloud_1, self.url_cloud_2, False)
+
+    @responses.activate
+    def test_redirect_ibm_to_not_ibm(self):
+        self.run_test(self.url_cloud_1, self.url_notcloud_2, False)
+
+    @responses.activate
+    def test_redirect_not_ibm_to_not_ibm(self):
+        self.run_test(self.url_notcloud_1, self.url_notcloud_2, False)
+
+    @responses.activate
+    def test_redirect_ibm_same_host(self):
+        self.run_test(self.url_cloud_1, self.url_cloud_1, True)
+
+    @responses.activate
+    def test_redirect_not_ibm_same_host(self):
+        self.run_test(self.url_notcloud_1, self.url_notcloud_1, True)
+
+    @responses.activate
+    def test_redirect_ibm_to_ibm_exhausted(self):
+        redirects = 11
+
+        for i in range(redirects):
+            responses.add(
+                responses.GET,
+                f'https://region{i+1}.cloud.ibm.com/',
+                status=302,
+                adding_headers={'Location': f'https://region{i+2}.cloud.ibm.com/'},
+                body='just about to redirect',
+            )
+
+        service = BaseService(service_url='https://region1.cloud.ibm.com/', authenticator=NoAuthAuthenticator())
+
+        with pytest.raises(MaxRetryError) as ex:
+            prepped = service.prepare_request('GET', '', headers=self.safe_headers)
+            service.send(prepped)
+
+        assert ex.value.reason == 'reached the maximum number of redirects: 10'
 
 
 @responses.activate
