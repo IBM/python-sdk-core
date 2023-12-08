@@ -1,3 +1,10 @@
+## [3.18.1](https://github.com/IBM/python-sdk-core/compare/v3.18.0...v3.18.1) (2023-12-08)
+
+
+### Bug Fixes
+
+* bump urllib3 to v2.1.0 ([#183](https://github.com/IBM/python-sdk-core/issues/183)) ([d1ab40c](https://github.com/IBM/python-sdk-core/commit/d1ab40c941fb21be798461169a1937dbaf4de1de))
+
 # [3.18.0](https://github.com/IBM/python-sdk-core/compare/v3.17.3...v3.18.0) (2023-11-15)
 
 
