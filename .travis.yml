@@ -9,7 +9,7 @@ matrix:
     - python: 3.10
     - python: 3.11
 
-cache: pip3
+cache: pip
 
 before_install:
 - npm install npm@latest -g
