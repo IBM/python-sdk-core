@@ -724,6 +724,7 @@ def test_retry_config_default():
     service.enable_retries()
     assert service.retry_config.total == 4
     assert service.retry_config.backoff_factor == 1.0
+    assert service.retry_config.backoff_max == 30.0
     assert service.http_client.get_adapter('https://').max_retries.total == 4
 
     # Ensure retries fail after 4 retries
@@ -756,9 +757,10 @@ def test_retry_config_disable():
 
 def test_retry_config_non_default():
     service = BaseService(service_url='https://mockurl/', authenticator=NoAuthAuthenticator())
-    service.enable_retries(2, 0.3)
+    service.enable_retries(2, 10.0)
     assert service.retry_config.total == 2
-    assert service.retry_config.backoff_factor == 0.3
+    assert service.retry_config.backoff_factor == 1.0
+    assert service.retry_config.backoff_max == 10.0
 
     # Ensure retries fail after 2 retries
     error = ConnectTimeoutError()
@@ -775,7 +777,8 @@ def test_retry_config_external():
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     service = IncludeExternalConfigService('v1', authenticator=NoAuthAuthenticator())
     assert service.retry_config.total == 3
-    assert service.retry_config.backoff_factor == 0.2
+    assert service.retry_config.backoff_factor == 1.0
+    assert service.retry_config.backoff_max == 25.0
 
     # Ensure retries fail after 3 retries
     error = ConnectTimeoutError()
