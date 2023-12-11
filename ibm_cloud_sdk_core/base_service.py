@@ -117,20 +117,21 @@ class BaseService:
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
 
-    def enable_retries(self, max_retries: int = 4, retry_interval: float = 1.0) -> None:
+    def enable_retries(self, max_retries: int = 4, retry_interval: float = 30.0) -> None:
         """Enable automatic retries on the underlying http client used by the BaseService instance.
 
         Args:
           max_retries: the maximum number of retries to attempt for a failed retryable request
-          retry_interval: the default wait time (in seconds) to use for the first retry attempt.
+          retry_interval: the maximum wait time (in seconds) to use for retry attempts.
             In general, if a response includes the Retry-After header, that will be used for
             the wait time associated with the retry attempt.  If the Retry-After header is not
-            present, then the wait time is based on the retry_interval and retry attempt number:
-               wait_time = retry_interval * (2 ^ (n-1)), where n is the retry attempt number
+            present, then the wait time is based on an exponential backoff policy with a maximum
+            backoff time of "retry_interval".
         """
         self.retry_config = Retry(
             total=max_retries,
-            backoff_factor=retry_interval,
+            backoff_factor=1.0,
+            backoff_max=retry_interval,
             # List of HTTP status codes to retry on in addition to Timeout/Connection Errors
             status_forcelist=[429, 500, 502, 503, 504],
             # List of HTTP methods to retry on
