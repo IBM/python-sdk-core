@@ -1,3 +1,10 @@
+## [3.18.2](https://github.com/IBM/python-sdk-core/compare/v3.18.1...v3.18.2) (2023-12-11)
+
+
+### Bug Fixes
+
+* use retry_interval as retry backoff_max ([#184](https://github.com/IBM/python-sdk-core/issues/184)) ([7e84825](https://github.com/IBM/python-sdk-core/commit/7e848259ca88fa1b4831786eaaae2a02f8afbcd2))
+
 ## [3.18.1](https://github.com/IBM/python-sdk-core/compare/v3.18.0...v3.18.1) (2023-12-08)
 
 
