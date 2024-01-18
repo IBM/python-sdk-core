@@ -356,7 +356,7 @@ def test_request_server_error():
         service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    assert err.value.code == 500
+    assert err.value.status_code == 500
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == 'internal server error'
 
@@ -398,7 +398,7 @@ def test_request_success_invalid_json():
         service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    assert err.value.code == 200
+    assert err.value.status_code == 200
     assert err.value.http_response.headers['Content-Type'] == 'application/json; charset=utf8'
     assert isinstance(err.value.__cause__, requests.exceptions.JSONDecodeError)
     assert "Expecting ':' delimiter: line 1" in str(err.value.__cause__)
@@ -452,7 +452,7 @@ def test_request_fail_401_nonerror_json():
         service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == error_msg
 
@@ -472,7 +472,7 @@ def test_request_fail_401_error_json():
         service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == error_msg
 
@@ -491,7 +491,7 @@ def test_request_fail_401_nonjson():
         service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'text/plain'
     assert err.value.message == response_body
 
@@ -513,7 +513,7 @@ def test_request_fail_401_badjson():
         service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
-    assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == response_body
 

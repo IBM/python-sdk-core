@@ -251,7 +251,7 @@ def test_authenticate_fail_iam():
     with pytest.raises(ApiException) as err:
         authenticator.authenticate(request)
 
-    assert str(err.value) == 'Error: Bad Request, Code: 400'
+    assert str(err.value) == 'Error: Bad Request, Status code: 400'
 
 
 @mock_iam_response
