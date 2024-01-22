@@ -1,3 +1,10 @@
+# [3.19.0](https://github.com/IBM/python-sdk-core/compare/v3.18.2...v3.19.0) (2024-01-22)
+
+
+### Features
+
+* rename `ApiException.code` to `ApiException.status_code` ([#185](https://github.com/IBM/python-sdk-core/issues/185)) ([cf74671](https://github.com/IBM/python-sdk-core/commit/cf74671a9a5d538fbf2b28a4e9c5046644e696fb))
+
 ## [3.18.2](https://github.com/IBM/python-sdk-core/compare/v3.18.1...v3.18.2) (2023-12-11)
 
 
