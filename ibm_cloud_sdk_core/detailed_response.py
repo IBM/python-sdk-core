@@ -65,7 +65,7 @@ class DetailedResponse:
         """
         return self.headers
 
-    def get_status_code(self) -> int:
+    def get_status_code(self) -> Union[int, None]:
         """The HTTP status code of the service request.
 
         Returns:

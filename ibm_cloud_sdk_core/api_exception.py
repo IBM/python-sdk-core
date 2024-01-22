@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from http import HTTPStatus
 from typing import Optional
 
@@ -39,15 +40,28 @@ class ApiException(Exception):
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
         self.message = message
-        self.code = code
+        self.status_code = code
         self.http_response = http_response
         self.global_transaction_id = None
         if http_response is not None:
             self.global_transaction_id = http_response.headers.get('X-Global-Transaction-ID')
             self.message = self.message if self.message else self._get_error_message(http_response)
 
+    # pylint: disable=fixme
+    # TODO: delete this by the end of 2024.
+    @property
+    def code(self):
+        """The old `code` property with a deprecation warning."""
+
+        warnings.warn(
+            'Using the `code` attribute on the `ApiException` is deprecated and'
+            'will be removed in the future. Use `status_code` instead.',
+            DeprecationWarning,
+        )
+        return self.status_code
+
     def __str__(self) -> str:
-        msg = 'Error: ' + str(self.message) + ', Code: ' + str(self.code)
+        msg = 'Error: ' + str(self.message) + ', Status code: ' + str(self.status_code)
         if self.global_transaction_id is not None:
             msg += ' , X-global-transaction-id: ' + str(self.global_transaction_id)
         return msg

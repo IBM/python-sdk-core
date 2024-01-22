@@ -1,5 +1,5 @@
 # coding=utf-8
-# pylint: disable=missing-docstring,protected-access,too-few-public-methods
+# pylint: disable=missing-docstring,protected-access,too-few-public-methods,too-many-lines
 import gzip
 import json
 import os
@@ -357,6 +357,7 @@ def test_request_server_error():
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
     assert err.value.code == 500
+    assert err.value.status_code == 500
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == 'internal server error'
 
@@ -399,6 +400,7 @@ def test_request_success_invalid_json():
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
     assert err.value.code == 200
+    assert err.value.status_code == 200
     assert err.value.http_response.headers['Content-Type'] == 'application/json; charset=utf8'
     assert isinstance(err.value.__cause__, requests.exceptions.JSONDecodeError)
     assert "Expecting ':' delimiter: line 1" in str(err.value.__cause__)
@@ -453,6 +455,7 @@ def test_request_fail_401_nonerror_json():
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
     assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == error_msg
 
@@ -473,6 +476,7 @@ def test_request_fail_401_error_json():
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
     assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == error_msg
 
@@ -492,6 +496,7 @@ def test_request_fail_401_nonjson():
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
     assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'text/plain'
     assert err.value.message == response_body
 
@@ -514,6 +519,7 @@ def test_request_fail_401_badjson():
         prepped = service.prepare_request('GET', url='')
         service.send(prepped)
     assert err.value.code == 401
+    assert err.value.status_code == 401
     assert err.value.http_response.headers['Content-Type'] == 'application/json'
     assert err.value.message == response_body
 
