@@ -25,7 +25,7 @@ from os.path import isfile, join, expanduser
 from typing import List, Union
 from urllib.parse import urlparse, parse_qs
 
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter, DEFAULT_POOLBLOCK
 from urllib3.util.ssl_ import create_urllib3_context
 
 import dateutil.parser as date_parser
@@ -35,14 +35,21 @@ class SSLHTTPAdapter(HTTPAdapter):
     """Wraps the original HTTP adapter and adds additional SSL context."""
 
     def __init__(self, *args, **kwargs):
+        self._disable_ssl_verification = kwargs.pop('_disable_ssl_verification', None)
+
         super().__init__(*args, **kwargs)
 
-    # pylint: disable=arguments-differ
-    def init_poolmanager(self, connections, maxsize, block):
-        """Extends the parent's method by adding minimum SSL version to the args."""
+    def init_poolmanager(self, connections, maxsize, block=DEFAULT_POOLBLOCK, **pool_kwargs):
+        """Create and use custom SSL configuration."""
+
         ssl_context = create_urllib3_context()
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-        super().init_poolmanager(connections, maxsize, block, ssl_context=ssl_context)
+
+        if self._disable_ssl_verification:
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+
+        super().init_poolmanager(connections, maxsize, block, ssl_context=ssl_context, **pool_kwargs)
 
 
 class GzipStream(io.RawIOBase):
@@ -60,7 +67,7 @@ class GzipStream(io.RawIOBase):
                It can be a file-like object, bytes or string.
     """
 
-    def __init__(self, source: Union[io.IOBase, bytes, str]) -> 'GzipStream':
+    def __init__(self, source: Union[io.IOBase, bytes, str]):
         self.buffer = b''
 
         if isinstance(source, io.IOBase):

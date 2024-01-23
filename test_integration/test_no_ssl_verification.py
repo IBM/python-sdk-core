@@ -4,8 +4,8 @@ import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 
-from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 from test.test_base_service import AnyServiceV1
+from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 
 
 def test_no_ssl_verification():
@@ -33,7 +33,7 @@ def test_no_ssl_verification():
     try:
         res = service.send(prepped)
         assert res is not None
-    except Exception:
+    except Exception:  # pylint: disable=try-except-raise
         raise
     finally:
         server.shutdown()
