@@ -39,7 +39,7 @@ def test_ssl_verification():
     t.start()
 
     # We run everything in a big try-except-finally block to make sure we always
-    # shutdown the HTTP server gracefully .
+    # shutdown the HTTP server gracefully.
     try:
         service = BaseService(service_url='https://127.0.0.1:3333', authenticator=NoAuthAuthenticator())
         #
