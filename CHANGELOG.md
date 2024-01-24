@@ -1,3 +1,10 @@
+## [3.19.1](https://github.com/IBM/python-sdk-core/compare/v3.19.0...v3.19.1) (2024-01-24)
+
+
+### Bug Fixes
+
+* use the correct SSL config if cert verification is disabled ([#187](https://github.com/IBM/python-sdk-core/issues/187)) ([7fc172a](https://github.com/IBM/python-sdk-core/commit/7fc172ad325545aa07bd5cbab1cb65cb0c078b9b))
+
 # [3.19.0](https://github.com/IBM/python-sdk-core/compare/v3.18.2...v3.19.0) (2024-01-22)
 
 
