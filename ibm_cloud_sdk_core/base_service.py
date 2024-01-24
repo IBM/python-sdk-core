@@ -108,7 +108,7 @@ class BaseService:
         self.enable_gzip_compression = enable_gzip_compression
         self._set_user_agent_header(self._build_user_agent())
         self.retry_config = None
-        self.http_adapter = SSLHTTPAdapter()
+        self.http_adapter = SSLHTTPAdapter(_disable_ssl_verification=self.disable_ssl_verification)
         if not self.authenticator:
             raise ValueError('authenticator must be provided')
         if not isinstance(self.authenticator, Authenticator):
@@ -138,14 +138,16 @@ class BaseService:
             # Omitting this will default to all methods except POST
             allowed_methods=['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'POST'],
         )
-        self.http_adapter = SSLHTTPAdapter(max_retries=self.retry_config)
+        self.http_adapter = SSLHTTPAdapter(
+            max_retries=self.retry_config, _disable_ssl_verification=self.disable_ssl_verification
+        )
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
 
     def disable_retries(self):
         """Remove retry config from http_adapter"""
         self.retry_config = None
-        self.http_adapter = SSLHTTPAdapter()
+        self.http_adapter = SSLHTTPAdapter(_disable_ssl_verification=self.disable_ssl_verification)
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
 
@@ -223,7 +225,17 @@ class BaseService:
         Keyword Arguments:
             status: set to true to disable ssl verification (default: {False})
         """
+        if self.disable_ssl_verification == status:
+            # Do nothing if the state doesn't change.
+            return
+
         self.disable_ssl_verification = status
+
+        self.http_adapter = SSLHTTPAdapter(
+            max_retries=self.retry_config, _disable_ssl_verification=self.disable_ssl_verification
+        )
+        self.http_client.mount('http://', self.http_adapter)
+        self.http_client.mount('https://', self.http_adapter)
 
     def set_service_url(self, service_url: str) -> None:
         """Set the url the service will make HTTP requests too.
