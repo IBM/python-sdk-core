@@ -7,7 +7,7 @@ from ssl import PROTOCOL_TLS_SERVER, SSLContext
 import pytest
 from requests.exceptions import SSLError
 
-from test.test_base_service import AnyServiceV1
+from ibm_cloud_sdk_core.base_service import BaseService
 from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 
 
@@ -41,7 +41,7 @@ def test_ssl_verification():
     # We run everything in a big try-except-finally block to make sure we always
     # shutdown the HTTP server gracefully .
     try:
-        service = AnyServiceV1('2024-01-23', service_url='https://127.0.0.1:3333', authenticator=NoAuthAuthenticator())
+        service = BaseService(service_url='https://127.0.0.1:3333', authenticator=NoAuthAuthenticator())
         #
         # First call the server with the default configuration.
         # It should fail due to the invalid SSL cert.
