@@ -1,3 +1,19 @@
+# coding: utf-8
+
+# Copyright 2021, 2024 IBM All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # pylint: disable=missing-docstring
 import json
 import os
@@ -17,6 +33,7 @@ TEST_REFRESH_TOKEN = 'Xj7Gle500MachEOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI
 MOCK_IAM_PROFILE_NAME = 'iam-user-123'
 MOCK_CLIENT_ID = 'client-id-1'
 MOCK_CLIENT_SECRET = 'client-secret-1'
+EXPIRATION_WINDOW = 10
 
 cr_token_file = os.path.join(os.path.dirname(__file__), '../resources/cr-token.txt')
 
@@ -169,18 +186,22 @@ def test_get_token_success():
     assert access_token == TEST_ACCESS_TOKEN_1
     assert token_manager.access_token == TEST_ACCESS_TOKEN_1
 
-    # Verify the token manager return the cached value.
-    # Before we call the `get_token` again, set the expiration and time.
-    # This is necessary because we are using a fix JWT response.
-    token_manager.expire_time = _get_current_time() + 3600
-    token_manager.refresh_time = _get_current_time() + 3600
+    # Verify that the token manager returns the cached value.
+    # Before we call `get_token` again, set the expiration and refresh time
+    # so that we do not fetch a new access token.
+    # This is necessary because we are using a fixed JWT response.
+    token_manager.expire_time = _get_current_time() + 1000
+    token_manager.refresh_time = _get_current_time() + 1000
     token_manager.set_scope('send-second-token')
     access_token = token_manager.get_token()
     assert access_token == TEST_ACCESS_TOKEN_1
     assert token_manager.access_token == TEST_ACCESS_TOKEN_1
 
     # Force expiration to get the second token.
-    token_manager.expire_time = _get_current_time() - 1
+    # We'll set the expiration time to be current-time + EXPIRATION_WINDOW (10 secs)
+    # because we want the access token to be considered as "expired"
+    # when we reach the IAM-server reported expiration time minus 10 secs.
+    token_manager.expire_time = _get_current_time() + EXPIRATION_WINDOW
     access_token = token_manager.get_token()
     assert access_token == TEST_ACCESS_TOKEN_2
     assert token_manager.access_token == TEST_ACCESS_TOKEN_2
@@ -206,17 +227,21 @@ def test_authenticate_success():
     authenticator.authenticate(request)
     assert request['headers']['Authorization'] == 'Bearer ' + TEST_ACCESS_TOKEN_1
 
-    # Verify the token manager return the cached value.
-    # Before we call the `get_token` again, set the expiration and time.
-    # This is necessary because we are using a fix JWT response.
-    authenticator.token_manager.expire_time = _get_current_time() + 3600
-    authenticator.token_manager.refresh_time = _get_current_time() + 3600
+    # Verify that the token manager returns the cached value.
+    # Before we call `get_token` again, set the expiration and refresh time
+    # so that we do not fetch a new access token.
+    # This is necessary because we are using a fixed JWT response.
+    authenticator.token_manager.expire_time = _get_current_time() + 1000
+    authenticator.token_manager.refresh_time = _get_current_time() + 1000
     authenticator.token_manager.set_scope('send-second-token')
     authenticator.authenticate(request)
     assert request['headers']['Authorization'] == 'Bearer ' + TEST_ACCESS_TOKEN_1
 
     # Force expiration to get the second token.
-    authenticator.token_manager.expire_time = _get_current_time() - 1
+    # We'll set the expiration time to be current-time + EXPIRATION_WINDOW (10 secs)
+    # because we want the access token to be considered as "expired"
+    # when we reach the IAM-server reported expiration time minus 10 secs.
+    authenticator.token_manager.expire_time = _get_current_time() + EXPIRATION_WINDOW
     authenticator.authenticate(request)
     assert request['headers']['Authorization'] == 'Bearer ' + TEST_ACCESS_TOKEN_2
 

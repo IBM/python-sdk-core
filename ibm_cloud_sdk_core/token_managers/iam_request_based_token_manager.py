@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
 
     DEFAULT_IAM_URL = 'https://iam.cloud.ibm.com'
     OPERATION_PATH = "/identity/token"
+    IAM_EXPIRATION_WINDOW = 10
 
     def __init__(
         self,
@@ -167,3 +168,19 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
             value: A space seperated string that makes up the scope parameter.
         """
         self.scope = value
+
+    def _is_token_expired(self) -> bool:
+        """
+        Returns true iff the current cached token is expired.
+        We'll consider an access token as expired when we reach its IAM server-reported expiration time
+        minus our expiration window (10 secs).
+        We do this to avoid using an access token that might expire in the middle of a long-running transaction
+        within an IBM Cloud service.
+
+        Returns
+        -------
+        bool
+            True if token is expired; False otherwise
+        """
+        current_time = self._get_current_time()
+        return current_time >= (self.expire_time - self.IAM_EXPIRATION_WINDOW)
