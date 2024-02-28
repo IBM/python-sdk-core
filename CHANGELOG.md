@@ -1,3 +1,10 @@
+## [3.19.2](https://github.com/IBM/python-sdk-core/compare/v3.19.1...v3.19.2) (2024-02-28)
+
+
+### Bug Fixes
+
+* adjust IAM token expiration time ([#189](https://github.com/IBM/python-sdk-core/issues/189)) ([f4f0b5a](https://github.com/IBM/python-sdk-core/commit/f4f0b5afe4746c8dfc9687ebeb9db20bf1df2414))
+
 ## [3.19.1](https://github.com/IBM/python-sdk-core/compare/v3.19.0...v3.19.1) (2024-01-24)
 
 
