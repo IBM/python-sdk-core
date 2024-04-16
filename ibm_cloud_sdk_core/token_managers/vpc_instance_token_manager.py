@@ -18,6 +18,7 @@ import json
 import logging
 from typing import Optional
 
+from ..private_helpers import _build_user_agent
 from .jwt_token_manager import JWTTokenManager
 
 
@@ -64,6 +65,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             url = self.DEFAULT_IMS_ENDPOINT
 
         super().__init__(url, token_name=self.TOKEN_NAME)
+        self._set_user_agent(_build_user_agent('vpc-instance-authenticator'))
 
         self.iam_profile_crn = iam_profile_crn
         self.iam_profile_id = iam_profile_id
@@ -92,6 +94,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': 'Bearer ' + instance_identity_token,
+            'User-Agent': self._get_user_agent(),
         }
 
         logger.debug('Invoking VPC \'create_iam_token\' operation: %s', url)
@@ -138,6 +141,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             'Content-type': 'application/json',
             'Accept': 'application/json',
             'Metadata-Flavor': 'ibm',
+            'User-Agent': self._get_user_agent(),
         }
 
         request_body = {'expires_in': 300}

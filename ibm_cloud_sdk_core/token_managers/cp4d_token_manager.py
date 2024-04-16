@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 import json
 from typing import Dict, Optional
 
+from ..private_helpers import _build_user_agent
 from .jwt_token_manager import JWTTokenManager
 
 
@@ -76,12 +77,21 @@ class CP4DTokenManager(JWTTokenManager):
         self.headers['Content-Type'] = 'application/json'
         self.proxies = proxies
         super().__init__(url, disable_ssl_verification=disable_ssl_verification, token_name=self.TOKEN_NAME)
+        self._set_user_agent(_build_user_agent('cp4d-authenticator'))
 
     def request_token(self) -> dict:
         """Makes a request for a token."""
+        required_headers = {
+            'User-Agent': self.user_agent,
+        }
+        request_headers = {}
+        if self.headers is not None and isinstance(self.headers, dict):
+            request_headers.update(self.headers)
+        request_headers.update(required_headers)
+
         response = self._request(
             method='POST',
-            headers=self.headers,
+            headers=request_headers,
             url=self.url,
             data=json.dumps({"username": self.username, "password": self.password, "api_key": self.apikey}),
             proxies=self.proxies,
