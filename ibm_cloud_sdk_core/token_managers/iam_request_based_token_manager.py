@@ -98,9 +98,15 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
         Returns:
              A dictionary containing the bearer token to be subsequently used service requests.
         """
-        headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}
+        required_headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'User-Agent': self._get_user_agent(),
+        }
+        request_headers = {}
         if self.headers is not None and isinstance(self.headers, dict):
-            headers.update(self.headers)
+            request_headers.update(self.headers)
+        request_headers.update(required_headers)
 
         data = dict(self.request_payload)
 
@@ -115,7 +121,7 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
         response = self._request(
             method='POST',
             url=(self.url + self.OPERATION_PATH) if self.url else self.url,
-            headers=headers,
+            headers=request_headers,
             data=data,
             auth_tuple=auth_tuple,
             proxies=self.proxies,

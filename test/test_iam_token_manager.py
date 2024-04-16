@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2021, 2024 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ def test_request_token_auth_default():
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
     assert responses.calls[0].request.headers.get('Authorization') is None
+    assert responses.calls[0].request.headers.get('User-Agent').startswith('ibm-python-sdk-core/iam-authenticator')
     assert responses.calls[0].response.text == response
 
 

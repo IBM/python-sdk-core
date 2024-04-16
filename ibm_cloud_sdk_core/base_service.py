@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import gzip
 import io
 import json as json_import
 import logging
-import platform
 from http.cookiejar import CookieJar
 from os.path import basename
 from typing import Dict, List, Optional, Tuple, Union
@@ -42,7 +41,7 @@ from .utils import (
     SSLHTTPAdapter,
     GzipStream,
 )
-from .version import __version__
+from .private_helpers import _build_user_agent
 
 # Uncomment this to enable http debugging
 # import http.client as http_client
@@ -82,7 +81,6 @@ class BaseService:
         ValueError: If Authenticator is not provided or invalid type.
     """
 
-    SDK_NAME = 'ibm-python-sdk-core'
     ERROR_MSG_DISABLE_SSL = (
         'The connection failed because the SSL certificate is not valid. To use a self-signed '
         'certificate, disable verification of the server\'s SSL certificate by invoking the '
@@ -106,7 +104,7 @@ class BaseService:
         self.disable_ssl_verification = disable_ssl_verification
         self.default_headers = None
         self.enable_gzip_compression = enable_gzip_compression
-        self._set_user_agent_header(self._build_user_agent())
+        self._set_user_agent_header(_build_user_agent())
         self.retry_config = None
         self.http_adapter = SSLHTTPAdapter(_disable_ssl_verification=self.disable_ssl_verification)
         if not self.authenticator:
@@ -150,15 +148,6 @@ class BaseService:
         self.http_adapter = SSLHTTPAdapter(_disable_ssl_verification=self.disable_ssl_verification)
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
-
-    @staticmethod
-    def _get_system_info() -> str:
-        return '{0} {1} {2}'.format(
-            platform.system(), platform.release(), platform.python_version()  # OS  # OS version  # Python version
-        )
-
-    def _build_user_agent(self) -> str:
-        return '{0}-{1} {2}'.format(self.SDK_NAME, __version__, self._get_system_info())
 
     def configure_service(self, service_name: str) -> None:
         """Look for external configuration of a service. Set service properties.
