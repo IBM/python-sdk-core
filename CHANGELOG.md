@@ -1,3 +1,10 @@
+# [3.20.0](https://github.com/IBM/python-sdk-core/compare/v3.19.2...v3.20.0) (2024-04-17)
+
+
+### Features
+
+* send user-agent header with auth token requests ([#191](https://github.com/IBM/python-sdk-core/issues/191)) ([37014b5](https://github.com/IBM/python-sdk-core/commit/37014b57a27090deb6c51e5e6019dd7bee90a6fd))
+
 ## [3.19.2](https://github.com/IBM/python-sdk-core/compare/v3.19.1...v3.19.2) (2024-02-28)
 
 
