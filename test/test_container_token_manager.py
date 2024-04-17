@@ -111,6 +111,9 @@ def test_request_token_auth_default():
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == iam_url
     assert responses.calls[0].request.headers.get('Authorization') is None
+    assert (
+        responses.calls[0].request.headers.get('User-Agent').startswith('ibm-python-sdk-core/container-authenticator')
+    )
     assert json.loads(responses.calls[0].response.text)['access_token'] == TEST_ACCESS_TOKEN_1
 
 

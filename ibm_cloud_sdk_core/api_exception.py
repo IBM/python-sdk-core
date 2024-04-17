@@ -54,7 +54,7 @@ class ApiException(Exception):
         """The old `code` property with a deprecation warning."""
 
         warnings.warn(
-            'Using the `code` attribute on the `ApiException` is deprecated and'
+            'Using the `code` attribute on the `ApiException` is deprecated and '
             'will be removed in the future. Use `status_code` instead.',
             DeprecationWarning,
         )

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2020 IBM All Rights Reserved.
+# Copyright 2020, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ class TokenManager(ABC):
         lock (Lock): Lock variable to serialize access to refresh/request times
         http_config (dict): A dictionary containing values that control the timeout, proxies, and etc of HTTP requests.
         access_token (str): The latest stored access token
+        user_agent (str): The User-Agent header value to be included in each outbound token request
     """
 
     def __init__(self, url: str, *, disable_ssl_verification: bool = False):
@@ -60,6 +61,7 @@ class TokenManager(ABC):
         self.lock = Lock()
         self.http_config = {}
         self.access_token = None
+        self.user_agent = None
 
     def get_token(self) -> str:
         """Get a token to be used for authentication.
@@ -94,6 +96,12 @@ class TokenManager(ABC):
             self.disable_ssl_verification = status
         else:
             raise TypeError('status must be a bool')
+
+    def _set_user_agent(self, user_agent: str = None) -> None:
+        self.user_agent = user_agent
+
+    def _get_user_agent(self) -> str:
+        return self.user_agent
 
     def paced_request_token(self) -> None:
         """

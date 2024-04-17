@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 from typing import Dict, Optional
 
 from .iam_request_based_token_manager import IAMRequestBasedTokenManager
+from ..private_helpers import _build_user_agent
 
 
 class IAMTokenManager(IAMRequestBasedTokenManager):
@@ -88,3 +89,5 @@ class IAMTokenManager(IAMRequestBasedTokenManager):
         self.request_payload['grant_type'] = 'urn:ibm:params:oauth:grant-type:apikey'
         self.request_payload['apikey'] = self.apikey
         self.request_payload['response_type'] = 'cloud_iam'
+
+        self._set_user_agent(_build_user_agent('iam-authenticator'))

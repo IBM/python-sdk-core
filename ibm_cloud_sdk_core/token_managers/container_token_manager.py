@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2021 IBM All Rights Reserved.
+# Copyright 2021, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import logging
 from typing import Dict, Optional
 
 from .iam_request_based_token_manager import IAMRequestBasedTokenManager
+from ..private_helpers import _build_user_agent
 
 
 logger = logging.getLogger(__name__)
@@ -111,6 +112,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         self.iam_profile_id = iam_profile_id
 
         self.request_payload['grant_type'] = 'urn:ibm:params:oauth:grant-type:cr-token'
+        self._set_user_agent(_build_user_agent('container-authenticator'))
 
     def retrieve_cr_token(self) -> str:
         """Retrieves the CR token for the current compute resource by reading it from the local file system.

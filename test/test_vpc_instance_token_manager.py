@@ -85,6 +85,7 @@ def test_retrieve_instance_identity_token(caplog):
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
     assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
+    assert responses.calls[0].request.headers['User-Agent'].startswith('ibm-python-sdk-core/vpc-instance-authenticator')
     assert responses.calls[0].request.params['version'] == '2022-03-01'
     assert responses.calls[0].request.body == '{"expires_in": 300}'
     assert ii_token == TEST_TOKEN
@@ -151,6 +152,7 @@ def test_request_token_with_crn(caplog):
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
+    assert responses.calls[0].request.headers['User-Agent'].startswith('ibm-python-sdk-core/vpc-instance-authenticator')
     assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
     assert responses.calls[0].request.params['version'] == '2022-03-01'
     # Check the logs.
