@@ -376,8 +376,10 @@ class BaseService:
             url: The origin + pathname according to WHATWG spec.
 
         Keyword Arguments:
-            headers: Headers of the request.
-            params: Querystring data to be appended to the url.
+            headers: A dictionary containing the headers to be included in the request.
+                    Entries with a value of None will be ignored (excluded).
+            params: A dictionary containing the query parameters to be included in the request.
+                    Entries with a value of None will be ignored (excluded).
             data: The request body. Converted to json if a dict.
             files: 'files' can be a dictionary (i.e { '<part-name>': (<tuple>)}),
                 or a list of tuples [ (<part-name>, (<tuple>))... ]
