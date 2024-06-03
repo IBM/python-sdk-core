@@ -1,3 +1,10 @@
+## [3.20.1](https://github.com/IBM/python-sdk-core/compare/v3.20.0...v3.20.1) (2024-06-03)
+
+
+### Bug Fixes
+
+* specify the maximum version of `requests` to avoid regression ([#194](https://github.com/IBM/python-sdk-core/issues/194)) ([f4ac0d1](https://github.com/IBM/python-sdk-core/commit/f4ac0d143d5d0079a4f2e99c1ebf1328b91a432f))
+
 # [3.20.0](https://github.com/IBM/python-sdk-core/compare/v3.19.2...v3.20.0) (2024-04-17)
 
 
