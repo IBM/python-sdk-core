@@ -31,6 +31,8 @@ from urllib3.util.ssl_ import create_urllib3_context
 import dateutil.parser as date_parser
 
 
+# pylint: disable=fixme
+# TODO: revert the change in the `requirement.txt` once this class become deprecated!
 class SSLHTTPAdapter(HTTPAdapter):
     """Wraps the original HTTP adapter and adds additional SSL context."""
 
