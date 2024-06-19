@@ -74,6 +74,9 @@ def test_api_exception():
     mock_response = requests.get('https://test-errormessage.com', timeout=None)
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'IAM error message'
+    assert exception.http_response.text == '{"errorMessage": "IAM error message"}'
+    assert exception.http_response.content == b'{"errorMessage": "IAM error message"}'
+    assert exception.http_response.json() == {'errorMessage': 'IAM error message'}
 
     responses.add(
         responses.GET,
@@ -86,3 +89,5 @@ def test_api_exception():
     exception = ApiException(500, http_response=mock_response)
     assert exception.message == 'plain text error'
     assert str(exception) == 'Error: plain text error, Status code: 500 , X-global-transaction-id: xx'
+    assert exception.http_response.text == 'plain text error'
+    assert exception.http_response.content == b'plain text error'

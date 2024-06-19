@@ -34,14 +34,8 @@ class MockTokenManager(TokenManager):
 
 
 def test_abstract_class_instantiation():
-    with pytest.raises(TypeError) as err:
+    with pytest.raises(TypeError, match=r"^Can't instantiate abstract class TokenManager.*$"):
         TokenManager(None)
-    assert (
-        str(err.value) == "Can't instantiate abstract class "
-        "TokenManager with abstract methods "
-        "_save_token_info, "
-        "request_token"
-    )
 
 
 def requests_request_spy(*args, **kwargs):
