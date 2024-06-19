@@ -97,9 +97,8 @@ def test_is_token_expired():
 
 
 def test_abstract_class_instantiation():
-    with pytest.raises(TypeError) as err:
+    with pytest.raises(TypeError, match=r"^Can't instantiate abstract class JWTTokenManager.*$"):
         JWTTokenManager(None)
-    assert str(err.value).startswith("Can't instantiate abstract class JWTTokenManager with abstract")
 
 
 def test_disable_ssl_verification():
