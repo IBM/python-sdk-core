@@ -22,7 +22,7 @@ openssl req -x509 -out test_ssl.crt -keyout test_ssl.key \
 
 def test_ssl_verification():
     # Load the certificate and the key files.
-    cert = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.cert')
+    cert = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.crt')
     key = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.key')
 
     # Build the SSL context for the server.
@@ -30,7 +30,7 @@ def test_ssl_verification():
     ssl_context.load_cert_chain(certfile=cert, keyfile=key)
 
     # Create and start the server on a separate thread.
-    server = HTTPServer(('127.0.0.1', 3333), SimpleHTTPRequestHandler)
+    server = HTTPServer(('localhost', 3333), SimpleHTTPRequestHandler)
     server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
     t = threading.Thread(target=server.serve_forever)
     t.start()
@@ -38,7 +38,7 @@ def test_ssl_verification():
     # We run everything in a big try-except-finally block to make sure we always
     # shutdown the HTTP server gracefully.
     try:
-        service = BaseService(service_url='https://127.0.0.1:3333', authenticator=NoAuthAuthenticator())
+        service = BaseService(service_url='https://localhost:3333', authenticator=NoAuthAuthenticator())
         #
         # First call the server with the default configuration.
         # It should fail due to the invalid SSL cert.
@@ -46,6 +46,10 @@ def test_ssl_verification():
         prepped = service.prepare_request('GET', url='/')
         with pytest.raises(SSLError):
             res = service.send(prepped)
+
+        # Next configure it to validate by using our local certificate. Should raise no exception.
+        res = service.send(prepped, verify=cert)
+        assert res is not None
 
         # Now disable the SSL verification. The request shouldn't raise any issue.
         service.set_disable_ssl_verification(True)
