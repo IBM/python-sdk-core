@@ -3,7 +3,8 @@ import os
 import threading
 import warnings
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from ssl import PROTOCOL_TLS_SERVER, SSLContext
+from ssl import SSLContext, PROTOCOL_TLSv1_1, PROTOCOL_TLSv1_2
+from typing import Callable
 
 import pytest
 import urllib3
@@ -23,59 +24,84 @@ openssl req -x509 -out test_ssl.crt -keyout test_ssl.key \
 """
 
 
-def test_ssl_verification():
-    # Disable warnings caused by the self-signed certificate.
-    urllib3.disable_warnings()
+# Load the certificate and the key files.
+cert = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.crt')
+key = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.key')
 
-    # Load the certificate and the key files.
-    cert = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.crt')
-    key = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.key')
 
-    # Build the SSL context for the server.
-    ssl_context = SSLContext(PROTOCOL_TLS_SERVER)
-    ssl_context.load_cert_chain(certfile=cert, keyfile=key)
+def _local_server(tls_version: int, port: int) -> Callable:
+    def decorator(test_function: Callable) -> Callable:
+        def inner():
+            # Disable warnings caused by the self-signed certificate.
+            urllib3.disable_warnings()
 
-    # Create and start the server on a separate thread.
-    server = HTTPServer(('localhost', 3333), SimpleHTTPRequestHandler)
-    server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
-    t = threading.Thread(target=server.serve_forever)
-    t.start()
+            # Build the SSL context for the server.
+            ssl_context = SSLContext(tls_version)
+            ssl_context.load_cert_chain(certfile=cert, keyfile=key)
 
-    # We run everything in a big try-except-finally block to make sure we always
-    # shutdown the HTTP server gracefully.
-    try:
-        service = BaseService(service_url='https://localhost:3333', authenticator=NoAuthAuthenticator())
-        #
-        # First call the server with the default configuration.
-        # It should fail due to the self-signed SSL cert.
-        assert service.disable_ssl_verification is False
-        prepped = service.prepare_request('GET', url='/')
-        with pytest.raises(SSLError, match="certificate verify failed: self-signed certificate"):
-            res = service.send(prepped)
+            # Create and start the server on a separate thread.
+            server = HTTPServer(('localhost', port), SimpleHTTPRequestHandler)
+            server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
+            t = threading.Thread(target=server.serve_forever)
+            t.start()
 
-        # Next configure it to validate by using our local certificate. Should raise no exception.
-        res = service.send(prepped, verify=cert)
-        assert res is not None
+            # We run everything in a big try-except-finally block to make sure we always
+            # shutdown the HTTP server gracefully.
+            try:
+                test_function()
+            except Exception:  # pylint: disable=try-except-raise
+                raise
+            finally:
+                server.shutdown()
+                t.join()
+                # Re-enable warnings.
+                warnings.resetwarnings()
 
-        # Now disable the SSL verification. The request shouldn't raise any issue.
-        service.set_disable_ssl_verification(True)
-        assert service.disable_ssl_verification is True
-        prepped = service.prepare_request('GET', url='/')
+        return inner
+
+    return decorator
+
+
+@_local_server(PROTOCOL_TLSv1_1, 3333)
+def test_tls_v1_1():
+    service = BaseService(service_url='https://localhost:3333', authenticator=NoAuthAuthenticator())
+    prepped = service.prepare_request('GET', url='/')
+    # The following request should fail, because the server will try
+    # to use TLS v1.1 but that's not allowed in our client.
+    with pytest.raises(Exception) as exception:
+        service.send(prepped, verify=cert)
+    # Errors can be differ based on the Python version.
+    assert exception.type is SSLError or exception.type is ConnectionError
+
+
+@_local_server(PROTOCOL_TLSv1_2, 3334)
+def test_tls_v1_2():
+    service = BaseService(service_url='https://localhost:3334', authenticator=NoAuthAuthenticator())
+
+    # First call the server with the default configuration.
+    # It should fail due to the self-signed SSL cert.
+    assert service.disable_ssl_verification is False
+    prepped = service.prepare_request('GET', url='/')
+    with pytest.raises(SSLError, match='certificate verify failed: self-signed certificate'):
         res = service.send(prepped)
-        assert res is not None
 
-        # Lastly, try with an external URL.
-        # This test case is mainly here to reproduce the regression
-        # in the `requests` package that was introduced in `2.32.3`.
-        # More details on the issue can be found here: https://github.com/psf/requests/issues/6730
-        service = BaseService(service_url='https://raw.githubusercontent.com', authenticator=NoAuthAuthenticator())
-        assert service.disable_ssl_verification is False
-        prepped = service.prepare_request('GET', url='/IBM/python-sdk-core/main/README.md')
-        res = service.send(prepped)
-        assert res is not None
-    except Exception:  # pylint: disable=try-except-raise
-        raise
-    finally:
-        server.shutdown()
-        # Re-enable warnings.
-        warnings.resetwarnings()
+    # Next configure it to validate by using our local certificate. Should raise no exception.
+    res = service.send(prepped, verify=cert)
+    assert res is not None
+
+    # Now disable the SSL verification. The request shouldn't raise any issue.
+    service.set_disable_ssl_verification(True)
+    assert service.disable_ssl_verification is True
+    prepped = service.prepare_request('GET', url='/')
+    res = service.send(prepped)
+    assert res is not None
+
+    # Lastly, try with an external URL.
+    # This test case is mainly here to reproduce the regression
+    # in the `requests` package that was introduced in `2.32.3`.
+    # More details on the issue can be found here: https://github.com/psf/requests/issues/6730
+    service = BaseService(service_url='https://raw.githubusercontent.com', authenticator=NoAuthAuthenticator())
+    assert service.disable_ssl_verification is False
+    prepped = service.prepare_request('GET', url='/IBM/python-sdk-core/main/README.md')
+    res = service.send(prepped)
+    assert res is not None
