@@ -30,6 +30,7 @@ from requests.exceptions import JSONDecodeError
 from ibm_cloud_sdk_core.authenticators import Authenticator
 from .api_exception import ApiException
 from .detailed_response import DetailedResponse
+from .http_adapter import SSLHTTPAdapter
 from .token_managers.token_manager import TokenManager
 from .utils import (
     has_bad_first_or_last_char,
@@ -38,7 +39,6 @@ from .utils import (
     cleanup_values,
     read_external_sources,
     strip_extra_slashes,
-    SSLHTTPAdapter,
     GzipStream,
 )
 from .private_helpers import _build_user_agent
