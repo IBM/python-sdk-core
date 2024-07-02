@@ -1,10 +1,12 @@
 # pylint: disable=missing-docstring
 import os
 import threading
+import warnings
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from ssl import PROTOCOL_TLS_SERVER, SSLContext
 
 import pytest
+import urllib3
 from requests.exceptions import SSLError
 
 from ibm_cloud_sdk_core.base_service import BaseService
@@ -21,6 +23,9 @@ openssl req -x509 -out test_ssl.crt -keyout test_ssl.key \
 
 
 def test_ssl_verification():
+    # Disable warnings caused by the self-signed certificate.
+    urllib3.disable_warnings()
+
     # Load the certificate and the key files.
     cert = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.crt')
     key = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.key')
@@ -57,7 +62,19 @@ def test_ssl_verification():
         prepped = service.prepare_request('GET', url='/')
         res = service.send(prepped)
         assert res is not None
+
+        # Lastly, try with an external URL.
+        # This test case is mainly here to reproduce the regression in the `requests` package that was introduced in `2.32.3`.
+        # More details on the issue can be found here: https://github.com/psf/requests/issues/6730
+        service = BaseService(service_url='https://raw.githubusercontent.com', authenticator=NoAuthAuthenticator())
+        assert service.disable_ssl_verification is False
+        prepped = service.prepare_request('GET', url='/IBM/python-sdk-core/main/README.md')
+        res = service.send(prepped)
+        assert res is not None
     except Exception:  # pylint: disable=try-except-raise
         raise
     finally:
         server.shutdown()
+        # Re-enable warnings.
+        warnings.resetwarnings()
+
