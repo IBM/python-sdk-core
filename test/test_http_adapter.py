@@ -47,10 +47,10 @@ def test_ssl_verification():
         service = BaseService(service_url='https://localhost:3333', authenticator=NoAuthAuthenticator())
         #
         # First call the server with the default configuration.
-        # It should fail due to the invalid SSL cert.
+        # It should fail due to the self-signed SSL cert.
         assert service.disable_ssl_verification is False
         prepped = service.prepare_request('GET', url='/')
-        with pytest.raises(SSLError):
+        with pytest.raises(SSLError, match="certificate verify failed: self-signed certificate"):
             res = service.send(prepped)
 
         # Next configure it to validate by using our local certificate. Should raise no exception.
