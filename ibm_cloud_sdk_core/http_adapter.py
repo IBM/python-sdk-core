@@ -17,6 +17,7 @@ class SSLHTTPAdapter(HTTPAdapter):
         """Create and use custom SSL configuration."""
 
         ssl_context = create_urllib3_context()
+        ssl_context.load_default_certs()
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
 
         if self._disable_ssl_verification:
