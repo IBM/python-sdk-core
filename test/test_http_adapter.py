@@ -100,8 +100,8 @@ def test_tls_v1_2():
     # This test case is mainly here to reproduce the regression
     # in the `requests` package that was introduced in `2.32.3`.
     # More details on the issue can be found here: https://github.com/psf/requests/issues/6730
-    service = BaseService(service_url='https://raw.githubusercontent.com', authenticator=NoAuthAuthenticator())
+    service = BaseService(service_url='https://cloud.ibm.com', authenticator=NoAuthAuthenticator())
     assert service.disable_ssl_verification is False
-    prepped = service.prepare_request('GET', url='/IBM/python-sdk-core/main/README.md')
+    prepped = service.prepare_request('GET', url='/status')
     res = service.send(prepped)
     assert res is not None
