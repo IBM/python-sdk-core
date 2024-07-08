@@ -102,6 +102,11 @@ def test_tls_v1_2():
     # More details on the issue can be found here: https://github.com/psf/requests/issues/6730
     service = BaseService(service_url='https://cloud.ibm.com', authenticator=NoAuthAuthenticator())
     assert service.disable_ssl_verification is False
+
+    ssl_context = service.http_adapter.poolmanager.connection_pool_kw.get("ssl_context")
+    assert ssl_context is not None
+    assert len(ssl_context.get_ca_certs()) > 0
+
     prepped = service.prepare_request('GET', url='/status')
     res = service.send(prepped)
     assert res is not None
