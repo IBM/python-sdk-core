@@ -106,7 +106,7 @@ def test_tls_v1_2():
     ssl_context = service.http_adapter.poolmanager.connection_pool_kw.get("ssl_context")
     assert ssl_context is not None
     # In some cases (especially in Ubuntu containers that we use for testing on Travis)
-    # the default CA certifications are stored in a different place, so let's try to
+    # the default CA certificates are stored in a different place, so let's try to
     # load those before making the final decision for this test case.
     if len(ssl_context.get_ca_certs()) == 0:
         try:
