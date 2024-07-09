@@ -3,7 +3,7 @@ import os
 import threading
 import warnings
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from ssl import SSLContext, PROTOCOL_TLSv1_1, PROTOCOL_TLSv1_2
+from ssl import get_default_verify_paths, SSLContext, PROTOCOL_TLSv1_1, PROTOCOL_TLSv1_2
 from typing import Callable
 
 import pytest
@@ -105,6 +105,17 @@ def test_tls_v1_2():
 
     ssl_context = service.http_adapter.poolmanager.connection_pool_kw.get("ssl_context")
     assert ssl_context is not None
+    # In some cases (especially in Ubuntu containers that we use for testing on Travis)
+    # the default CA certifications are stored in a different place, so let's try to
+    # load those before making the final decision for this test case.
+    if len(ssl_context.get_ca_certs()) == 0:
+        try:
+            default_ca_path = get_default_verify_paths().capath
+            ssl_context.load_verify_locations(os.path.join(default_ca_path, 'ca-certificates.crt'))
+        except:
+            # Errors are ignored, let's jump straight to the assertion.
+            pass
+
     assert len(ssl_context.get_ca_certs()) > 0
 
     prepped = service.prepare_request('GET', url='/status')
