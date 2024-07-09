@@ -1,3 +1,10 @@
+## [3.20.2](https://github.com/IBM/python-sdk-core/compare/v3.20.1...v3.20.2) (2024-07-09)
+
+
+### Bug Fixes
+
+* always load the default certs on our custom SSL context ([#196](https://github.com/IBM/python-sdk-core/issues/196)) ([ff14a4b](https://github.com/IBM/python-sdk-core/commit/ff14a4b1177b31ab2afd8aed7c6e3ffecdabfb4c))
+
 ## [3.20.1](https://github.com/IBM/python-sdk-core/compare/v3.20.0...v3.20.1) (2024-06-03)
 
 
