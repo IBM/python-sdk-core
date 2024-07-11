@@ -1,6 +1,6 @@
 import ssl
 
-import certifi
+from requests import certs
 from requests.adapters import HTTPAdapter, DEFAULT_POOLBLOCK
 from urllib3.util.ssl_ import create_urllib3_context
 
@@ -18,7 +18,7 @@ class SSLHTTPAdapter(HTTPAdapter):
 
         ssl_context = create_urllib3_context()
         # NOTE: https://github.com/psf/requests/pull/6731/files#r1622893724
-        ssl_context.load_verify_locations(certifi.where())
+        ssl_context.load_verify_locations(certs.where())
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
 
         if self._disable_ssl_verification:
