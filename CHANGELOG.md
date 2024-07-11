@@ -1,3 +1,10 @@
+## [3.20.3](https://github.com/IBM/python-sdk-core/compare/v3.20.2...v3.20.3) (2024-07-11)
+
+
+### Bug Fixes
+
+* improve the detection and loading of default certificates ([#197](https://github.com/IBM/python-sdk-core/issues/197)) ([3dc4cc4](https://github.com/IBM/python-sdk-core/commit/3dc4cc47a8fa5363b1b08c9fbc1412885748af3e))
+
 ## [3.20.2](https://github.com/IBM/python-sdk-core/compare/v3.20.1...v3.20.2) (2024-07-09)
 
 
