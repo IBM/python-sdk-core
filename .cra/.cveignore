@@ -1,0 +1,7 @@
+[
+    {
+        "cve": "CVE-2024-3651",
+	    "alwaysOmit": true,
+        "comment": "fixed version has been made, not yet updated in CRA-Clair: https://github.com/advisories/GHSA-jjg7-2v4v-x38h"
+    }
+]
