@@ -8,7 +8,7 @@ from typing import Callable
 
 import pytest
 import urllib3
-from requests.exceptions import SSLError
+from requests import exceptions
 
 from ibm_cloud_sdk_core.base_service import BaseService
 from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
@@ -71,7 +71,7 @@ def test_tls_v1_1():
     with pytest.raises(Exception) as exception:
         service.send(prepped, verify=cert)
     # Errors can be differ based on the Python version.
-    assert exception.type is SSLError or exception.type is ConnectionError
+    assert exception.type is exceptions.SSLError or exception.type is exceptions.ConnectionError
 
 
 @_local_server(PROTOCOL_TLSv1_2, 3334)
@@ -82,7 +82,7 @@ def test_tls_v1_2():
     # It should fail due to the self-signed SSL cert.
     assert service.disable_ssl_verification is False
     prepped = service.prepare_request('GET', url='/')
-    with pytest.raises(SSLError, match='certificate verify failed: self-signed certificate'):
+    with pytest.raises(exceptions.SSLError, match='certificate verify failed: self-signed certificate'):
         res = service.send(prepped)
 
     # Next configure it to validate by using our local certificate. Should raise no exception.
