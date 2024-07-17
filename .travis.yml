@@ -25,7 +25,7 @@ script:
 
 before_deploy:
 - pip3 install --editable .
-- pip3 install bumpversion
+- pip3 install bump-my-version
 - nvm install 18
 - npm install
 - node --version

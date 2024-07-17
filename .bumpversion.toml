@@ -1,0 +1,18 @@
+[tool.bumpversion]
+current_version = "3.20.3"
+commit = true
+
+[[tool.bumpversion.files]]
+filename = "ibm_cloud_sdk_core/version.py"
+search = "__version__ = '{current_version}'"
+replace = "__version__ = '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "setup.py"
+search = "__version__ = '{current_version}'"
+replace = "__version__ = '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "README.md"
+search = "{current_version}"
+replace = "{new_version}"
