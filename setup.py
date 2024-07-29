@@ -17,7 +17,6 @@ import os
 import sys
 import pkg_resources
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
 
 __version__ = '3.20.3'
 
@@ -36,22 +35,6 @@ with open('requirements.txt', encoding='utf-8') as f:
 with open('requirements-dev.txt', encoding='utf-8') as f:
     tests_require = [str(req) for req in pkg_resources.parse_requirements(f)]
 
-
-class PyTest(TestCommand):
-    """PyTest class."""
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = ['--strict', '--verbose', '--tb=long', 'test']
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-
-        errcode = pytest.main(self.test_args)
-        sys.exit(errcode)
-
-
 with open("README.md", "r", encoding='utf-8') as fh:
     readme = fh.read()
 
@@ -62,7 +45,6 @@ setup(
     license='Apache 2.0',
     install_requires=install_requires,
     tests_require=tests_require,
-    cmdclass={'test': PyTest},
     author='IBM',
     author_email='devxsdk@us.ibm.com',
     long_description=readme,
