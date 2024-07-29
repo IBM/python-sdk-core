@@ -1,3 +1,10 @@
+## [3.20.4](https://github.com/IBM/python-sdk-core/compare/v3.20.3...v3.20.4) (2024-07-29)
+
+
+### Bug Fixes
+
+* remove test command and related code from `setup.py` ([#203](https://github.com/IBM/python-sdk-core/issues/203)) ([bd44dd1](https://github.com/IBM/python-sdk-core/commit/bd44dd1152e01bb381f95e6295103991c0dd9ac4))
+
 ## [3.20.3](https://github.com/IBM/python-sdk-core/compare/v3.20.2...v3.20.3) (2024-07-11)
 
 
