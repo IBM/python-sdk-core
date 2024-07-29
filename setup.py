@@ -18,7 +18,7 @@ import sys
 import pkg_resources
 from setuptools import setup, find_packages
 
-__version__ = '3.20.3'
+__version__ = '3.20.4'
 
 if sys.argv[-1] == 'publish':
     # test server
