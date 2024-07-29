@@ -2,48 +2,54 @@ language: python
 
 dist: jammy
 
-matrix:
-  include:
-    - python: 3.8
-    - python: 3.10
-    - python: 3.11
-    - python: 3.12
+stages:
+  - name: Build-Test
+  - name: Semantic-Release
+    if: (branch = main) AND (type IN (push, api)) AND (fork = false)
+  - name: Publish-Release
+    if: (tag IS present) AND (fork = false)
 
-cache: pip3
-
-before_install:
-- npm install npm@latest -g
-
+# Default "install" and "script" steps.
 install:
-- sudo apt-get update
-- pip3 install pypandoc
-- sudo apt-get install pandoc
-- pip3 install setuptools=="60.8.2"
-
+  - pip install setuptools=="60.8.2"
 script:
-- make ci
+  - make ci
 
-before_deploy:
-- pip3 install --editable .
-- pip3 install bump-my-version
-- nvm install 18
-- npm install
-- node --version
-- npm --version
+jobs:
+  include:
+    - stage: Build-Test
+      python: '3.8'
+    - python: '3.10'
+    - python: '3.11'
+    - python: '3.12'
+    
+    - name: Detect-Secrets
+      language: python
+      python: '3.12'
+      install:
+        - pip install --upgrade "git+https://github.com/ibm/detect-secrets.git@master#egg=detect-secrets"
+      script:
+        - detect-secrets scan --update .secrets.baseline
+        - detect-secrets -v audit --report --fail-on-unaudited --fail-on-live --fail-on-audited-real .secrets.baseline
 
-deploy:
-  - provider: script
-    script: npm run semantic-release
-    skip_cleanup: true
-    on:
-      python: '3.8'
-      branch: main
-  - provider: pypi
-    setuptools_version: "60.8.2"
-    user: $PYPI_USER
-    password: $PYPI_TOKEN
-    repository: https://upload.pypi.org/legacy
-    skip_cleanup: true
-    on:
-      python: '3.8'
-      tags: true
+    - stage: Semantic-Release
+      language: node_js
+      node_js: 22
+      install:
+        - npm install
+        - pip install --user bump-my-version
+      script:
+        - npm run semantic-release
+
+    - stage: Publish-Release
+      python: "3.8"
+      name: Publish-To-PyPi
+      before_deploy:
+        - pip install bump-my-version
+      deploy:
+        - provider: pypi
+          setuptools_version: "60.8.2"
+          user: $PYPI_USER
+          password: $PYPI_TOKEN
+          repository: https://upload.pypi.org/legacy
+          skip_cleanup: true
