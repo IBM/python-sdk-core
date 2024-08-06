@@ -62,7 +62,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         disable_ssl_verification: bool = False,
         headers: Optional[Dict[str, str]] = None,
         proxies: Optional[Dict[str, str]] = None,
-        verify: Optional[str] = None
+        verify: Optional[str] = None,
     ) -> None:
         # Check the type of `disable_ssl_verification`. Must be a bool.
         if not isinstance(disable_ssl_verification, bool):

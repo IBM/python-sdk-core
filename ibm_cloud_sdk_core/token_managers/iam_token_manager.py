@@ -71,7 +71,7 @@ class IAMTokenManager(IAMRequestBasedTokenManager):
         disable_ssl_verification: bool = False,
         headers: Optional[Dict[str, str]] = None,
         proxies: Optional[Dict[str, str]] = None,
-        scope: Optional[str] = None
+        scope: Optional[str] = None,
     ) -> None:
         super().__init__(
             url=url,

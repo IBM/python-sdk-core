@@ -40,7 +40,7 @@ class DetailedResponse:
         *,
         response: Optional[Union[dict, requests.Response]] = None,
         headers: Optional[Dict[str, str]] = None,
-        status_code: Optional[int] = None
+        status_code: Optional[int] = None,
     ) -> None:
         self.result = response
         self.headers = headers

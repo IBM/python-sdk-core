@@ -10,8 +10,7 @@ stages:
     if: (tag IS present) AND (fork = false)
 
 # Default "install" and "script" steps.
-install:
-  - pip install setuptools=="60.8.2"
+install: true
 script:
   - make ci
 
@@ -44,12 +43,7 @@ jobs:
     - stage: Publish-Release
       python: "3.8"
       name: Publish-To-PyPi
-      before_deploy:
-        - pip install bump-my-version
-      deploy:
-        - provider: pypi
-          setuptools_version: "60.8.2"
-          user: $PYPI_USER
-          password: $PYPI_TOKEN
-          repository: https://upload.pypi.org/legacy
-          skip_cleanup: true
+      script:
+        - make ci
+        - make publish-deps
+        - make publish-release

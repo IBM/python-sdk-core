@@ -3,24 +3,30 @@
 # example: "make setup"
 
 PYTHON=python3
+LINT=black
 LINT_DIRS=ibm_cloud_sdk_core test test_integration
 
-setup: deps dev_deps install_project
+setup: deps dev-deps install-project
 
-all: upgrade_pip setup test-unit lint
+all: upgrade-pip setup test-unit lint
 
-ci: setup test-unit lint
+ci: all
 
-upgrade_pip:
+publish-release: build-dist publish-dist
+
+upgrade-pip:
 	${PYTHON} -m pip install --upgrade pip
 
 deps:
-	${PYTHON} -m pip install -r requirements.txt
+	${PYTHON} -m pip install .
 
-dev_deps:
-	${PYTHON} -m pip install -r requirements-dev.txt
+dev-deps:
+	${PYTHON} -m pip install .[dev]
 
-install_project:
+publish-deps:
+	${PYTHON} -m pip install .[publish]
+
+install-project:
 	${PYTHON} -m pip install -e .
 
 test-unit:
@@ -28,7 +34,15 @@ test-unit:
 
 lint:
 	${PYTHON} -m pylint ${LINT_DIRS}
-	black --check ${LINT_DIRS}
+	${LINT} --check ${LINT_DIRS}
 
 lint-fix:
-	black ${LINT_DIRS}
+	${LINT} ${LINT_DIRS}
+
+build-dist:
+	rm -fr dist
+	${PYTHON} -m build
+
+# This target requires the TWINE_PASSWORD env variable to be set to the user's pypi.org API token.
+publish-dist:
+	TWINE_USERNAME=__token__ ${PYTHON} -m twine upload --non-interactive --verbose dist/*
