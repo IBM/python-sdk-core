@@ -1,3 +1,66 @@
+[project]
+name = "ibm-cloud-sdk-core"
+version = "3.20.4"
+authors = [
+    { name="IBM", email="devxsdk@us.ibm.com" }
+]
+description = "Core library used by SDKs for IBM Cloud Services"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+keywords=["ibm", "cloud", "ibm cloud services"]
+dependencies = [
+    "requests>=2.31.0,<3.0.0",
+    "urllib3>=2.1.0,<3.0.0",
+    "python_dateutil>=2.8.2,<3.0.0",
+    "PyJWT>=2.8.0,<3.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/IBM/python-sdk-core"
+Documentation = "https://github.com/IBM/python-sdk-core/blob/main/README.md"
+Issues = "https://github.com/IBM/python-sdk-core/issues"
+Changelog = "https://github.com/IBM/python-sdk-core/blob/main/CHANGELOG.md"
+Contributing = "https://github.com/IBM/python-sdk-core/blob/main/CONTRIBUTING.md"
+License = "https://github.com/IBM/python-sdk-core/blob/main/LICENSE"
+
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.3.2,<8.0.0",
+    "pylint>=3.0.0,<4.0.0",
+    "pytest>=7.4.2,<8.0.0",
+    "pytest-cov>=4.1.0,<5.0.0",
+    "responses>=0.23.3,<1.0.0",
+    "black>=24.0.0,<25.0.0",
+]
+publish = [
+    "build",
+    "twine"
+]
+
+[build-system]
+requires = ["setuptools>=67.7.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ibm_cloud_sdk_core"]
+
 [tool.black]
 line-length = 120
 skip-string-normalization = true
