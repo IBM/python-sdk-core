@@ -8,7 +8,7 @@
     [
       "@semantic-release/exec", 
       {
-        "prepareCmd": "bump-my-version bump --allow-dirty --current-version ${lastRelease.version} --new-version ${nextRelease.version}"
+        "prepareCmd": "bump-my-version bump --allow-dirty --verbose --current-version ${lastRelease.version} --new-version ${nextRelease.version}"
       }
     ],
     [

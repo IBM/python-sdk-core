@@ -63,7 +63,7 @@ class CP4DTokenManager(JWTTokenManager):
         disable_ssl_verification: bool = False,
         headers: Optional[Dict[str, str]] = None,
         proxies: Optional[Dict[str, str]] = None,
-        verify: Optional[str] = None
+        verify: Optional[str] = None,
     ) -> None:
         self.username = username
         self.password = password

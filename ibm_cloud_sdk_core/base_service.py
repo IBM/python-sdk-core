@@ -94,7 +94,7 @@ class BaseService:
         service_url: str = None,
         authenticator: Authenticator = None,
         disable_ssl_verification: bool = False,
-        enable_gzip_compression: bool = False
+        enable_gzip_compression: bool = False,
     ) -> None:
         self.set_service_url(service_url)
         self.http_client = requests.Session()
@@ -364,7 +364,7 @@ class BaseService:
         params: Optional[dict] = None,
         data: Optional[Union[str, dict]] = None,
         files: Optional[Union[Dict[str, Tuple[str]], List[Tuple[str, Tuple[str, ...]]]]] = None,
-        **kwargs
+        **kwargs,
     ) -> dict:
         """Build a dict that represents an HTTP service request.
 
