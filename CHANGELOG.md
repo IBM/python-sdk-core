@@ -1,3 +1,10 @@
+## [3.20.5](https://github.com/IBM/python-sdk-core/compare/v3.20.4...v3.20.5) (2024-08-07)
+
+
+### Bug Fixes
+
+* **build:** migrate setup.py to pyproject.toml ([#205](https://github.com/IBM/python-sdk-core/issues/205)) ([#206](https://github.com/IBM/python-sdk-core/issues/206)) ([03c8a6d](https://github.com/IBM/python-sdk-core/commit/03c8a6d81dd8227e6510a26fef75e502b82db304))
+
 ## [3.20.4](https://github.com/IBM/python-sdk-core/compare/v3.20.3...v3.20.4) (2024-07-29)
 
 
