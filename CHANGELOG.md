@@ -1,3 +1,10 @@
+## [3.20.6](https://github.com/IBM/python-sdk-core/compare/v3.20.5...v3.20.6) (2024-08-08)
+
+
+### Bug Fixes
+
+* **build:** use correct package list with setuptools ([#207](https://github.com/IBM/python-sdk-core/issues/207)) ([27fa51d](https://github.com/IBM/python-sdk-core/commit/27fa51d85c8df0bc5e52bdc084155bd284a77ec0))
+
 ## [3.20.5](https://github.com/IBM/python-sdk-core/compare/v3.20.4...v3.20.5) (2024-08-07)
 
 
