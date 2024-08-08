@@ -59,7 +59,7 @@ requires = ["setuptools>=67.7.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["ibm_cloud_sdk_core"]
+packages = ["ibm_cloud_sdk_core", "ibm_cloud_sdk_core.authenticators", "ibm_cloud_sdk_core.token_managers"]
 
 [tool.black]
 line-length = 120

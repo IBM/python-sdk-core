@@ -4,6 +4,7 @@ dist: jammy
 
 stages:
   - name: Build-Test
+    if: tag IS blank
   - name: Semantic-Release
     if: (branch = main) AND (type IN (push, api)) AND (fork = false)
   - name: Publish-Release

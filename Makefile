@@ -41,8 +41,8 @@ lint-fix:
 
 build-dist:
 	rm -fr dist
-	${PYTHON} -m build -s
+	${PYTHON} -m build
 
 # This target requires the TWINE_PASSWORD env variable to be set to the user's pypi.org API token.
 publish-dist:
-	TWINE_USERNAME=__token__ ${PYTHON} -m twine upload --non-interactive --verbose dist/*.tar.gz
+	TWINE_USERNAME=__token__ ${PYTHON} -m twine upload --non-interactive --verbose dist/*
