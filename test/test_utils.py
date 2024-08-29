@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 # coding: utf-8
 
-# Copyright 2019, 2021 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 # limitations under the License.
 
 import datetime
+import logging
 import os
 from typing import Optional
 
@@ -29,6 +30,9 @@ from ibm_cloud_sdk_core import get_query_param
 from ibm_cloud_sdk_core import read_external_sources
 from ibm_cloud_sdk_core.authenticators import Authenticator, BasicAuthenticator, IAMAuthenticator
 from ibm_cloud_sdk_core.utils import strip_extra_slashes, is_json_mimetype
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 
 def datetime_test(datestr: str, expected: str):

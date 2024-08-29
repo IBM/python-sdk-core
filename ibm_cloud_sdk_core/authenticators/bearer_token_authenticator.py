@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 from requests import Request
 
+from ibm_cloud_sdk_core.logger import get_logger
 from .authenticator import Authenticator
+
+logger = get_logger()
 
 
 class BearerTokenAuthenticator(Authenticator):
@@ -37,6 +40,7 @@ class BearerTokenAuthenticator(Authenticator):
     def __init__(self, bearer_token: str) -> None:
         self.bearer_token = bearer_token
         self.validate()
+        logger.debug('Created BearerTokenAuthenticator instance!')
 
     def authentication_type(self) -> str:
         """Returns this authenticator's type ('bearertoken')."""
@@ -66,6 +70,7 @@ class BearerTokenAuthenticator(Authenticator):
         """
         headers = req.get('headers')
         headers['Authorization'] = 'Bearer {0}'.format(self.bearer_token)
+        logger.debug('Authenticated outbound request (type=%s)', self.authentication_type())
 
     def set_bearer_token(self, bearer_token: str) -> None:
         """Set a new bearer token to be sent in subsequent service operations.

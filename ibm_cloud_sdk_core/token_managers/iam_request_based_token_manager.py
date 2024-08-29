@@ -16,7 +16,10 @@
 
 from typing import Dict, Optional
 
+from ibm_cloud_sdk_core.logger import get_logger
 from .jwt_token_manager import JWTTokenManager
+
+logger = get_logger()
 
 
 # pylint: disable=too-many-instance-attributes
@@ -118,14 +121,17 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
         if self.client_id and self.client_secret:
             auth_tuple = (self.client_id, self.client_secret)
 
+        request_url = (self.url + self.OPERATION_PATH) if self.url else self.url
+        logger.debug('Invoking IAM get_token operation: %s', request_url)
         response = self._request(
             method='POST',
-            url=(self.url + self.OPERATION_PATH) if self.url else self.url,
+            url=request_url,
             headers=request_headers,
             data=data,
             auth_tuple=auth_tuple,
             proxies=self.proxies,
         )
+        logger.debug('Returned from IAM get_token operation')
         return response
 
     def set_client_id_and_secret(self, client_id: str, client_secret: str) -> None:

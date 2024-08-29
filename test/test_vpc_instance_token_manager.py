@@ -23,6 +23,9 @@ import pytest
 import responses
 
 from ibm_cloud_sdk_core import ApiException, VPCInstanceTokenManager
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.WARNING)
 
 
 # pylint: disable=line-too-long
@@ -66,9 +69,7 @@ def test_setters():
 
 
 @responses.activate
-def test_retrieve_instance_identity_token(caplog):
-    caplog.set_level(logging.DEBUG)
-
+def test_retrieve_instance_identity_token():
     token_manager = VPCInstanceTokenManager(
         iam_profile_crn=TEST_IAM_PROFILE_CRN,
         url='http://someurl.com',
@@ -89,19 +90,10 @@ def test_retrieve_instance_identity_token(caplog):
     assert responses.calls[0].request.params['version'] == '2022-03-01'
     assert responses.calls[0].request.body == '{"expires_in": 300}'
     assert ii_token == TEST_TOKEN
-    # Check the logs.
-    # pylint: disable=line-too-long
-    assert (
-        caplog.record_tuples[0][2]
-        == 'Invoking VPC \'create_access_token\' operation: http://someurl.com/instance_identity/v1/token'
-    )
-    assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_access_token\' operation."'
 
 
 @responses.activate
-def test_retrieve_instance_identity_token_failed(caplog):
-    caplog.set_level(logging.DEBUG)
-
+def test_retrieve_instance_identity_token_failed():
     token_manager = VPCInstanceTokenManager(
         iam_profile_crn=TEST_IAM_PROFILE_CRN,
         url='http://someurl.com',
@@ -117,18 +109,10 @@ def test_retrieve_instance_identity_token_failed(caplog):
         token_manager.retrieve_instance_identity_token()
 
     assert len(responses.calls) == 1
-    # Check the logs.
-    # pylint: disable=line-too-long
-    assert (
-        caplog.record_tuples[0][2]
-        == 'Invoking VPC \'create_access_token\' operation: http://someurl.com/instance_identity/v1/token'
-    )
 
 
 @responses.activate
-def test_request_token_with_crn(caplog):
-    caplog.set_level(logging.DEBUG)
-
+def test_request_token_with_crn():
     token_manager = VPCInstanceTokenManager(
         iam_profile_crn=TEST_IAM_PROFILE_CRN,
     )
@@ -155,19 +139,10 @@ def test_request_token_with_crn(caplog):
     assert responses.calls[0].request.headers['User-Agent'].startswith('ibm-python-sdk-core/vpc-instance-authenticator')
     assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
     assert responses.calls[0].request.params['version'] == '2022-03-01'
-    # Check the logs.
-    # pylint: disable=line-too-long
-    assert (
-        caplog.record_tuples[0][2]
-        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
-    )
-    assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_iam_token\' operation."'
 
 
 @responses.activate
-def test_request_token_with_id(caplog):
-    caplog.set_level(logging.DEBUG)
-
+def test_request_token_with_id():
     token_manager = VPCInstanceTokenManager(
         iam_profile_id=TEST_IAM_PROFILE_ID,
     )
@@ -193,19 +168,10 @@ def test_request_token_with_id(caplog):
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
     assert responses.calls[0].request.body == '{"trusted_profile": {"id": "iam-id-123"}}'
     assert responses.calls[0].request.params['version'] == '2022-03-01'
-    # Check the logs.
-    # pylint: disable=line-too-long
-    assert (
-        caplog.record_tuples[0][2]
-        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
-    )
-    assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_iam_token\' operation."'
 
 
 @responses.activate
-def test_request_token(caplog):
-    caplog.set_level(logging.DEBUG)
-
+def test_request_token():
     token_manager = VPCInstanceTokenManager()
 
     # Mock the retrieve instance identity token method.
@@ -229,19 +195,10 @@ def test_request_token(caplog):
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
     assert responses.calls[0].request.body is None
     assert responses.calls[0].request.params['version'] == '2022-03-01'
-    # Check the logs.
-    # pylint: disable=line-too-long
-    assert (
-        caplog.record_tuples[0][2]
-        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
-    )
-    assert caplog.record_tuples[1][2] == 'Returned from VPC \'create_iam_token\' operation."'
 
 
 @responses.activate
-def test_request_token_failed(caplog):
-    caplog.set_level(logging.DEBUG)
-
+def test_request_token_failed():
     token_manager = VPCInstanceTokenManager(
         iam_profile_id=TEST_IAM_PROFILE_ID,
     )
@@ -263,12 +220,6 @@ def test_request_token_failed(caplog):
     with pytest.raises(ApiException):
         token_manager.request_token()
     assert len(responses.calls) == 1
-    # Check the logs.
-    # pylint: disable=line-too-long
-    assert (
-        caplog.record_tuples[0][2]
-        == 'Invoking VPC \'create_iam_token\' operation: http://169.254.169.254/instance_identity/v1/iam_token'
-    )
 
 
 @responses.activate

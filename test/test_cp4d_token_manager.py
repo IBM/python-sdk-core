@@ -15,6 +15,7 @@
 # limitations under the License.
 
 # pylint: disable=missing-docstring
+import logging
 import json
 import time
 
@@ -22,6 +23,9 @@ import jwt
 import responses
 
 from ibm_cloud_sdk_core import CP4DTokenManager
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.WARNING)
 
 
 @responses.activate

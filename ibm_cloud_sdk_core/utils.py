@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019, 2021 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ from typing import List, Union
 from urllib.parse import urlparse, parse_qs
 
 import dateutil.parser as date_parser
+from .logger import get_logger
+
+logger = get_logger()
 
 
 class GzipStream(io.RawIOBase):
@@ -343,6 +346,7 @@ def read_external_sources(service_name: str) -> dict:
     Returns:
         A dictionary containing relevant configuration for the service if found.
     """
+    logger.debug('Retrieving config properties for service \'%s\'', service_name)
     config = {}
 
     config = __read_from_credential_file(service_name)
@@ -352,7 +356,7 @@ def read_external_sources(service_name: str) -> dict:
 
     if not config:
         config = __read_from_vcap_services(service_name)
-
+    logger.debug('Retrieved %d properties', len(config))
     return config
 
 

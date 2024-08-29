@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+import logging
 import json
 import time
 import jwt
@@ -6,6 +7,9 @@ import pytest
 import responses
 
 from ibm_cloud_sdk_core.authenticators import MCSPAuthenticator, Authenticator
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 
 OPERATION_PATH = '/siusermgr/api/1.0/apikeys/token'

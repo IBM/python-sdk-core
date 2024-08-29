@@ -15,6 +15,7 @@
 # limitations under the License.
 
 # pylint: disable=missing-docstring
+import logging
 import os
 import time
 
@@ -23,6 +24,9 @@ import pytest
 import responses
 
 from ibm_cloud_sdk_core import IAMTokenManager, ApiException, get_authenticator_from_environment
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 # pylint: disable=line-too-long
 TEST_ACCESS_TOKEN_1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImhlbGxvIiwicm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6WyJhZG1pbmlzdHJhdG9yIiwiZGVwbG95bWVudF9hZG1pbiJdLCJzdWIiOiJoZWxsbyIsImlzcyI6IkpvaG4iLCJhdWQiOiJEU1giLCJ1aWQiOiI5OTkiLCJpYXQiOjE1NjAyNzcwNTEsImV4cCI6MTU2MDI4MTgxOSwianRpIjoiMDRkMjBiMjUtZWUyZC00MDBmLTg2MjMtOGNkODA3MGI1NDY4In0.cIodB4I6CCcX8vfIImz7Cytux3GpWyObt9Gkur5g1QI'

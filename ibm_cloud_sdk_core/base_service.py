@@ -16,9 +16,10 @@
 
 import gzip
 import io
-import json as json_import
 import logging
+import json as json_import
 from http.cookiejar import CookieJar
+from http.client import HTTPConnection
 from os.path import basename
 from typing import Dict, List, Optional, Tuple, Union
 from urllib3.util.retry import Retry
@@ -42,13 +43,9 @@ from .utils import (
     GzipStream,
 )
 from .private_helpers import _build_user_agent
+from .logger import get_logger
 
-# Uncomment this to enable http debugging
-# import http.client as http_client
-# http_client.HTTPConnection.debuglevel = 1
-
-
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 # pylint: disable=too-many-instance-attributes
@@ -114,6 +111,9 @@ class BaseService:
 
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
+        # If debug logging is requested, then trigger HTTP message logging as well.
+        if logger.isEnabledFor(logging.DEBUG):
+            HTTPConnection.debuglevel = 1
 
     def enable_retries(self, max_retries: int = 4, retry_interval: float = 30.0) -> None:
         """Enable automatic retries on the underlying http client used by the BaseService instance.
@@ -141,6 +141,7 @@ class BaseService:
         )
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
+        logger.debug('Enabled retries; max_retries=%d, max_retry_interval=%f', max_retries, retry_interval)
 
     def disable_retries(self):
         """Remove retry config from http_adapter"""
@@ -148,6 +149,7 @@ class BaseService:
         self.http_adapter = SSLHTTPAdapter(_disable_ssl_verification=self.disable_ssl_verification)
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
+        logger.debug('Disabled retries')
 
     def configure_service(self, service_name: str) -> None:
         """Look for external configuration of a service. Set service properties.
@@ -165,6 +167,8 @@ class BaseService:
         """
         if not isinstance(service_name, str):
             raise ValueError('Service_name must be of type string.')
+
+        logger.debug('Configuring BaseService instance with service name: %s', service_name)
 
         config = read_external_sources(service_name)
         if config.get('URL'):
@@ -184,6 +188,7 @@ class BaseService:
 
     def _set_user_agent_header(self, user_agent_string: str) -> None:
         self.user_agent_header = {'User-Agent': user_agent_string}
+        logger.debug('Set User-Agent: %s', user_agent_string)
 
     def set_http_config(self, http_config: dict) -> None:
         """Sets the http config dictionary.
@@ -225,6 +230,7 @@ class BaseService:
         )
         self.http_client.mount('http://', self.http_adapter)
         self.http_client.mount('https://', self.http_adapter)
+        logger.debug('Disabled SSL verification in HTTP client')
 
     def set_service_url(self, service_url: str) -> None:
         """Set the url the service will make HTTP requests too.
@@ -243,6 +249,7 @@ class BaseService:
         if service_url is not None:
             service_url = service_url.rstrip('/')
         self.service_url = service_url
+        logger.debug('Set service URL: %s', service_url)
 
     def get_http_client(self) -> requests.sessions.Session:
         """Get the http client session currently used by the service.
@@ -305,7 +312,7 @@ class BaseService:
         # Check to see if the caller specified the 'stream' argument.
         stream_response = kwargs.get('stream') or False
 
-        # Remove the keys we set manually, don't let the user to overwrite these.
+        # Remove the keys we set manually, don't let the user overwrite these.
         reserved_keys = ['method', 'url', 'headers', 'params', 'cookies']
         silent_keys = ['headers']
         for key in reserved_keys:
@@ -314,7 +321,11 @@ class BaseService:
                 if key not in silent_keys:
                     logger.warning('"%s" has been removed from the request', key)
         try:
+            logger.debug('Sending HTTP request message')
+
             response = self.http_client.request(**request, cookies=self.jar, **kwargs)
+
+            logger.debug('Received HTTP response message, status code %d', response.status_code)
 
             # Process a "success" response.
             if 200 <= response.status_code <= 299:
@@ -455,6 +466,7 @@ class BaseService:
                         file_tuple = (filename, file_tuple[1], file_tuple[2])
                 new_files.append((part_name, file_tuple))
         request['files'] = new_files
+        logger.debug('Prepared request [%s %s]', request['method'], request['url'])
         return request
 
     @staticmethod

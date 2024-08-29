@@ -14,14 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 from typing import Dict, Optional
 
+from ibm_cloud_sdk_core.logger import get_logger
 from .iam_request_based_token_manager import IAMRequestBasedTokenManager
 from ..private_helpers import _build_user_agent
 
-
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class ContainerTokenManager(IAMRequestBasedTokenManager):

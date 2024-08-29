@@ -1,10 +1,14 @@
 # coding=utf-8
 import json
+import logging
 
 import requests
 import responses
 
 from ibm_cloud_sdk_core import ApiException
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 
 @responses.activate

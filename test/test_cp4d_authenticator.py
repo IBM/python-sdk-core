@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+import logging
 import json
 
 import jwt
@@ -6,6 +7,9 @@ import pytest
 import responses
 
 from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator, Authenticator
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.WARNING)
 
 
 def test_cp4d_authenticator():
