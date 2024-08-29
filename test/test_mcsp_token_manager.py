@@ -15,6 +15,7 @@
 # limitations under the License.
 
 # pylint: disable=missing-docstring
+import logging
 import json
 import time
 
@@ -23,6 +24,9 @@ import pytest
 import responses
 
 from ibm_cloud_sdk_core import MCSPTokenManager, ApiException
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 OPERATION_PATH = '/siusermgr/api/1.0/apikeys/token'
 MOCK_URL = 'https://mcsp.ibm.com'

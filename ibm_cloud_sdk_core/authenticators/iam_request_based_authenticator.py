@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ from typing import Dict
 
 from requests import Request
 
+from ibm_cloud_sdk_core.logger import get_logger
 from .authenticator import Authenticator
+
+logger = get_logger()
 
 
 class IAMRequestBasedAuthenticator(Authenticator):
@@ -60,6 +63,7 @@ class IAMRequestBasedAuthenticator(Authenticator):
         headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
+        logger.debug('Authenticated outbound request (type=%s)', self.authentication_type())
 
     def set_client_id_and_secret(self, client_id: str, client_secret: str) -> None:
         """Set the client_id and client_secret pair the token manager will use for IAM token requests.

@@ -1,7 +1,11 @@
 # pylint: disable=missing-docstring
+import logging
 import pytest
 
 from ibm_cloud_sdk_core.authenticators import VPCInstanceAuthenticator, Authenticator
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 
 TEST_IAM_PROFILE_CRN = 'crn:iam-profile:123'

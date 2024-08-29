@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
 # limitations under the License.
 
 from typing import Dict, Optional
-
 from requests import Request
 
+from ibm_cloud_sdk_core.logger import get_logger
 from .authenticator import Authenticator
 from ..token_managers.cp4d_token_manager import CP4DTokenManager
 from ..utils import has_bad_first_or_last_char
+
+logger = get_logger()
 
 
 class CloudPakForDataAuthenticator(Authenticator):
@@ -133,6 +135,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
+        logger.debug('Authenticated outbound request (type=%s)', self.authentication_type())
 
     def set_disable_ssl_verification(self, status: bool = False) -> None:
         """Set the flag that indicates whether verification of the server's SSL certificate should be

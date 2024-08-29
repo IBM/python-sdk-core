@@ -15,14 +15,13 @@
 # limitations under the License.
 
 import json
-import logging
 from typing import Optional
 
+from ibm_cloud_sdk_core.logger import get_logger
 from ..private_helpers import _build_user_agent
 from .jwt_token_manager import JWTTokenManager
 
-
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class VPCInstanceTokenManager(JWTTokenManager):
@@ -105,7 +104,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             params={'version': self.METADATA_SERVICE_VERSION},
             data=json.dumps(request_payload) if request_payload else None,
         )
-        logger.debug('Returned from VPC \'create_iam_token\' operation."')
+        logger.debug('Returned from VPC \'create_iam_token\' operation.')
 
         return response
 
@@ -154,7 +153,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             params={'version': self.METADATA_SERVICE_VERSION},
             data=json.dumps(request_body),
         )
-        logger.debug('Returned from VPC \'create_access_token\' operation."')
+        logger.debug('Returned from VPC \'create_access_token\' operation.')
 
         return response['access_token']
 

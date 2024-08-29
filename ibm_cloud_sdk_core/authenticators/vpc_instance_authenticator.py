@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2021 IBM All Rights Reserved.
+# Copyright 2021, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ from typing import Optional
 
 from requests import Request
 
+from ibm_cloud_sdk_core.logger import get_logger
 from ..token_managers.vpc_instance_token_manager import VPCInstanceTokenManager
 from .authenticator import Authenticator
+
+logger = get_logger()
 
 
 class VPCInstanceAuthenticator(Authenticator):
@@ -89,6 +92,7 @@ class VPCInstanceAuthenticator(Authenticator):
         headers = req.get('headers')
         bearer_token = self.token_manager.get_token()
         headers['Authorization'] = 'Bearer {0}'.format(bearer_token)
+        logger.debug('Authenticated outbound request (type=%s)', self.authentication_type())
 
     def set_iam_profile_crn(self, iam_profile_crn: str) -> None:
         """Sets CRN of the IAM profile.

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,14 @@
 # limitations under the License.
 
 import base64
+
 from requests import Request
 
+from ibm_cloud_sdk_core.logger import get_logger
 from .authenticator import Authenticator
 from ..utils import has_bad_first_or_last_char
+
+logger = get_logger()
 
 
 class BasicAuthenticator(Authenticator):
@@ -41,6 +45,7 @@ class BasicAuthenticator(Authenticator):
         self.password = password
         self.validate()
         self.authorization_header = self.__construct_basic_auth_header()
+        logger.debug('Created new BasicAuthenticator instance!')
 
     def authentication_type(self) -> str:
         """Returns this authenticator's type ('basic')."""
@@ -81,3 +86,4 @@ class BasicAuthenticator(Authenticator):
         """
         headers = req.get('headers')
         headers['Authorization'] = self.authorization_header
+        logger.debug('Authenticated outbound request (type=%s)', self.authentication_type())

@@ -1,7 +1,11 @@
 # pylint: disable=missing-docstring
+import logging
 import pytest
 
 from ibm_cloud_sdk_core.authenticators import BasicAuthenticator, Authenticator
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 
 def test_basic_authenticator():

@@ -1,7 +1,13 @@
 # pylint: disable=missing-docstring
+import logging
 import os
 
+from test.utils.logger_utils import setup_test_logger
 from ibm_cloud_sdk_core import get_authenticator_from_environment
+
+# To enable debug logging as well as HTTP message logging,
+# change WARNING to DEBUG:
+setup_test_logger(logging.WARNING)
 
 # Note: Only the unit tests are run by default.
 #

@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring,protected-access,abstract-class-instantiated
+import logging
 import time
 import threading
 from typing import Optional
@@ -7,6 +8,9 @@ import jwt
 import pytest
 
 from ibm_cloud_sdk_core import JWTTokenManager, DetailedResponse
+from .utils.logger_utils import setup_test_logger
+
+setup_test_logger(logging.ERROR)
 
 
 class JWTTokenManagerMockImpl(JWTTokenManager):

@@ -1,6 +1,9 @@
 # pylint: disable=missing-docstring
 import os
 
+import logging
+
+from test.utils.logger_utils import setup_test_logger
 from ibm_cloud_sdk_core import get_authenticator_from_environment
 
 # Note: Only the unit tests are run by default.
@@ -14,6 +17,10 @@ from ibm_cloud_sdk_core import get_authenticator_from_environment
 #
 # Then run this command:
 # pytest test_integration/test_iam_authenticator_integration.py
+
+# To enable debug logging as well as HTTP message logging,
+# change WARNING to DEBUG:
+setup_test_logger(logging.WARNING)
 
 
 def test_iam_authenticator():

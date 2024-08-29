@@ -18,6 +18,7 @@
 
 import gzip
 import json
+import logging
 import os
 import ssl
 import tempfile
@@ -42,6 +43,10 @@ from ibm_cloud_sdk_core.authenticators import (
     BasicAuthenticator,
     CloudPakForDataAuthenticator,
 )
+from .utils.logger_utils import setup_test_logger
+
+# Note that the test_reserved_keys method below will fail if the log level is not WARNING.
+setup_test_logger(logging.WARNING)
 
 
 class IncludeExternalConfigService(BaseService):
@@ -830,6 +835,10 @@ def test_user_agent_header():
     assert response.get_result().request.headers.get('user-agent') == user_agent_header['User-Agent']
 
 
+# Note that this test will fail if the log level is not set to WARNING above.
+# This is due to the fact that we are checking that the expected warning messages
+# are located in specific locations within the captured logs, and this only works correctly
+# if only warning and error messages are being logged.
 @responses.activate
 def test_reserved_keys(caplog):
     service = AnyServiceV1('2021-07-02', authenticator=NoAuthAuthenticator())
@@ -842,6 +851,7 @@ def test_reserved_keys(caplog):
     assert response.get_result().request.url == 'https://gateway.watsonplatform.net/test/api'
     assert response.get_result().request.method == 'GET'
     assert response.get_result().request.hooks == {'response': []}
+    print('caplog.record_tuples:', caplog.record_tuples)
     assert caplog.record_tuples[0][2] == '"method" has been removed from the request'
     assert caplog.record_tuples[1][2] == '"url" has been removed from the request'
     assert caplog.record_tuples[2][2] == '"cookies" has been removed from the request'

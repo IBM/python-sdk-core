@@ -21,7 +21,10 @@ from threading import Lock
 
 import requests
 
+from ibm_cloud_sdk_core.logger import get_logger
 from ..api_exception import ApiException
+
+logger = get_logger()
 
 
 # pylint: disable=too-many-instance-attributes
@@ -75,11 +78,15 @@ class TokenManager(ABC):
             str: A valid access token
         """
         if self._is_token_expired():
+            logger.debug('Performing synchronous token fetch')
             self.paced_request_token()
 
         if self._token_needs_refresh():
+            logger.debug('Performing background asynchronous token fetch')
             token_response = self.request_token()
             self._save_token_info(token_response)
+        else:
+            logger.debug('Using cached access token')
 
         return self.access_token
 

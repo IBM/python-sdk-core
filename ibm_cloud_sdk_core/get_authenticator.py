@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019 IBM All Rights Reserved.
+# Copyright 2019, 2024 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@ from .authenticators import (
     MCSPAuthenticator,
 )
 from .utils import read_external_sources
+from .logger import get_logger
+
+logger = get_logger()
 
 
 def get_authenticator_from_environment(service_name: str) -> Authenticator:
@@ -42,10 +45,13 @@ def get_authenticator_from_environment(service_name: str) -> Authenticator:
     Returns:
         The authenticator found from service information.
     """
+    logger.debug('Get authenticator from environment, key=%s', service_name)
     authenticator = None
     config = read_external_sources(service_name)
     if config:
         authenticator = __construct_authenticator(config)
+    if authenticator is not None:
+        logger.debug('Returning authenticator, type=%s', authenticator.authentication_type())
     return authenticator
 
 

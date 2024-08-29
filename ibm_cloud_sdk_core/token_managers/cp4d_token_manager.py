@@ -17,8 +17,11 @@
 import json
 from typing import Dict, Optional
 
+from ibm_cloud_sdk_core.logger import get_logger
 from ..private_helpers import _build_user_agent
 from .jwt_token_manager import JWTTokenManager
+
+logger = get_logger()
 
 
 class CP4DTokenManager(JWTTokenManager):
@@ -89,6 +92,7 @@ class CP4DTokenManager(JWTTokenManager):
             request_headers.update(self.headers)
         request_headers.update(required_headers)
 
+        logger.debug('Invoking CP4D token service operation: %s', self.url)
         response = self._request(
             method='POST',
             headers=request_headers,
@@ -97,6 +101,7 @@ class CP4DTokenManager(JWTTokenManager):
             proxies=self.proxies,
             verify=self.verify,
         )
+        logger.debug('Returned from CP4D token service operation')
         return response
 
     def set_headers(self, headers: Dict[str, str]) -> None:

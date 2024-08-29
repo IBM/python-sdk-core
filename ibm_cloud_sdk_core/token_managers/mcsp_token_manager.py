@@ -17,8 +17,11 @@
 import json
 from typing import Dict, Optional
 
+from ibm_cloud_sdk_core.logger import get_logger
 from ..private_helpers import _build_user_agent
 from .jwt_token_manager import JWTTokenManager
+
+logger = get_logger()
 
 
 class MCSPTokenManager(JWTTokenManager):
@@ -68,13 +71,16 @@ class MCSPTokenManager(JWTTokenManager):
             request_headers.update(self.headers)
         request_headers.update(required_headers)
 
+        request_url = self.url + self.OPERATION_PATH
+        logger.debug('Invoking MCSP token service operation: %s', request_url)
         response = self._request(
             method='POST',
             headers=request_headers,
-            url=self.url + self.OPERATION_PATH,
+            url=request_url,
             data=json.dumps({"apikey": self.apikey}),
             proxies=self.proxies,
         )
+        logger.debug('Returned from MCSP token service operation')
         return response
 
     def set_headers(self, headers: Dict[str, str]) -> None:
