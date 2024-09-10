@@ -89,7 +89,7 @@ class BaseService:
         self,
         *,
         service_url: str = None,
-        authenticator: Authenticator = None,
+        authenticator: Optional[Authenticator] = None,
         disable_ssl_verification: bool = False,
         enable_gzip_compression: bool = False,
     ) -> None:
