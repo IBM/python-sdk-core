@@ -851,7 +851,6 @@ def test_reserved_keys(caplog):
     assert response.get_result().request.url == 'https://gateway.watsonplatform.net/test/api'
     assert response.get_result().request.method == 'GET'
     assert response.get_result().request.hooks == {'response': []}
-    print('caplog.record_tuples:', caplog.record_tuples)
     assert caplog.record_tuples[0][2] == '"method" has been removed from the request'
     assert caplog.record_tuples[1][2] == '"url" has been removed from the request'
     assert caplog.record_tuples[2][2] == '"cookies" has been removed from the request'
