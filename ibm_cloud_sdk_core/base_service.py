@@ -19,7 +19,7 @@ import io
 import logging
 import json as json_import
 from http.cookiejar import CookieJar
-from http.client import HTTPConnection
+from http import client
 from os.path import basename
 from typing import Dict, List, Optional, Tuple, Union
 from urllib3.util.retry import Retry
@@ -113,7 +113,10 @@ class BaseService:
         self.http_client.mount('https://', self.http_adapter)
         # If debug logging is requested, then trigger HTTP message logging as well.
         if logger.isEnabledFor(logging.DEBUG):
-            HTTPConnection.debuglevel = 1
+            client.HTTPConnection.debuglevel = 1
+            # Replace the `print` function in the HTTPClient module to
+            # use the debug logger instead of the bare Python print.
+            client.print = lambda *args: logger.debug(" ".join(args))
 
     def enable_retries(self, max_retries: int = 4, retry_interval: float = 30.0) -> None:
         """Enable automatic retries on the underlying http client used by the BaseService instance.
