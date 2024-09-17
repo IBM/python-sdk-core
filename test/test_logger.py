@@ -20,12 +20,12 @@ import logging
 
 from ibm_cloud_sdk_core import base_service
 from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
-from ibm_cloud_sdk_core.logger import RedactSecretsFilter
+from ibm_cloud_sdk_core.logger import LoggingFilter
 from .utils.http_utils import local_server
 
 
 def test_redact_secrets():
-    redact_secrets = RedactSecretsFilter.redact_secrets
+    redact_secrets = LoggingFilter.redact_secrets
 
     assert "secret" not in redact_secrets("Authorization: Bearer secret")
     assert "secret" not in redact_secrets("Authorization: Basic secret")
