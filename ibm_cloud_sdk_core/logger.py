@@ -45,8 +45,8 @@ REDACTED_KEYWORDS = [
 ]
 
 
-class RedactSecretsFilter(logging.Filter):
-    """A custom filter to redact secrets withing the log entries on the fly."""
+class LoggingFilter:
+    """Functions used to filter messages before they are logged."""
 
     redacted_tokens = "|".join(REDACTED_KEYWORDS)
     auth_header_pattern = re.compile(r"(?m)(Authorization|X-Auth\S*): ((.*?)(\r\n.*)|(.*))")
@@ -55,7 +55,7 @@ class RedactSecretsFilter(logging.Filter):
 
     @classmethod
     def redact_secrets(cls, text: str) -> str:
-        """Replaces values of potantial secret keywords with a placeholder value.
+        """Replaces values of potential secret keywords with a placeholder value.
         Args:
             text (str): the string to check and process
 
@@ -69,13 +69,17 @@ class RedactSecretsFilter(logging.Filter):
         redacted = cls.json_field_pattern.sub(r'"\1":"' + placeholder + r'"', redacted)
         return redacted
 
-    def filter(self, record: logging.LogRecord) -> bool:
-        record.msg = RedactSecretsFilter.redact_secrets(record.msg)
-        return True
+    @classmethod
+    def filter_message(cls, s: str) -> str:
+        """Filters 's' prior to logging it as a debug message"""
+        # Redact secrets
+        s = LoggingFilter.redact_secrets(s)
+
+        # Replace CRLF characters with an actual newline to make the message more readable.
+        s = s.replace('\\r\\n', '\n')
+        return s
 
 
 def get_logger() -> logging.Logger:
     """Returns the primary logger object instance used by the library."""
-    logger = logging.getLogger(LOGGER_NAME)
-    logger.addFilter(RedactSecretsFilter())
-    return logger
+    return logging.getLogger(LOGGER_NAME)

@@ -43,7 +43,10 @@ from .utils import (
     GzipStream,
 )
 from .private_helpers import _build_user_agent
-from .logger import get_logger
+from .logger import (
+    get_logger,
+    LoggingFilter,
+)
 
 logger = get_logger()
 
@@ -116,7 +119,7 @@ class BaseService:
             client.HTTPConnection.debuglevel = 1
             # Replace the `print` function in the HTTPClient module to
             # use the debug logger instead of the bare Python print.
-            client.print = lambda *args: logger.debug(" ".join(args))
+            client.print = lambda *args: logger.debug(LoggingFilter.filter_message(" ".join(args)))
 
     def enable_retries(self, max_retries: int = 4, retry_interval: float = 30.0) -> None:
         """Enable automatic retries on the underlying http client used by the BaseService instance.
