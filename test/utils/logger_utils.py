@@ -15,8 +15,11 @@
 # limitations under the License.
 
 import logging
-from http.client import HTTPConnection
-from ibm_cloud_sdk_core.logger import get_logger
+from http import client
+from ibm_cloud_sdk_core.logger import (
+    get_logger,
+    LoggingFilter,
+)
 
 
 def setup_test_logger(level: int):
@@ -27,4 +30,5 @@ def setup_test_logger(level: int):
 
     # If debug logging is requested, then trigger HTTP message logging as well.
     if logger.isEnabledFor(logging.DEBUG):
-        HTTPConnection.debuglevel = 1
+        client.HTTPConnection.debuglevel = 1
+        client.print = lambda *args: logger.debug(LoggingFilter.filter_message(" ".join(args)))
