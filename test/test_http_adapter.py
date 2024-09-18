@@ -1,19 +1,16 @@
 # pylint: disable=missing-docstring
 import logging
 import os
-import threading
-import warnings
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-from ssl import SSLContext, PROTOCOL_TLSv1_1, PROTOCOL_TLSv1_2
-from typing import Callable
+from ssl import PROTOCOL_TLSv1_1, PROTOCOL_TLSv1_2
 
 import pytest
-import urllib3
 from requests import exceptions
 
 from ibm_cloud_sdk_core.base_service import BaseService
 from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 from .utils.logger_utils import setup_test_logger
+from .utils.http_utils import local_server
+
 
 setup_test_logger(logging.ERROR)
 
@@ -33,40 +30,7 @@ cert = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.crt')
 key = os.path.join(os.path.dirname(__file__), '../resources/test_ssl.key')
 
 
-def _local_server(tls_version: int, port: int) -> Callable:
-    def decorator(test_function: Callable) -> Callable:
-        def inner():
-            # Disable warnings caused by the self-signed certificate.
-            urllib3.disable_warnings()
-
-            # Build the SSL context for the server.
-            ssl_context = SSLContext(tls_version)
-            ssl_context.load_cert_chain(certfile=cert, keyfile=key)
-
-            # Create and start the server on a separate thread.
-            server = HTTPServer(('localhost', port), SimpleHTTPRequestHandler)
-            server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
-            t = threading.Thread(target=server.serve_forever)
-            t.start()
-
-            # We run everything in a big try-except-finally block to make sure we always
-            # shutdown the HTTP server gracefully.
-            try:
-                test_function()
-            except Exception:  # pylint: disable=try-except-raise
-                raise
-            finally:
-                server.shutdown()
-                t.join()
-                # Re-enable warnings.
-                warnings.resetwarnings()
-
-        return inner
-
-    return decorator
-
-
-@_local_server(PROTOCOL_TLSv1_1, 3333)
+@local_server(3333, PROTOCOL_TLSv1_1, cert, key)
 def test_tls_v1_1():
     service = BaseService(service_url='https://localhost:3333', authenticator=NoAuthAuthenticator())
     prepped = service.prepare_request('GET', url='/')
@@ -78,7 +42,7 @@ def test_tls_v1_1():
     assert exception.type is exceptions.SSLError or exception.type is exceptions.ConnectionError
 
 
-@_local_server(PROTOCOL_TLSv1_2, 3334)
+@local_server(3334, PROTOCOL_TLSv1_2, cert, key)
 def test_tls_v1_2():
     service = BaseService(service_url='https://localhost:3334', authenticator=NoAuthAuthenticator())
 
