@@ -1,3 +1,15 @@
+# [3.21.0](https://github.com/IBM/python-sdk-core/compare/v3.20.6...v3.21.0) (2024-09-18)
+
+
+### Bug Fixes
+
+* **logging:** improve python core's debug logging ([67b126c](https://github.com/IBM/python-sdk-core/commit/67b126c2fd87d14057b185a8e6d13644a955f332))
+
+
+### Features
+
+* redact secrets in debug logging ([#209](https://github.com/IBM/python-sdk-core/issues/209)) ([ed043dc](https://github.com/IBM/python-sdk-core/commit/ed043dc2814a2959da9b92c4286ca8b23b5fa59d))
+
 ## [3.20.6](https://github.com/IBM/python-sdk-core/compare/v3.20.5...v3.20.6) (2024-08-08)
 
 
