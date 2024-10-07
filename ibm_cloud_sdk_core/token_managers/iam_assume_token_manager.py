@@ -49,12 +49,20 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
         iam_profile_name: the name of the trusted profile (must be used together with `iam_account_id`)
         iam_account_id: the ID of the trusted profile (must be used together with `iam_profile_name`)
         url: The IAM endpoint to token requests. Defaults to None.
+        client_id: The client_id and client_secret fields are used to form
+            a "basic auth" Authorization header for interactions with the IAM token server.
+            Defaults to None.
+        client_secret: The client_id and client_secret fields are used to form
+            a "basic auth" Authorization header for interactions with the IAM token server.
+            Defaults to None.
         disable_ssl_verification: A flag that indicates whether verification of
             the server's SSL certificate should be disabled or not. Defaults to False.
         headers: Default headers to be sent with every IAM token request. Defaults to None.
         proxies: Proxies to use for communicating with IAM. Defaults to None.
         proxies.http: The proxy endpoint to use for HTTP requests.
         proxies.https: The proxy endpoint to use for HTTPS requests.
+        scope: The "scope" to use when fetching the bearer token from the IAM token server.
+        This can be used to obtain an access token with a specific scope.
     """
 
     def __init__(
@@ -66,15 +74,21 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
         iam_profile_name: Optional[str] = None,
         iam_account_id: Optional[str] = None,
         url: Optional[str] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
         disable_ssl_verification: bool = False,
         headers: Optional[Dict[str, str]] = None,
         proxies: Optional[Dict[str, str]] = None,
+        scope: Optional[str] = None,
     ) -> None:
         super().__init__(
             url=url,
+            client_id=client_id,
+            client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
             headers=headers,
             proxies=proxies,
+            scope=scope,
         )
 
         self.iam_profile_id = iam_profile_id
@@ -88,9 +102,12 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
         self.iam_delegate = IAMTokenManager(
             apikey=apikey,
             url=url,
+            client_id=client_id,
+            client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
             headers=headers,
             proxies=proxies,
+            scope=scope,
         )
 
         self.request_payload['grant_type'] = 'urn:ibm:params:oauth:grant-type:assume'

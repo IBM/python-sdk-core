@@ -18,6 +18,8 @@ def test_iam_assume_authenticator():
     assert authenticator is not None
     assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM_ASSUME
     assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com'
+    assert authenticator.token_manager.client_id is None
+    assert authenticator.token_manager.client_secret is None
     assert authenticator.token_manager.disable_ssl_verification is False
     assert authenticator.token_manager.headers is None
     assert authenticator.token_manager.proxies is None
@@ -26,6 +28,7 @@ def test_iam_assume_authenticator():
     assert authenticator.token_manager.iam_profile_crn == 'crn:iam-profile:123'
     assert authenticator.token_manager.iam_profile_name is None
     assert authenticator.token_manager.iam_account_id is None
+    assert authenticator.token_manager.scope is None
 
     authenticator.set_iam_profile_id('my-id-123')
     assert authenticator.token_manager.iam_profile_id == 'my-id-123'
@@ -39,6 +42,13 @@ def test_iam_assume_authenticator():
     authenticator.set_iam_profile_name_and_account_id('my-profile-name', 'my-acc-id')
     assert authenticator.token_manager.iam_profile_name == 'my-profile-name'
     assert authenticator.token_manager.iam_account_id == 'my-acc-id'
+
+    authenticator.set_client_id_and_secret('tom', 'jerry')
+    assert authenticator.token_manager.client_id == 'tom'
+    assert authenticator.token_manager.client_secret == 'jerry'
+
+    authenticator.set_scope('scope1 scope2 scope3')
+    assert authenticator.token_manager.scope == 'scope1 scope2 scope3'
 
     with pytest.raises(TypeError) as err:
         authenticator.set_headers('dummy')
@@ -145,6 +155,14 @@ def test_iam_assume_authenticator_validate_failed():
     assert (
         str(err.value) == 'Exactly one of `iam_profile_id`, `iam_profile_crn`, or `iam_profile_name` must be specified.'
     )
+
+    with pytest.raises(ValueError) as err:
+        IAMAssumeAuthenticator('my_apikey', client_id='my_client_id')
+    assert str(err.value) == 'Both client_id and client_secret should be initialized.'
+
+    with pytest.raises(ValueError) as err:
+        IAMAssumeAuthenticator('my_apikey', client_secret='my_client_secret')
+    assert str(err.value) == 'Both client_id and client_secret should be initialized.'
 
 
 @responses.activate

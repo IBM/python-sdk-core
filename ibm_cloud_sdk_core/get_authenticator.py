@@ -114,7 +114,10 @@ def __construct_authenticator(config: dict) -> Authenticator:
             iam_profile_name=config.get('IAM_PROFILE_NAME'),
             iam_account_id=config.get('IAM_ACCOUNT_ID'),
             url=config.get('AUTH_URL'),
+            client_id=config.get('CLIENT_ID'),
+            client_secret=config.get('CLIENT_SECRET'),
             disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            scope=config.get('SCOPE'),
         )
     elif auth_type == Authenticator.AUTHTYPE_VPC.lower():
         authenticator = VPCInstanceAuthenticator(

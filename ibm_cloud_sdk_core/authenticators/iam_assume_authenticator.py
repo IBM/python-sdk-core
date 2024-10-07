@@ -42,12 +42,18 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         iam_profile_name: the name of the trusted profile (must be used together with `iam_account_id`)
         iam_account_id: the ID of the trusted profile (must be used together with `iam_profile_name`)
         url: The URL representing the IAM token service endpoint. If not specified, a suitable default value is used.
+        client_id: The client_id and client_secret fields are used to form
+            a "basic" authorization header for IAM token requests. Defaults to None.
+        client_secret: The client_id and client_secret fields are used to form
+            a "basic" authorization header for IAM token requests. Defaults to None.
         disable_ssl_verification: A flag that indicates whether verification of
             the server's SSL certificate should be disabled or not. Defaults to False.
         headers: Default headers to be sent with every IAM token request. Defaults to None.
         proxies: Dictionary for mapping request protocol to proxy URL. Defaults to None.
         proxies.http (optional): The proxy endpoint to use for HTTP requests.
         proxies.https (optional): The proxy endpoint to use for HTTPS requests.
+        scope: The "scope" to use when fetching the bearer token from the IAM token server.
+            This can be used to obtain an access token with a specific scope.
 
     Attributes:
         token_manager (IAMTokenManager): Retrieves and manages IAM tokens from the endpoint specified by the url.
@@ -56,6 +62,7 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         TypeError: The `disable_ssl_verification` is not a bool.
         ValueError: The `apikey` is not valid for IAM token requests or the following keyword arguments are incorrectly specified:
             `iam_profile_id`, `iam_profile_crn`, `iam_profile_name`, `iam_account_id`,
+        ValueError: The apikey, client_id, and/or client_secret are not valid for IAM token requests.
     """
 
     def __init__(
@@ -67,9 +74,12 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         iam_profile_name: Optional[str] = None,
         iam_account_id: Optional[str] = None,
         url: Optional[str] = None,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
         disable_ssl_verification: bool = False,
         headers: Optional[Dict[str, str]] = None,
         proxies: Optional[Dict[str, str]] = None,
+        scope: Optional[str] = None,
     ) -> None:
         # Check the type of `disable_ssl_verification`. Must be a bool.
         if not isinstance(disable_ssl_verification, bool):
@@ -82,9 +92,12 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
             iam_profile_name=iam_profile_name,
             iam_account_id=iam_account_id,
             url=url,
+            client_id=client_id,
+            client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
             headers=headers,
             proxies=proxies,
+            scope=scope,
         )
 
         self.validate()
