@@ -24,6 +24,7 @@ class Authenticator(ABC):
     AUTHTYPE_BASIC = 'basic'
     AUTHTYPE_BEARERTOKEN = 'bearerToken'
     AUTHTYPE_IAM = 'iam'
+    AUTHTYPE_IAM_ASSUME = 'iamAssume'
     AUTHTYPE_CONTAINER = 'container'
     AUTHTYPE_CP4D = 'cp4d'
     AUTHTYPE_VPC = 'vpc'
