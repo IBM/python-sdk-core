@@ -43,13 +43,6 @@ def test_iam_assume_authenticator():
     assert authenticator.token_manager.iam_profile_name == 'my-profile-name'
     assert authenticator.token_manager.iam_account_id == 'my-acc-id'
 
-    authenticator.set_client_id_and_secret('tom', 'jerry')
-    assert authenticator.token_manager.client_id == 'tom'
-    assert authenticator.token_manager.client_secret == 'jerry'
-
-    authenticator.set_scope('scope1 scope2 scope3')
-    assert authenticator.token_manager.scope == 'scope1 scope2 scope3'
-
     with pytest.raises(TypeError) as err:
         authenticator.set_headers('dummy')
     assert str(err.value) == 'headers must be a dictionary'
@@ -218,3 +211,13 @@ def test_multiple_iam_assume_authenticators():
     authenticator_2 = IAMAssumeAuthenticator('my_other_apikey', iam_profile_id='my_profile_id_2')
     assert authenticator_2.token_manager.iam_delegate.request_payload['apikey'] == 'my_other_apikey'
     assert authenticator_1.token_manager.iam_delegate.request_payload['apikey'] == 'my_apikey'
+
+
+def test_iam_assume_authenticator_unsupported_methods():
+    authenticator = IAMAssumeAuthenticator('my_apikey', iam_profile_id='my_profile_id')
+    with pytest.raises(AttributeError) as err:
+        authenticator.set_scope('my_scope')
+    assert str(err.value) == "'IAMAssumeAuthenticator' has no attribute 'set_scope'"
+    with pytest.raises(AttributeError) as err:
+        authenticator.set_client_id_and_secret('my_client_id', 'my_client_secret')
+    assert str(err.value) == "'IAMAssumeAuthenticator' has no attribute 'set_client_id_and_secret'"

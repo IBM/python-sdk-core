@@ -32,7 +32,8 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
         iam_profile_crn (str): the CRN of the trusted profile
         iam_profile_name (str): the name of the trusted profile (must be used together with `iam_account_id`)
         iam_account_id (str): the ID of the trusted profile (must be used together with `iam_profile_name`)
-        iam_deletgate (IAMTokenManager): an IAMTokenManager instance used to obtain the user's IAM access token from the `apikey`.
+        iam_deletgate (IAMTokenManager): an IAMTokenManager instance used to obtain the user's IAM access token
+            from the `apikey`.
         url (str): The IAM endpoint to token requests.
         headers (dict): Default headers to be sent with every IAM token request.
         proxies (dict): Proxies to use for communicating with IAM.
@@ -62,7 +63,7 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
         proxies.http: The proxy endpoint to use for HTTP requests.
         proxies.https: The proxy endpoint to use for HTTPS requests.
         scope: The "scope" to use when fetching the bearer token from the IAM token server.
-        This can be used to obtain an access token with a specific scope.
+            This can be used to obtain an access token with a specific scope.
     """
 
     def __init__(

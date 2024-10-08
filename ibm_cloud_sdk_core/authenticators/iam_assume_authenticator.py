@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from ibm_cloud_sdk_core.token_managers.iam_assume_token_manager import IAMAssumeTokenManager
 
@@ -60,9 +60,9 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
 
     Raises:
         TypeError: The `disable_ssl_verification` is not a bool.
-        ValueError: The `apikey` is not valid for IAM token requests or the following keyword arguments are incorrectly specified:
-            `iam_profile_id`, `iam_profile_crn`, `iam_profile_name`, `iam_account_id`,
-        ValueError: The apikey, client_id, and/or client_secret are not valid for IAM token requests.
+        ValueError: The `apikey`, `client_id`, and/or `client_secret` are not valid for IAM token requests or the
+            following keyword arguments are incorrectly specified:
+            `iam_profile_id`, `iam_profile_crn`, `iam_profile_name`, `iam_account_id`.
     """
 
     def __init__(
@@ -101,6 +101,14 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         )
 
         self.validate()
+
+    # Disable a few methods, inherited from the parent class.
+    def __getattribute__(self, name: str) -> Any:
+        disallowed_attrs = ['set_scope', 'set_client_id_and_secret']
+        if name in disallowed_attrs:
+            raise AttributeError(f"'IAMAssumeAuthenticator' has no attribute '{name}'")
+
+        return super().__getattribute__(name)
 
     def authentication_type(self) -> str:
         """Returns this authenticator's type ('iamAssume')."""
