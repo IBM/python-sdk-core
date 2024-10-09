@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from ibm_cloud_sdk_core.token_managers.iam_token_manager import IAMTokenManager
 
@@ -22,6 +22,7 @@ from .iam_request_based_token_manager import IAMRequestBasedTokenManager
 from ..private_helpers import _build_user_agent
 
 
+# pylint: disable=too-many-instance-attributes
 class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
     """The IAMAssumeTokenManager takes an api key and information about a trusted profile then performs the necessary
     interactions with the IAM token service to obtain and store a suitable bearer token. This token "assumes" the
@@ -84,12 +85,9 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
     ) -> None:
         super().__init__(
             url=url,
-            client_id=client_id,
-            client_secret=client_secret,
             disable_ssl_verification=disable_ssl_verification,
             headers=headers,
             proxies=proxies,
-            scope=scope,
         )
 
         self.iam_profile_id = iam_profile_id
@@ -114,14 +112,6 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
         self.request_payload['grant_type'] = 'urn:ibm:params:oauth:grant-type:assume'
         self._set_user_agent(_build_user_agent('iam-assume-authenticator'))
 
-    # Remove unsupported attributes, inherited from the parent class.
-    def __getattribute__(self, name: str) -> Any:
-        disallowed_attrs = ['refresh_token', 'client_id', 'client_secret']
-        if name in disallowed_attrs:
-            raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
-
-        return super().__getattribute__(name)
-
     def request_token(self) -> Dict:
         """Retrieves a standard IAM access token by using the IAM token manager
         then obtains another access token for the assumed identity.
@@ -140,4 +130,14 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
             self.request_payload['profile_name'] = self.iam_profile_name
             self.request_payload['account'] = self.iam_account_id
 
+        # Make sure that the unsupported attributes will never be included in the requests.
+        self.client_id = None
+        self.client_secret = None
+        self.scope = None
+
         return super().request_token()
+
+    def _save_token_info(self, token_response: Dict) -> None:
+        super()._save_token_info(token_response)
+        # Set refresh token to None unconditionally.
+        self.refresh_token = None

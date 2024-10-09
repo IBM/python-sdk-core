@@ -126,9 +126,7 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         Raises:
             ValueError: The apikey, client_id, and/or client_secret are not valid for IAM token requests.
         """
-        super().validate()
-
-        # Create a temporary IAM authenticator that we can use to validat our delegate.
+        # Create a temporary IAM authenticator that we can use to validate our delegate.
         tmp_authenticator = IAMAuthenticator("")
         tmp_authenticator.token_manager = self.token_manager.iam_delegate
         tmp_authenticator.validate()

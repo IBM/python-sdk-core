@@ -21,7 +21,6 @@ import time
 import urllib
 
 import jwt
-import pytest
 import responses
 
 from ibm_cloud_sdk_core import IAMAssumeTokenManager
@@ -148,8 +147,7 @@ def test_request_token_with_profile_name_and_account_id():
 
 @responses.activate
 def test_request_token_uses_the_correct_grant_types():
-    iam_url = "https://iam.cloud.ibm.com/identity/token"
-    responses.add(responses.POST, url=iam_url, body=BASE_RESPONSE_JSON, status=200)
+    responses.add(responses.POST, url=IAM_URL, body=BASE_RESPONSE_JSON, status=200)
 
     token_manager = IAMAssumeTokenManager("apikey", iam_profile_id='my_profile_id')
     token_manager.request_token()
@@ -192,7 +190,26 @@ def test_get_token():
     # The final result should be the other access token, which belong to the "assume" request.
     assert access_token == OTHER_ACCESS_TOKEN
 
-    # Make sure `refresh_token` is not accessible.
-    with pytest.raises(AttributeError) as err:
-        assert token_manager.refresh_token == "not_available"
-    assert str(err.value) == "'IAMAssumeTokenManager' has no attribute 'refresh_token'"
+    # Make sure `refresh_token` is None.
+    assert token_manager.refresh_token is None
+
+
+@responses.activate
+def test_correct_properties_used_in_calls():
+    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback)
+
+    token_manager = IAMAssumeTokenManager(
+        "apikey",
+        iam_profile_id=MY_PROFILE_ID,
+        client_id='my_client_id',
+        client_secret='my_client_secret',
+        scope='my_scope',
+    )
+    token_manager.get_token()
+
+    # Make sure the all properties were used in the first request via the IAM delegate,
+    assert responses.calls[0].request.headers.get('Authorization') == 'Basic bXlfY2xpZW50X2lkOm15X2NsaWVudF9zZWNyZXQ='
+    assert 'scope=my_scope' in responses.calls[0].request.body
+    # but those were not included in the second, assume type request.
+    assert responses.calls[1].request.headers.get('Authorization') is None
+    assert 'scope=my_scope' not in responses.calls[1].request.body
