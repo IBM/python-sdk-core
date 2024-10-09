@@ -23,7 +23,7 @@ from ..private_helpers import _build_user_agent
 
 
 class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
-    """The IAMTokenManager takes an api key and information about a trusted profile then performs the necessary
+    """The IAMAssumeTokenManager takes an api key and information about a trusted profile then performs the necessary
     interactions with the IAM token service to obtain and store a suitable bearer token. This token "assumes" the
     identity of the provided trusted profile.
 
@@ -32,7 +32,7 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
         iam_profile_crn (str): the CRN of the trusted profile
         iam_profile_name (str): the name of the trusted profile (must be used together with `iam_account_id`)
         iam_account_id (str): the ID of the trusted profile (must be used together with `iam_profile_name`)
-        iam_deletgate (IAMTokenManager): an IAMTokenManager instance used to obtain the user's IAM access token
+        iam_delegate (IAMTokenManager): an IAMTokenManager instance used to obtain the user's IAM access token
             from the `apikey`.
         url (str): The IAM endpoint to token requests.
         headers (dict): Default headers to be sent with every IAM token request.

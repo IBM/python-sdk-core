@@ -235,7 +235,7 @@ specify the iam_account_id property as well.
 Exactly one of iam_profile_crn, iam_profile_id or iam_profile_name must be specified.
 
 - iam_account_id: (optional) the ID associated with the IAM account that contains the trusted profile
-referenced by the iam_profile_name property. The imaAccountId property must be specified if and only if
+referenced by the iam_profile_name property. The iam_account_id property must be specified if and only if
 the iam_profile_name property is specified.
 
 - url: (optional) The base endpoint URL of the IAM token service.
@@ -288,7 +288,7 @@ from ibm_cloud_sdk_core.authenticators import IAMAssumeAuthenticator
 from <sdk-package-name>.example_service_v1 import *
 
 # Create the authenticator.
-authenticator = IAMAssumeAuthenticator('myapikey')
+authenticator = IAMAssumeAuthenticator('myapikey', iam_profile_id='my_profile_id')
 
 # Construct the service instance.
 service = ExampleServiceV1(authenticator=authenticator)
