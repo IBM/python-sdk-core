@@ -16,6 +16,7 @@
 
 from typing import Any, Dict, Optional
 
+from ibm_cloud_sdk_core.authenticators.iam_authenticator import IAMAuthenticator
 from ibm_cloud_sdk_core.token_managers.iam_assume_token_manager import IAMAssumeTokenManager
 
 from .authenticator import Authenticator
@@ -127,14 +128,11 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         """
         super().validate()
 
-        if self.token_manager.iam_delegate.apikey is None:
-            raise ValueError('The apikey shouldn\'t be None.')
-
-        if has_bad_first_or_last_char(self.token_manager.iam_delegate.apikey):
-            raise ValueError(
-                'The apikey shouldn\'t start or end with curly brackets or quotes. '
-                'Please remove any surrounding {, }, or \" characters.'
-            )
+        # Create a temporary IAM authenticator that we can use to validat our delegate.
+        tmp_authenticator = IAMAuthenticator("")
+        tmp_authenticator.token_manager = self.token_manager.iam_delegate
+        tmp_authenticator.validate()
+        del tmp_authenticator
 
         # Only one of the following arguments must be specified.
         mutually_exclusive_attributes = [
