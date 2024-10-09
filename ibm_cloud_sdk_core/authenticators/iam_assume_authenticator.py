@@ -106,7 +106,7 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
     def __getattribute__(self, name: str) -> Any:
         disallowed_attrs = ['set_scope', 'set_client_id_and_secret']
         if name in disallowed_attrs:
-            raise AttributeError(f"'IAMAssumeAuthenticator' has no attribute '{name}'")
+            raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
 
         return super().__getattribute__(name)
 

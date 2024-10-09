@@ -21,6 +21,7 @@ import time
 import urllib
 
 import jwt
+import pytest
 import responses
 
 from ibm_cloud_sdk_core import IAMAssumeTokenManager
@@ -190,3 +191,8 @@ def test_get_token():
 
     # The final result should be the other access token, which belong to the "assume" request.
     assert access_token == OTHER_ACCESS_TOKEN
+
+    # Make sure `refresh_token` is not accessible.
+    with pytest.raises(AttributeError) as err:
+        assert token_manager.refresh_token == "not_available"
+    assert str(err.value) == "'IAMAssumeTokenManager' has no attribute 'refresh_token'"
