@@ -66,9 +66,11 @@ def test_disable_ssl_verification():
         apikey='my_apikey', iam_profile_id='my-profile-id', disable_ssl_verification=True
     )
     assert authenticator.token_manager.disable_ssl_verification is True
+    assert authenticator.token_manager.iam_delegate.disable_ssl_verification is True
 
     authenticator.set_disable_ssl_verification(False)
     assert authenticator.token_manager.disable_ssl_verification is False
+    assert authenticator.token_manager.iam_delegate.disable_ssl_verification is False
 
 
 def test_invalid_disable_ssl_verification_type():

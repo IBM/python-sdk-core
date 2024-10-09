@@ -151,6 +151,10 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         if self.token_manager.iam_profile_name and not self.token_manager.iam_account_id:
             raise ValueError('`iam_profile_name` and `iam_account_id` must be provided together, or not at all.')
 
+    def set_disable_ssl_verification(self, status: bool = False) -> None:
+        self.token_manager.iam_delegate.set_disable_ssl_verification(status)
+        return super().set_disable_ssl_verification(status)
+
     def set_iam_profile_id(self, iam_profile_id: str) -> None:
         """Set the ID of the IAM profile.
 
