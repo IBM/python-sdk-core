@@ -70,6 +70,7 @@ class IAMRequestBasedTokenManager(JWTTokenManager):
 
     def __init__(
         self,
+        *,
         url: Optional[str] = None,
         client_id: Optional[str] = None,
         client_secret: Optional[str] = None,
