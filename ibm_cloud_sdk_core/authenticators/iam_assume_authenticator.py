@@ -21,7 +21,6 @@ from ibm_cloud_sdk_core.token_managers.iam_assume_token_manager import IAMAssume
 
 from .authenticator import Authenticator
 from .iam_request_based_authenticator import IAMRequestBasedAuthenticator
-from ..utils import has_bad_first_or_last_char
 
 
 class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
@@ -103,10 +102,9 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
 
         self.validate()
 
-    # Disable a few methods, inherited from the parent class.
+    # Disable all setter methods, inherited from the parent class.
     def __getattribute__(self, name: str) -> Any:
-        disallowed_attrs = ['set_scope', 'set_client_id_and_secret']
-        if name in disallowed_attrs:
+        if name.startswith("set_"):
             raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
 
         return super().__getattribute__(name)
@@ -146,34 +144,3 @@ class IAMAssumeAuthenticator(IAMRequestBasedAuthenticator):
         # `iam_account_id` must be specified iff `iam_profile_name` is used.
         if self.token_manager.iam_profile_name and not self.token_manager.iam_account_id:
             raise ValueError('`iam_profile_name` and `iam_account_id` must be provided together, or not at all.')
-
-    def set_disable_ssl_verification(self, status: bool = False) -> None:
-        self.token_manager.iam_delegate.set_disable_ssl_verification(status)
-        return super().set_disable_ssl_verification(status)
-
-    def set_iam_profile_id(self, iam_profile_id: str) -> None:
-        """Set the ID of the IAM profile.
-
-        Args:
-            iam_profile_id (str): the ID of the IAM profile.
-        """
-        self.token_manager.iam_profile_id = iam_profile_id
-
-    def set_iam_profile_crn(self, iam_profile_crn: str) -> None:
-        """Set the CRN of the IAM profile.
-
-        Args:
-            iam_profile_crn (str): the CRN of the IAM profile.
-        """
-        self.token_manager.iam_profile_crn = iam_profile_crn
-
-    def set_iam_profile_name_and_account_id(self, iam_profile_name: str, iam_account_id: str) -> None:
-        """Set both the name of the IAM profile and the IAM account ID that the profile belongs to.
-
-        Args:
-            iam_profile_name (str): name of the IAM profile.
-            iam_account_id (str): ID of the IAM account.
-        """
-        self.token_manager.iam_profile_name = iam_profile_name
-        self.token_manager.iam_account_id = iam_account_id
-        self.validate()

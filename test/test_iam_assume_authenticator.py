@@ -30,63 +30,6 @@ def test_iam_assume_authenticator():
     assert authenticator.token_manager.iam_account_id is None
     assert authenticator.token_manager.scope is None
 
-    authenticator.set_iam_profile_id('my-id-123')
-    assert authenticator.token_manager.iam_profile_id == 'my-id-123'
-
-    authenticator.set_iam_profile_crn('crn:iam-profile:456')
-    assert authenticator.token_manager.iam_profile_crn == 'crn:iam-profile:456'
-
-    # We need to unset the other IAM related attributes to avoid validation error.
-    authenticator.set_iam_profile_id(None)
-    authenticator.set_iam_profile_crn(None)
-    authenticator.set_iam_profile_name_and_account_id('my-profile-name', 'my-acc-id')
-    assert authenticator.token_manager.iam_profile_name == 'my-profile-name'
-    assert authenticator.token_manager.iam_account_id == 'my-acc-id'
-
-    with pytest.raises(TypeError) as err:
-        authenticator.set_headers('dummy')
-    assert str(err.value) == 'headers must be a dictionary'
-
-    authenticator.set_headers({'dummy': 'headers'})
-    assert authenticator.token_manager.headers == {'dummy': 'headers'}
-
-    with pytest.raises(TypeError) as err:
-        authenticator.set_proxies('dummy')
-    assert str(err.value) == 'proxies must be a dictionary'
-
-    authenticator.set_proxies({'dummy': 'proxies'})
-    assert authenticator.token_manager.proxies == {'dummy': 'proxies'}
-
-    authenticator.set_disable_ssl_verification(True)
-    assert authenticator.token_manager.disable_ssl_verification
-
-
-def test_disable_ssl_verification():
-    authenticator = IAMAssumeAuthenticator(
-        apikey='my_apikey', iam_profile_id='my-profile-id', disable_ssl_verification=True
-    )
-    assert authenticator.token_manager.disable_ssl_verification is True
-    assert authenticator.token_manager.iam_delegate.disable_ssl_verification is True
-
-    authenticator.set_disable_ssl_verification(False)
-    assert authenticator.token_manager.disable_ssl_verification is False
-    assert authenticator.token_manager.iam_delegate.disable_ssl_verification is False
-
-
-def test_invalid_disable_ssl_verification_type():
-    with pytest.raises(TypeError) as err:
-        authenticator = IAMAssumeAuthenticator(
-            apikey='my_apikey', iam_profile_id='my-profile-id', disable_ssl_verification='True'
-        )
-    assert str(err.value) == 'disable_ssl_verification must be a bool'
-
-    authenticator = IAMAssumeAuthenticator(apikey='my_apikey', iam_profile_id='my-profile-id')
-    assert authenticator.token_manager.disable_ssl_verification is False
-
-    with pytest.raises(TypeError) as err:
-        authenticator.set_disable_ssl_verification('True')
-    assert str(err.value) == 'status must be a bool'
-
 
 def test_iam_assume_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
@@ -217,9 +160,23 @@ def test_multiple_iam_assume_authenticators():
 
 def test_iam_assume_authenticator_unsupported_methods():
     authenticator = IAMAssumeAuthenticator('my_apikey', iam_profile_id='my_profile_id')
+
     with pytest.raises(AttributeError) as err:
         authenticator.set_scope('my_scope')
     assert str(err.value) == "'IAMAssumeAuthenticator' has no attribute 'set_scope'"
+
     with pytest.raises(AttributeError) as err:
         authenticator.set_client_id_and_secret('my_client_id', 'my_client_secret')
     assert str(err.value) == "'IAMAssumeAuthenticator' has no attribute 'set_client_id_and_secret'"
+
+    with pytest.raises(AttributeError) as err:
+        authenticator.set_headers({})
+    assert str(err.value) == "'IAMAssumeAuthenticator' has no attribute 'set_headers'"
+
+    with pytest.raises(AttributeError) as err:
+        authenticator.set_proxies({})
+    assert str(err.value) == "'IAMAssumeAuthenticator' has no attribute 'set_proxies'"
+
+    with pytest.raises(AttributeError) as err:
+        authenticator.set_disable_ssl_verification(True)
+    assert str(err.value) == "'IAMAssumeAuthenticator' has no attribute 'set_disable_ssl_verification'"

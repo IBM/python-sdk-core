@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from ibm_cloud_sdk_core.token_managers.iam_token_manager import IAMTokenManager
 
@@ -111,6 +111,13 @@ class IAMAssumeTokenManager(IAMRequestBasedTokenManager):
 
         self.request_payload['grant_type'] = 'urn:ibm:params:oauth:grant-type:assume'
         self._set_user_agent(_build_user_agent('iam-assume-authenticator'))
+
+    # Disable all setter methods, inherited from the parent class.
+    def __getattribute__(self, name: str) -> Any:
+        if name.startswith("set_"):
+            raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
+
+        return super().__getattribute__(name)
 
     def request_token(self) -> Dict:
         """Retrieves a standard IAM access token by using the IAM token manager

@@ -21,6 +21,7 @@ import time
 import urllib
 
 import jwt
+import pytest
 import responses
 
 from ibm_cloud_sdk_core import IAMAssumeTokenManager
@@ -213,3 +214,28 @@ def test_correct_properties_used_in_calls():
     # but those were not included in the second, assume type request.
     assert responses.calls[1].request.headers.get('Authorization') is None
     assert 'scope=my_scope' not in responses.calls[1].request.body
+
+
+@responses.activate
+def test_iam_assume_authenticator_unsupported_methods():
+    token_manager = IAMAssumeTokenManager('my_apikey', iam_profile_id='my_profile_id')
+
+    with pytest.raises(AttributeError) as err:
+        token_manager.set_scope('my_scope')
+    assert str(err.value) == "'IAMAssumeTokenManager' has no attribute 'set_scope'"
+
+    with pytest.raises(AttributeError) as err:
+        token_manager.set_client_id_and_secret('my_client_id', 'my_client_secret')
+    assert str(err.value) == "'IAMAssumeTokenManager' has no attribute 'set_client_id_and_secret'"
+
+    with pytest.raises(AttributeError) as err:
+        token_manager.set_headers({})
+    assert str(err.value) == "'IAMAssumeTokenManager' has no attribute 'set_headers'"
+
+    with pytest.raises(AttributeError) as err:
+        token_manager.set_proxies({})
+    assert str(err.value) == "'IAMAssumeTokenManager' has no attribute 'set_proxies'"
+
+    with pytest.raises(AttributeError) as err:
+        token_manager.set_disable_ssl_verification(True)
+    assert str(err.value) == "'IAMAssumeTokenManager' has no attribute 'set_disable_ssl_verification'"
