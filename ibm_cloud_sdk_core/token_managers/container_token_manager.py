@@ -85,6 +85,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
 
     def __init__(
         self,
+        *,
         cr_token_filename: Optional[str] = None,
         iam_profile_name: Optional[str] = None,
         iam_profile_id: Optional[str] = None,

@@ -23,7 +23,8 @@ python -m pip install --upgrade ibm-cloud-sdk-core
 The python-sdk-core project supports the following types of authentication:
 - Basic Authentication
 - Bearer Token Authentication
-- Identity and Access Management (IAM) Authentication
+- Identity and Access Management (IAM) Authentication (grant type: apikey)
+- Identity and Access Management (IAM) Authentication (grant type: assume)
 - Container Authentication
 - VPC Instance Authentication
 - Cloud Pak for Data Authentication

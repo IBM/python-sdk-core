@@ -286,6 +286,20 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.scope is None
     del os.environ['IBM_CREDENTIALS_FILE']
 
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-iam-assume.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('service 1')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_IAM_ASSUME
+    assert authenticator.token_manager.iam_delegate.apikey == 'my-api-key'
+    assert authenticator.token_manager.iam_profile_id == 'iam-profile-1'
+    assert authenticator.token_manager.url == 'https://iam.cloud.ibm.com'
+    assert authenticator.token_manager.client_id is None
+    assert authenticator.token_manager.client_secret is None
+    assert authenticator.token_manager.disable_ssl_verification is False
+    assert authenticator.token_manager.scope is None
+    del os.environ['IBM_CREDENTIALS_FILE']
+
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-basic.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('watson')

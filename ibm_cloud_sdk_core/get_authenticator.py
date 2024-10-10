@@ -21,6 +21,7 @@ from .authenticators import (
     ContainerAuthenticator,
     CloudPakForDataAuthenticator,
     IAMAuthenticator,
+    IAMAssumeAuthenticator,
     NoAuthAuthenticator,
     VPCInstanceAuthenticator,
     MCSPAuthenticator,
@@ -55,6 +56,7 @@ def get_authenticator_from_environment(service_name: str) -> Authenticator:
     return authenticator
 
 
+# pylint: disable=too-many-branches
 def __construct_authenticator(config: dict) -> Authenticator:
     # Determine the authentication type if not specified explicitly.
     if config.get('AUTH_TYPE'):
@@ -98,6 +100,19 @@ def __construct_authenticator(config: dict) -> Authenticator:
     elif auth_type == Authenticator.AUTHTYPE_IAM.lower() and config.get('APIKEY'):
         authenticator = IAMAuthenticator(
             apikey=config.get('APIKEY'),
+            url=config.get('AUTH_URL'),
+            client_id=config.get('CLIENT_ID'),
+            client_secret=config.get('CLIENT_SECRET'),
+            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            scope=config.get('SCOPE'),
+        )
+    elif auth_type == Authenticator.AUTHTYPE_IAM_ASSUME.lower():
+        authenticator = IAMAssumeAuthenticator(
+            apikey=config.get('APIKEY'),
+            iam_profile_id=config.get('IAM_PROFILE_ID'),
+            iam_profile_crn=config.get('IAM_PROFILE_CRN'),
+            iam_profile_name=config.get('IAM_PROFILE_NAME'),
+            iam_account_id=config.get('IAM_ACCOUNT_ID'),
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
