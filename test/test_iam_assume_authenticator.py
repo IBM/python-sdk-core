@@ -31,6 +31,14 @@ def test_iam_assume_authenticator():
     assert authenticator.token_manager.scope is None
 
 
+def test_iam_assume_authenticator_disable_ssl_wrong_type():
+    with pytest.raises(TypeError) as err:
+        IAMAssumeAuthenticator(
+            apikey='my_apikey', iam_profile_crn='crn:iam-profile:123', disable_ssl_verification='yes'
+        )
+    assert str(err.value) == 'disable_ssl_verification must be a bool'
+
+
 def test_iam_assume_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
         IAMAssumeAuthenticator(None)

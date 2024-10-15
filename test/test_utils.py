@@ -29,7 +29,7 @@ from ibm_cloud_sdk_core import convert_model, convert_list
 from ibm_cloud_sdk_core import get_query_param
 from ibm_cloud_sdk_core import read_external_sources
 from ibm_cloud_sdk_core.authenticators import Authenticator, BasicAuthenticator, IAMAuthenticator
-from ibm_cloud_sdk_core.utils import strip_extra_slashes, is_json_mimetype
+from ibm_cloud_sdk_core.utils import GzipStream, strip_extra_slashes, is_json_mimetype
 from .utils.logger_utils import setup_test_logger
 
 setup_test_logger(logging.ERROR)
@@ -659,3 +659,20 @@ def test_is_json_mimetype():
 
     assert is_json_mimetype('application/json') is True
     assert is_json_mimetype('application/json; charset=utf8') is True
+
+
+def test_gzip_stream_open_file():
+    cr_token_file = os.path.join(os.path.dirname(__file__), '../resources/cr-token.txt')
+    with open(cr_token_file, 'r', encoding='utf-8') as f:
+        stream = GzipStream(source=f)
+        assert stream is not None
+
+
+def test_gzip_stream_open_string():
+    stream = GzipStream(source='foobar')
+    assert stream is not None
+
+
+def test_gzip_stream_open_bytes():
+    stream = GzipStream(source=b'foobar')
+    assert stream is not None
