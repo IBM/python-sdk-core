@@ -1,3 +1,10 @@
+# [3.22.0](https://github.com/IBM/python-sdk-core/compare/v3.21.0...v3.22.0) (2024-10-15)
+
+
+### Features
+
+* **IAMAssumeAuthenticator:** introduce a new authenticator ([#211](https://github.com/IBM/python-sdk-core/issues/211)) ([29a8eb7](https://github.com/IBM/python-sdk-core/commit/29a8eb7f5d9d72b7e48d4bf7f3867e5c93e747fb))
+
 # [3.21.0](https://github.com/IBM/python-sdk-core/compare/v3.20.6...v3.21.0) (2024-09-18)
 
 
