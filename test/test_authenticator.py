@@ -19,3 +19,5 @@ def test_authenticator():
     authenticator = TestAuthenticator()
     assert authenticator is not None
     assert authenticator.authentication_type() == Authenticator.AUTHTYPE_UNKNOWN
+    assert authenticator.validate() is None
+    assert authenticator.authenticate(None) is None

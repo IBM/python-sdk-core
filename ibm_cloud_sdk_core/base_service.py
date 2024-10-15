@@ -508,4 +508,4 @@ class BaseService:
 
     @staticmethod
     def _encode_path_vars(*args) -> None:
-        return (requests.utils.quote(x, safe='') for x in args)
+        return BaseService.encode_path_vars(*args)

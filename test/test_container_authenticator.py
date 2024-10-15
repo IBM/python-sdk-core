@@ -84,7 +84,7 @@ def test_container_authenticator_with_scope():
 
 def test_authenticator_validate_failed():
     with pytest.raises(ValueError) as err:
-        ContainerAuthenticator(None)
+        ContainerAuthenticator()
     assert str(err.value) == 'At least one of iam_profile_name or iam_profile_id must be specified.'
 
     with pytest.raises(ValueError) as err:
