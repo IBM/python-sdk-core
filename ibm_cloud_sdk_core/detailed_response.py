@@ -17,7 +17,7 @@
 import json
 from typing import Dict, Optional, Union
 
-import requests
+import niquests as requests
 
 
 class DetailedResponse:

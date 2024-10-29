@@ -91,7 +91,7 @@ def request_callback(request):
 
 @responses.activate
 def test_request_token_with_profile_id():
-    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback)
+    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback, content_type='application/json')
 
     token_manager = IAMAssumeTokenManager("apikey", iam_profile_id=MY_PROFILE_ID)
 
@@ -110,7 +110,7 @@ def test_request_token_with_profile_id():
 
 @responses.activate
 def test_request_token_with_profile_crn():
-    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback)
+    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback, content_type='application/json')
 
     token_manager = IAMAssumeTokenManager("apikey", iam_profile_crn=MY_PROFILE_CRN)
 
@@ -129,7 +129,7 @@ def test_request_token_with_profile_crn():
 
 @responses.activate
 def test_request_token_with_profile_name_and_account_id():
-    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback)
+    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback, content_type='application/json')
 
     token_manager = IAMAssumeTokenManager("apikey", iam_profile_name=MY_PROFILE_NAME, iam_account_id=MY_ACCOUNT_ID)
 
@@ -148,7 +148,7 @@ def test_request_token_with_profile_name_and_account_id():
 
 @responses.activate
 def test_request_token_uses_the_correct_grant_types():
-    responses.add(responses.POST, url=IAM_URL, body=BASE_RESPONSE_JSON, status=200)
+    responses.add(responses.POST, url=IAM_URL, body=BASE_RESPONSE_JSON, status=200, content_type='application/json')
 
     token_manager = IAMAssumeTokenManager("apikey", iam_profile_id='my_profile_id')
     token_manager.request_token()
@@ -159,7 +159,7 @@ def test_request_token_uses_the_correct_grant_types():
 
 @responses.activate
 def test_request_token_uses_the_correct_headers():
-    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback)
+    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback, content_type='application/json')
 
     token_manager = IAMAssumeTokenManager("apikey", iam_profile_id='my_profile_id')
     token_manager.request_token()
@@ -173,7 +173,7 @@ def test_request_token_uses_the_correct_headers():
 
 @responses.activate
 def test_get_token():
-    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback)
+    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback, content_type='application/json')
 
     token_manager = IAMAssumeTokenManager("apikey", iam_profile_id=MY_PROFILE_ID)
 
@@ -197,7 +197,7 @@ def test_get_token():
 
 @responses.activate
 def test_correct_properties_used_in_calls():
-    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback)
+    responses.add_callback(responses.POST, url=IAM_URL, callback=request_callback, content_type='application/json')
 
     token_manager = IAMAssumeTokenManager(
         "apikey",

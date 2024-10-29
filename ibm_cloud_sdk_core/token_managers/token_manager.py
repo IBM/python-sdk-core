@@ -19,7 +19,7 @@ import time
 from abc import ABC, abstractmethod
 from threading import Lock
 
-import requests
+import niquests as requests
 
 from ibm_cloud_sdk_core.logger import get_logger
 from ..api_exception import ApiException

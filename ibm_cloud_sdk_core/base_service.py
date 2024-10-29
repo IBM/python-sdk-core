@@ -16,22 +16,19 @@
 
 import gzip
 import io
-import logging
 import json as json_import
 from http.cookiejar import CookieJar
-from http import client
 from os.path import basename
 from typing import Dict, List, Optional, Tuple, Union
 from urllib3.util.retry import Retry
 
-import requests
-from requests.structures import CaseInsensitiveDict
-from requests.exceptions import JSONDecodeError
+import niquests as requests
+from niquests.structures import CaseInsensitiveDict
+from niquests.exceptions import JSONDecodeError
 
 from ibm_cloud_sdk_core.authenticators import Authenticator
 from .api_exception import ApiException
 from .detailed_response import DetailedResponse
-from .http_adapter import SSLHTTPAdapter
 from .token_managers.token_manager import TokenManager
 from .utils import (
     has_bad_first_or_last_char,
@@ -43,10 +40,7 @@ from .utils import (
     GzipStream,
 )
 from .private_helpers import _build_user_agent
-from .logger import (
-    get_logger,
-    LoggingFilter,
-)
+from .logger import get_logger
 
 logger = get_logger()
 
@@ -106,20 +100,12 @@ class BaseService:
         self.enable_gzip_compression = enable_gzip_compression
         self._set_user_agent_header(_build_user_agent())
         self.retry_config = None
-        self.http_adapter = SSLHTTPAdapter(_disable_ssl_verification=self.disable_ssl_verification)
+        if self.disable_ssl_verification:
+            self.http_client.verify = False
         if not self.authenticator:
             raise ValueError('authenticator must be provided')
         if not isinstance(self.authenticator, Authenticator):
             raise ValueError('authenticator should be of type Authenticator')
-
-        self.http_client.mount('http://', self.http_adapter)
-        self.http_client.mount('https://', self.http_adapter)
-        # If debug logging is requested, then trigger HTTP message logging as well.
-        if logger.isEnabledFor(logging.DEBUG):
-            client.HTTPConnection.debuglevel = 1
-            # Replace the `print` function in the HTTPClient module to
-            # use the debug logger instead of the bare Python print.
-            client.print = lambda *args: logger.debug(LoggingFilter.filter_message(" ".join(args)))
 
     def enable_retries(self, max_retries: int = 4, retry_interval: float = 30.0) -> None:
         """Enable automatic retries on the underlying http client used by the BaseService instance.
@@ -142,19 +128,17 @@ class BaseService:
             # Omitting this will default to all methods except POST
             allowed_methods=['HEAD', 'GET', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'POST'],
         )
-        self.http_adapter = SSLHTTPAdapter(
-            max_retries=self.retry_config, _disable_ssl_verification=self.disable_ssl_verification
-        )
-        self.http_client.mount('http://', self.http_adapter)
-        self.http_client.mount('https://', self.http_adapter)
+        self.http_client = requests.Session(retries=self.retry_config)
+        if self.disable_ssl_verification:
+            self.http_client.verify = False
         logger.debug('Enabled retries; max_retries=%d, max_retry_interval=%f', max_retries, retry_interval)
 
     def disable_retries(self):
         """Remove retry config from http_adapter"""
         self.retry_config = None
-        self.http_adapter = SSLHTTPAdapter(_disable_ssl_verification=self.disable_ssl_verification)
-        self.http_client.mount('http://', self.http_adapter)
-        self.http_client.mount('https://', self.http_adapter)
+        self.http_client = requests.Session()
+        if self.disable_ssl_verification:
+            self.http_client.verify = False
         logger.debug('Disabled retries')
 
     def configure_service(self, service_name: str) -> None:
@@ -231,11 +215,8 @@ class BaseService:
 
         self.disable_ssl_verification = status
 
-        self.http_adapter = SSLHTTPAdapter(
-            max_retries=self.retry_config, _disable_ssl_verification=self.disable_ssl_verification
-        )
-        self.http_client.mount('http://', self.http_adapter)
-        self.http_client.mount('https://', self.http_adapter)
+        if self.disable_ssl_verification:
+            self.http_client.verify = False
         logger.debug('Disabled SSL verification in HTTP client')
 
     def set_service_url(self, service_url: str) -> None:
@@ -274,7 +255,7 @@ class BaseService:
         if isinstance(http_client, requests.sessions.Session):
             self.http_client = http_client
         else:
-            raise TypeError("http_client parameter must be a requests.sessions.Session")
+            raise TypeError("http_client parameter must be a niquests.sessions.Session")
 
     def get_authenticator(self) -> Authenticator:
         """Get the authenticator currently used by the service.

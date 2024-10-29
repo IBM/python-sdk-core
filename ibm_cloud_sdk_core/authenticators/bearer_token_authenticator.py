@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from requests import Request
+from niquests import Request
 
 from ibm_cloud_sdk_core.logger import get_logger
 from .authenticator import Authenticator

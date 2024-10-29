@@ -93,6 +93,7 @@ def mock_iam_response(func):
             method=responses.POST,
             url='https://iam.cloud.ibm.com/identity/token',
             callback=callback,
+            content_type='application/json',
         )
 
         responses.add(response)

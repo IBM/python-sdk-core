@@ -20,12 +20,13 @@ import gzip
 import json
 import logging
 import os
-import ssl
 import tempfile
 import time
 from shutil import copyfile
 from typing import Optional
-from urllib3.exceptions import ConnectTimeoutError, MaxRetryError
+
+# indirectly import from urllib3-(future)
+from niquests.adapters import ConnectTimeoutError, MaxRetryError
 
 import jwt
 import pytest
@@ -271,7 +272,13 @@ def test_iam():
         "expiration": int(time.time()),
         "refresh_token": "jy4gl91BQ",
     }
-    responses.add(responses.POST, url='https://iam.cloud.ibm.com/identity/token', body=json.dumps(response), status=200)
+    responses.add(
+        responses.POST,
+        url='https://iam.cloud.ibm.com/identity/token',
+        body=json.dumps(response),
+        status=200,
+        content_type='application/json',
+    )
     responses.add(
         responses.GET,
         url='https://gateway.watsonplatform.net/test/api',
@@ -850,7 +857,13 @@ def test_reserved_keys(caplog):
     assert response.get_result().request.headers.get('key') == 'OK'
     assert response.get_result().request.url == 'https://gateway.watsonplatform.net/test/api'
     assert response.get_result().request.method == 'GET'
-    assert response.get_result().request.hooks == {'response': []}
+    assert response.get_result().request.hooks == {
+        'early_response': [],
+        'on_upload': [],
+        'pre_request': [],
+        'pre_send': [],
+        'response': [],
+    }
     assert caplog.record_tuples[0][2] == '"method" has been removed from the request'
     assert caplog.record_tuples[1][2] == '"url" has been removed from the request'
     assert caplog.record_tuples[2][2] == '"cookies" has been removed from the request'
@@ -1016,11 +1029,3 @@ def test_configure_service_error():
     with pytest.raises(ValueError) as err:
         service.configure_service(None)
     assert str(err.value) == 'Service_name must be of type string.'
-
-
-def test_min_ssl_version():
-    service = AnyServiceV1('2022-03-08', authenticator=NoAuthAuthenticator())
-    adapter = service.http_client.get_adapter('https://')
-    ssl_context = adapter.poolmanager.connection_pool_kw.get('ssl_context', None)
-    assert ssl_context is not None
-    assert ssl_context.minimum_version == ssl.TLSVersion.TLSv1_2

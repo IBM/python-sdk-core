@@ -16,7 +16,7 @@
 
 from typing import Optional
 
-from requests import Request
+from niquests import Request
 
 from ibm_cloud_sdk_core.logger import get_logger
 from ..token_managers.vpc_instance_token_manager import VPCInstanceTokenManager

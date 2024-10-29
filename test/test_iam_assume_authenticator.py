@@ -137,7 +137,7 @@ def test_get_token():
         "expiration": current_time,
         "refresh_token": "jy4gl91BQ",
     }
-    responses.add(responses.POST, url=url, body=json.dumps(response), status=200)
+    responses.add(responses.POST, url=url, body=json.dumps(response), status=200, content_type='application/json')
 
     auth_headers = {'Host': 'iam.cloud.ibm.com:443'}
     authenticator = IAMAssumeAuthenticator('my_apikey', iam_profile_id='my_profile_id', headers=auth_headers)

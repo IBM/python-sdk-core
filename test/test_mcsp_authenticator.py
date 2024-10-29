@@ -103,7 +103,7 @@ def get_mock_token_response(issued_at, time_to_live) -> str:
 @responses.activate
 def test_get_token():
     (response, access_token) = get_mock_token_response(time.time(), 7200)
-    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response, status=200)
+    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response, status=200, content_type='application/json')
 
     auth_headers = {'Host': 'mcsp.cloud.ibm.com:443'}
     authenticator = MCSPAuthenticator(apikey='my-api-key', url=MOCK_URL, headers=auth_headers)
@@ -120,7 +120,7 @@ def test_get_token():
 @responses.activate
 def test_get_token_cached():
     (response, access_token) = get_mock_token_response(time.time(), 7200)
-    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response, status=200)
+    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response, status=200, content_type='application/json')
 
     authenticator = MCSPAuthenticator(apikey='my-api-key', url=MOCK_URL)
 
@@ -142,11 +142,15 @@ def test_get_token_background_refresh():
 
     # Setup the first token response.
     (response1, access_token1) = get_mock_token_response(t1, 7200)
-    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response1, status=200)
+    responses.add(
+        responses.POST, MOCK_URL + OPERATION_PATH, body=response1, status=200, content_type='application/json'
+    )
 
     # Setup the second token response.
     (response2, access_token2) = get_mock_token_response(t2, 7200)
-    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response2, status=200)
+    responses.add(
+        responses.POST, MOCK_URL + OPERATION_PATH, body=response2, status=200, content_type='application/json'
+    )
 
     authenticator = MCSPAuthenticator(apikey="my-api-key", url=MOCK_URL)
 

@@ -58,7 +58,7 @@ def get_mock_token_response(issued_at, time_to_live) -> str:
 @responses.activate
 def test_request_token():
     (response, access_token) = get_mock_token_response(time.time(), 30)
-    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response, status=200)
+    responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response, status=200, content_type='application/json')
 
     token_manager = MCSPTokenManager(apikey="my-api-key", url=MOCK_URL, disable_ssl_verification=True)
     token = token_manager.get_token()
@@ -76,7 +76,9 @@ def test_request_token_unsuccessful():
         "errorMessage": "Provided API key could not be found"
     }
     """
-    responses.add(responses.POST, url=MOCK_URL + OPERATION_PATH, body=response, status=400)
+    responses.add(
+        responses.POST, url=MOCK_URL + OPERATION_PATH, body=response, status=400, content_type='application/json'
+    )
 
     token_manager = MCSPTokenManager(apikey="bad-api-key", url=MOCK_URL)
     with pytest.raises(ApiException):

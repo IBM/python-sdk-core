@@ -18,7 +18,7 @@ import warnings
 from http import HTTPStatus
 from typing import Optional
 
-from requests import Response
+from niquests import Response
 
 
 class ApiException(Exception):

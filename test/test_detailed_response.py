@@ -17,13 +17,13 @@ def clean(val):
 def test_detailed_response_dict():
     responses.add(
         responses.GET,
-        'https://test.com',
+        'https://test.com/',
         status=200,
         body=json.dumps({'foobar': 'baz'}),
         content_type='application/json',
     )
 
-    mock_response = requests.get('https://test.com', timeout=None)
+    mock_response = requests.get('https://test.com/', timeout=None)
     detailed_response = DetailedResponse(
         response=mock_response.json(), headers=mock_response.headers, status_code=mock_response.status_code
     )
@@ -42,13 +42,13 @@ def test_detailed_response_dict():
 def test_detailed_response_list():
     responses.add(
         responses.GET,
-        'https://test.com',
+        'https://test.com/',
         status=200,
         body=json.dumps(['foobar', 'baz']),
         content_type='application/json',
     )
 
-    mock_response = requests.get('https://test.com', timeout=None)
+    mock_response = requests.get('https://test.com/', timeout=None)
     detailed_response = DetailedResponse(
         response=mock_response.json(), headers=mock_response.headers, status_code=mock_response.status_code
     )

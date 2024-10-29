@@ -123,7 +123,7 @@ def test_get_token():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ",
     }
-    responses.add(responses.POST, url=url, body=json.dumps(response), status=200)
+    responses.add(responses.POST, url=url, body=json.dumps(response), status=200, content_type='application/json')
 
     auth_headers = {'Host': 'iam.cloud.ibm.com:443'}
     authenticator = IAMAuthenticator('my_apikey', headers=auth_headers)

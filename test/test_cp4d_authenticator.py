@@ -142,7 +142,9 @@ def test_get_token():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ",
     }
-    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
+    responses.add(
+        responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200, content_type='application/json'
+    )
 
     auth_headers = {'Host': 'cp4d.cloud.ibm.com:443'}
     authenticator = CloudPakForDataAuthenticator(

@@ -79,7 +79,13 @@ def test_retrieve_instance_identity_token():
         'access_token': TEST_TOKEN,
     }
 
-    responses.add(responses.PUT, 'http://someurl.com/instance_identity/v1/token', body=json.dumps(response), status=200)
+    responses.add(
+        responses.PUT,
+        'http://someurl.com/instance_identity/v1/token',
+        body=json.dumps(response),
+        status=200,
+        content_type='application/json',
+    )
 
     ii_token = token_manager.retrieve_instance_identity_token()
     assert len(responses.calls) == 1
@@ -103,7 +109,13 @@ def test_retrieve_instance_identity_token_failed():
         'errors': ['Ooops'],
     }
 
-    responses.add(responses.PUT, 'http://someurl.com/instance_identity/v1/token', body=json.dumps(response), status=400)
+    responses.add(
+        responses.PUT,
+        'http://someurl.com/instance_identity/v1/token',
+        body=json.dumps(response),
+        status=400,
+        content_type='application/json',
+    )
 
     with pytest.raises(ApiException):
         token_manager.retrieve_instance_identity_token()
@@ -128,7 +140,11 @@ def test_request_token_with_crn():
     }
 
     responses.add(
-        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=200
+        responses.POST,
+        'http://169.254.169.254/instance_identity/v1/iam_token',
+        body=json.dumps(response),
+        status=200,
+        content_type='application/json',
     )
 
     response = token_manager.request_token()
@@ -158,7 +174,11 @@ def test_request_token_with_id():
     }
 
     responses.add(
-        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=200
+        responses.POST,
+        'http://169.254.169.254/instance_identity/v1/iam_token',
+        body=json.dumps(response),
+        status=200,
+        content_type='application/json',
     )
 
     response = token_manager.request_token()
@@ -185,7 +205,11 @@ def test_request_token():
     }
 
     responses.add(
-        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=200
+        responses.POST,
+        'http://169.254.169.254/instance_identity/v1/iam_token',
+        body=json.dumps(response),
+        status=200,
+        content_type='application/json',
     )
 
     response = token_manager.request_token()
@@ -214,7 +238,11 @@ def test_request_token_failed():
     }
 
     responses.add(
-        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=400
+        responses.POST,
+        'http://169.254.169.254/instance_identity/v1/iam_token',
+        body=json.dumps(response),
+        status=400,
+        content_type='application/json',
     )
 
     with pytest.raises(ApiException):
@@ -236,13 +264,18 @@ def test_access_token():
     }
 
     responses.add(
-        responses.PUT, 'http://169.254.169.254/instance_identity/v1/token', body=json.dumps(response_ii), status=200
+        responses.PUT,
+        'http://169.254.169.254/instance_identity/v1/token',
+        body=json.dumps(response_ii),
+        status=200,
+        content_type='application/json',
     )
     responses.add(
         responses.POST,
         'http://169.254.169.254/instance_identity/v1/iam_token',
         body=json.dumps(response_iam),
         status=200,
+        content_type='application/json',
     )
 
     assert token_manager.access_token is None
@@ -273,7 +306,11 @@ def test_get_token_success():
     }
 
     responses.add(
-        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response1), status=200
+        responses.POST,
+        'http://169.254.169.254/instance_identity/v1/iam_token',
+        body=json.dumps(response1),
+        status=200,
+        content_type='application/json',
     )
 
     access_token = token_manager.get_token()
@@ -295,7 +332,11 @@ def test_get_token_success():
     # because we want the access token to be considered as "expired"
     # when we reach the IAM-server reported expiration time minus 10 secs.
     responses.add(
-        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response2), status=200
+        responses.POST,
+        'http://169.254.169.254/instance_identity/v1/iam_token',
+        body=json.dumps(response2),
+        status=200,
+        content_type='application/json',
     )
     token_manager.expire_time = _get_current_time() + EXPIRATION_WINDOW
     access_token = token_manager.get_token()

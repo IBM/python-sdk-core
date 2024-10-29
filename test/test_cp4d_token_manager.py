@@ -50,7 +50,9 @@ def test_request_token():
     response = {
         "token": access_token,
     }
-    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
+    responses.add(
+        responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200, content_type='application/json'
+    )
 
     token_manager = CP4DTokenManager("username", "password", url)
     token_manager.set_disable_ssl_verification(True)

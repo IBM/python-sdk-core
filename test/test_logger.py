@@ -90,5 +90,6 @@ def test_redact_secrets_log(caplog):
 
     assert res is not None
     # Make sure the request has been logged and the token is redacted.
-    assert "Authorization" in caplog.text
+    assert "Prepared request [GET http://localhost:3335/]" in caplog.text
+    assert "Authorization" not in caplog.text
     assert "token" not in caplog.text

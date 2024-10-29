@@ -68,7 +68,7 @@ def test_request_token_auth_default():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("apikey")
     token_manager.request_token()
@@ -91,7 +91,7 @@ def test_request_token_auth_in_ctor():
         "refresh_token": "jy4gl91BQ"
     }"""
     default_auth_header = 'Basic Yng6Yng='
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("apikey", url=iam_url, client_id='foo', client_secret='bar')
     token_manager.request_token()
@@ -114,7 +114,7 @@ def test_request_token_auth_in_ctor_with_scope():
         "refresh_token": "jy4gl91BQ"
     }"""
     default_auth_header = 'Basic Yng6Yng='
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("apikey", url=iam_url, client_id='foo', client_secret='bar', scope='john snow')
     token_manager.request_token()
@@ -148,7 +148,7 @@ def test_request_token_unsuccessful():
         "errorMessage": "Provided API key could not be found"
     }
     """
-    responses.add(responses.POST, url=iam_url, body=response, status=400)
+    responses.add(responses.POST, url=iam_url, body=response, status=400, content_type='application/json')
 
     token_manager = IAMTokenManager("apikey")
     with pytest.raises(ApiException):
@@ -169,7 +169,7 @@ def test_request_token_auth_in_ctor_client_id_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("iam_apikey", url=iam_url, client_id='foo')
     token_manager.request_token()
@@ -191,7 +191,7 @@ def test_request_token_auth_in_ctor_secret_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("iam_apikey", url=iam_url, client_id=None, client_secret='bar')
     token_manager.request_token()
@@ -214,7 +214,7 @@ def test_request_token_auth_in_setter():
         "refresh_token": "jy4gl91BQ"
     }"""
     default_auth_header = 'Basic Yng6Yng='
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("iam_apikey")
     token_manager.set_client_id_and_secret('foo', 'bar')
@@ -237,7 +237,7 @@ def test_request_token_auth_in_setter_client_id_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("iam_apikey")
     token_manager.set_client_id_and_secret('foo', None)
@@ -260,7 +260,7 @@ def test_request_token_auth_in_setter_secret_only():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("iam_apikey")
     token_manager.set_client_id_and_secret(None, 'bar')
@@ -284,7 +284,7 @@ def test_request_token_auth_in_setter_scope():
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
     }"""
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("iam_apikey")
     token_manager.set_client_id_and_secret(None, 'bar')
@@ -328,7 +328,7 @@ def test_get_token_success():
     access_token = token_manager.access_token
     assert access_token is None
 
-    responses.add(responses.POST, url=iam_url, body=response1, status=200)
+    responses.add(responses.POST, url=iam_url, body=response1, status=200, content_type='application/json')
     access_token = token_manager.get_token()
     assert access_token == TEST_ACCESS_TOKEN_1
     assert token_manager.access_token == TEST_ACCESS_TOKEN_1
@@ -347,7 +347,7 @@ def test_get_token_success():
     # We'll set the expiration time to be current-time + EXPIRATION_WINDOW (10 secs)
     # because we want the access token to be considered as "expired"
     # when we reach the IAM-server reported expiration time minus 10 secs.
-    responses.add(responses.POST, url=iam_url, body=response2, status=200)
+    responses.add(responses.POST, url=iam_url, body=response2, status=200, content_type='application/json')
     token_manager.expire_time = _get_current_time() + EXPIRATION_WINDOW
     token_manager.refresh_time = _get_current_time() + 1000
     access_token = token_manager.get_token()
@@ -368,7 +368,7 @@ def test_get_refresh_token():
     }""" % (
         access_token_str
     )
-    responses.add(responses.POST, url=iam_url, body=response, status=200)
+    responses.add(responses.POST, url=iam_url, body=response, status=200, content_type='application/json')
 
     token_manager = IAMTokenManager("iam_apikey")
     token_manager.get_token()

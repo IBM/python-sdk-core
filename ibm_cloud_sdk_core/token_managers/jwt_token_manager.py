@@ -18,7 +18,7 @@ from abc import ABC
 from typing import Optional
 
 import jwt
-import requests
+import niquests as requests
 
 from .token_manager import TokenManager
 from ..api_exception import ApiException
