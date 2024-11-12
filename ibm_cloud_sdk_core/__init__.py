@@ -18,6 +18,7 @@ classes:
     BaseService: Abstract class for common functionality between each service.
     DetailedResponse: The object returned from successful service operations.
     IAMTokenManager: Requests and refreshes IAM tokens using an apikey, and optionally a client_id and client_secret.
+    IAMAssumeTokenManager: Requests and refreshes IAM tokens using an apikey and a trusted profile.
     JWTTokenManager: Abstract class for common functionality between each JWT token manager.
     CP4DTokenManager: Requests and refreshes CP4D tokens given a username and password.
     ApiException: Custom exception class for errors returned from service operations.
@@ -39,6 +40,7 @@ functions:
 from .base_service import BaseService
 from .detailed_response import DetailedResponse
 from .token_managers.iam_token_manager import IAMTokenManager
+from .token_managers.iam_assume_token_manager import IAMAssumeTokenManager
 from .token_managers.jwt_token_manager import JWTTokenManager
 from .token_managers.cp4d_token_manager import CP4DTokenManager
 from .token_managers.container_token_manager import ContainerTokenManager

@@ -165,6 +165,32 @@ def test_retrieve_cr_token_success():
     assert cr_token == 'cr-token-1'
 
 
+def test_retrieve_cr_token_with_no_filename_1_success():
+    token_manager = ContainerTokenManager()
+
+    # Override the constants with the default locations
+    # just for testing purposes.
+    setattr(token_manager, 'DEFAULT_CR_TOKEN_FILENAME1', cr_token_file)
+    setattr(token_manager, 'DEFAULT_CR_TOKEN_FILENAME2', '')
+
+    cr_token = token_manager.retrieve_cr_token()
+
+    assert cr_token == 'cr-token-1'
+
+
+def test_retrieve_cr_token_with_no_filename_2_success():
+    token_manager = ContainerTokenManager()
+
+    # Override the constants with the default locations
+    # just for testing purposes.
+    setattr(token_manager, 'DEFAULT_CR_TOKEN_FILENAME1', '')
+    setattr(token_manager, 'DEFAULT_CR_TOKEN_FILENAME2', cr_token_file)
+
+    cr_token = token_manager.retrieve_cr_token()
+
+    assert cr_token == 'cr-token-1'
+
+
 def test_retrieve_cr_token_fail():
     token_manager = ContainerTokenManager(
         cr_token_filename='bogus-cr-token-file',
