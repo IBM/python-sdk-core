@@ -18,14 +18,15 @@ script:
 jobs:
   include:
     - stage: Build-Test
-      python: '3.8'
+      python: '3.9'
     - python: '3.10'
     - python: '3.11'
     - python: '3.12'
-    
+    - python: '3.13'
+
     - name: Detect-Secrets
       language: python
-      python: '3.12'
+      python: '3.13'
       install:
         - pip install --upgrade "git+https://github.com/ibm/detect-secrets.git@master#egg=detect-secrets"
       script:
@@ -42,7 +43,7 @@ jobs:
         - npm run semantic-release
 
     - stage: Publish-Release
-      python: "3.8"
+      python: "3.9"
       name: Publish-To-PyPi
       script:
         - make ci
