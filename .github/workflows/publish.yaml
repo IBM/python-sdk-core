@@ -1,0 +1,34 @@
+# This workflow is responsible for:
+# - publishing artifacts to Maven Central
+# - building and publishing javadocs to the git repository.
+# It is triggered when a new release is created.
+
+name: Publish
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    # Allow this workflow to be triggered manually
+
+jobs:
+  publish:
+    name: Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      - name: Build and publish distribution
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        run: |
+          make ci
+          make publish-release

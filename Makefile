@@ -12,7 +12,7 @@ all: upgrade-pip setup test-unit lint
 
 ci: all
 
-publish-release: build-dist publish-dist
+publish-release: publish-deps build-dist publish-dist
 
 upgrade-pip:
 	${PYTHON} -m pip install --upgrade pip
@@ -22,6 +22,10 @@ deps:
 
 dev-deps:
 	${PYTHON} -m pip install .[dev]
+
+detect-secrets:
+	detect-secrets scan --update .secrets.baseline
+	detect-secrets audit .secrets.baseline
 
 publish-deps:
 	${PYTHON} -m pip install .[publish]

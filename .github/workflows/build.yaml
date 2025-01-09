@@ -1,0 +1,91 @@
+# This workflow will build and unit test the project.
+# If the workflow is running on the "main" branch, then
+# semantic-release is also run to create a new release (if
+# warranted by the new commits being built).
+
+name: Build/Test
+
+on: 
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  workflow_dispatch:
+    # Allow workflow to be triggered manually.
+
+jobs:
+  detect-secrets:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    name: Detect-Secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      - name: Install detect-secrets
+        run: |
+          pip install --upgrade "git+https://github.com/ibm/detect-secrets.git@master#egg=detect-secrets"
+
+      - name: Run detect-secrets
+        run: |
+          detect-secrets scan --update .secrets.baseline
+          detect-secrets -v audit --report --fail-on-unaudited --fail-on-live --fail-on-audited-real .secrets.baseline
+
+  build:
+    needs: detect-secrets
+    name: Build/Test (Python ${{ matrix.python-version }})
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.13']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Build & Test
+        run: make ci
+
+  create-release:
+    needs: build
+    name: Semantic-Release
+    if: "github.ref_name == 'main' && github.event_name != 'pull_request'"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+
+      - name: Install Publishing Tools
+        run: |
+          pip install bump-my-version
+          npm install
+
+      - name: Run semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npm run semantic-release
