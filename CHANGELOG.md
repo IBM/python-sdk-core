@@ -1,3 +1,10 @@
+## [3.22.1](https://github.com/IBM/python-sdk-core/compare/v3.22.0...v3.22.1) (2025-01-09)
+
+
+### Bug Fixes
+
+* enable github workflows ([436ba89](https://github.com/IBM/python-sdk-core/commit/436ba891fd0d1f960b3427de3d6b40b1950d1a53))
+
 # [3.22.0](https://github.com/IBM/python-sdk-core/compare/v3.21.0...v3.22.0) (2024-10-15)
 
 
