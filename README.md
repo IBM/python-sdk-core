@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/IBM/python-sdk-core.svg?branch=main)](https://app.travis-ci.com/IBM/python-sdk-core)
+[![Build Status](https://github.com/IBM/python-sdk-core/actions/workflows/build.yaml/badge.svg)](https://github.com/IBM/python-sdk-core/actions/workflows/build.yaml)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ibm-cloud-sdk-core)](https://pypi.org/project/ibm-cloud-sdk-core/)
 [![Latest Stable Version](https://img.shields.io/pypi/v/ibm-cloud-sdk-core.svg)](https://pypi.python.org/pypi/ibm-cloud-sdk-core)
 [![CLA assistant](https://cla-assistant.io/readme/badge/ibm/python-sdk-core)](https://cla-assistant.io/ibm/python-sdk-core)
