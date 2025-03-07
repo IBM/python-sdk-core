@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2021, 2024 IBM All Rights Reserved.
+# Copyright 2021, 2025 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,8 +53,9 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
         This can be used to obtain an access token with a specific scope.
 
     Keyword Args:
-        cr_token_filename: The name of the file containing the injected CR token value
-            (applies to IKS-managed compute resources). Defaults to "/var/run/secrets/tokens/vault-token".
+        cr_token_filename: The name of the file containing the injected CR token value. Defaults to
+            "/var/run/secrets/tokens/vault-token", or "/var/run/secrets/tokens/sa-token" and
+            "/var/run/secrets/codeengine.cloud.ibm.com/compute-resource-token/token" when not provided.
         iam_profile_name: The name of the linked trusted IAM profile to be used when obtaining the IAM access token
             (a CR token might map to multiple IAM profiles).
             One of iam_profile_name or iam_profile_id must be specified.
@@ -82,6 +83,7 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
 
     DEFAULT_CR_TOKEN_FILENAME1 = '/var/run/secrets/tokens/vault-token'
     DEFAULT_CR_TOKEN_FILENAME2 = '/var/run/secrets/tokens/sa-token'
+    DEFAULT_CR_TOKEN_FILENAME3 = '/var/run/secrets/codeengine.cloud.ibm.com/compute-resource-token/token'
 
     def __init__(
         self,
@@ -129,11 +131,14 @@ class ContainerTokenManager(IAMRequestBasedTokenManager):
                 # If the user specified a filename, then use that.
                 cr_token = self.read_file(self.cr_token_filename)
             else:
-                # If the user didn't specify a filename, then try our two defaults.
+                # If the user didn't specify a filename, then try our three defaults.
                 try:
                     cr_token = self.read_file(self.DEFAULT_CR_TOKEN_FILENAME1)
                 except:
-                    cr_token = self.read_file(self.DEFAULT_CR_TOKEN_FILENAME2)
+                    try:
+                        cr_token = self.read_file(self.DEFAULT_CR_TOKEN_FILENAME2)
+                    except:
+                        cr_token = self.read_file(self.DEFAULT_CR_TOKEN_FILENAME3)
             return cr_token
         except Exception as ex:
             # pylint: disable=broad-exception-raised
