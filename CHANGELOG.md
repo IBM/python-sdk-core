@@ -1,3 +1,10 @@
+# [3.23.0](https://github.com/IBM/python-sdk-core/compare/v3.22.1...v3.23.0) (2025-03-07)
+
+
+### Features
+
+* **ContainerAuthenticator:** add support for code engine workload ([#218](https://github.com/IBM/python-sdk-core/issues/218)) ([765d33f](https://github.com/IBM/python-sdk-core/commit/765d33f794265784f216cdccb156d2f8476a66d1))
+
 ## [3.22.1](https://github.com/IBM/python-sdk-core/compare/v3.22.0...v3.22.1) (2025-01-09)
 
 
