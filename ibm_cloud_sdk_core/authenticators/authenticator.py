@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019, 2023 IBM All Rights Reserved.
+# Copyright 2019, 2025 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ class Authenticator(ABC):
     AUTHTYPE_VPC = 'vpc'
     AUTHTYPE_NOAUTH = 'noAuth'
     AUTHTYPE_MCSP = 'mcsp'
+    AUTHTYPE_MCSPV2 = 'mcspv2'
     AUTHTYPE_UNKNOWN = 'unknown'
 
     @abstractmethod

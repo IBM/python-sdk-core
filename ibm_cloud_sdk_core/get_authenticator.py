@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019, 2024 IBM All Rights Reserved.
+# Copyright 2019, 2025 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from .authenticators import (
     Authenticator,
     BasicAuthenticator,
@@ -25,8 +26,9 @@ from .authenticators import (
     NoAuthAuthenticator,
     VPCInstanceAuthenticator,
     MCSPAuthenticator,
+    MCSPV2Authenticator,
 )
-from .utils import read_external_sources
+from .utils import read_external_sources, string_to_bool
 from .logger import get_logger
 
 logger = get_logger()
@@ -57,6 +59,7 @@ def get_authenticator_from_environment(service_name: str) -> Authenticator:
 
 
 # pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
 def __construct_authenticator(config: dict) -> Authenticator:
     # Determine the authentication type if not specified explicitly.
     if config.get('AUTH_TYPE'):
@@ -86,7 +89,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            disable_ssl_verification=string_to_bool(config.get('AUTH_DISABLE_SSL', 'false')),
             scope=config.get('SCOPE'),
         )
     elif auth_type == Authenticator.AUTHTYPE_CP4D.lower():
@@ -95,7 +98,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             password=config.get('PASSWORD'),
             url=config.get('AUTH_URL'),
             apikey=config.get('APIKEY'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            disable_ssl_verification=string_to_bool(config.get('AUTH_DISABLE_SSL', 'false')),
         )
     elif auth_type == Authenticator.AUTHTYPE_IAM.lower() and config.get('APIKEY'):
         authenticator = IAMAuthenticator(
@@ -103,7 +106,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            disable_ssl_verification=string_to_bool(config.get('AUTH_DISABLE_SSL', 'false')),
             scope=config.get('SCOPE'),
         )
     elif auth_type == Authenticator.AUTHTYPE_IAM_ASSUME.lower():
@@ -116,7 +119,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             url=config.get('AUTH_URL'),
             client_id=config.get('CLIENT_ID'),
             client_secret=config.get('CLIENT_SECRET'),
-            disable_ssl_verification=config.get('AUTH_DISABLE_SSL', 'false').lower() == 'true',
+            disable_ssl_verification=string_to_bool(config.get('AUTH_DISABLE_SSL', 'false')),
             scope=config.get('SCOPE'),
         )
     elif auth_type == Authenticator.AUTHTYPE_VPC.lower():
@@ -129,6 +132,48 @@ def __construct_authenticator(config: dict) -> Authenticator:
         authenticator = MCSPAuthenticator(
             apikey=config.get('APIKEY'),
             url=config.get('AUTH_URL'),
+        )
+    elif auth_type == Authenticator.AUTHTYPE_MCSPV2.lower():
+        # Required arguments.
+        apikey = config.get('APIKEY')
+        url = config.get('AUTH_URL')
+        scope_collection_type = config.get('SCOPE_COLLECTION_TYPE')
+        scope_id = config.get('SCOPE_ID')
+
+        # Optional arguments.
+        optional_args = {}
+        str_value = config.get("INCLUDE_BUILTIN_ACTIONS")
+        if str_value is not None:
+            optional_args['include_builtin_actions'] = string_to_bool(str_value)
+
+        str_value = config.get("INCLUDE_CUSTOM_ACTIONS")
+        if str_value is not None:
+            optional_args['include_custom_actions'] = string_to_bool(str_value)
+
+        str_value = config.get("INCLUDE_ROLES")
+        if str_value is not None:
+            optional_args['include_roles'] = string_to_bool(str_value)
+
+        str_value = config.get("PREFIX_ROLES")
+        if str_value is not None:
+            optional_args['prefix_roles'] = string_to_bool(str_value)
+
+        str_value = config.get("CALLER_EXT_CLAIM")
+        if str_value is not None:
+            try:
+                optional_args['caller_ext_claim'] = json.loads(str_value)
+            except Exception as caused_by:
+                msg = 'An error occurred while unmarshalling the CALLER_EXT_CLAIM configuration property: {0}'.format(
+                    str_value
+                )
+                raise ValueError(msg) from caused_by
+
+        str_value = config.get("AUTH_DISABLE_SSL")
+        if str_value is not None:
+            optional_args['disable_ssl_verification'] = string_to_bool(str_value)
+
+        authenticator = MCSPV2Authenticator(
+            apikey=apikey, url=url, scope_collection_type=scope_collection_type, scope_id=scope_id, **optional_args
         )
     elif auth_type == Authenticator.AUTHTYPE_NOAUTH.lower():
         authenticator = NoAuthAuthenticator()

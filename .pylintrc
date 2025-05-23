@@ -8,7 +8,8 @@ disable=
     too-many-arguments,
     unnecessary-pass,
     no-member,
-    consider-using-f-string
+    consider-using-f-string,
+    too-many-instance-attributes
 
 [TYPECHECK]
 ignored-classes= responses

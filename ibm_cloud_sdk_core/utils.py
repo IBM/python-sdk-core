@@ -1,6 +1,6 @@
 # coding: utf-8
 
-# Copyright 2019, 2024 IBM All Rights Reserved.
+# Copyright 2019, 2025 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -271,6 +271,18 @@ def string_to_date(string: str) -> datetime.date:
         the de-serialized string as a date object.
     """
     return date_parser.parse(string).date()
+
+
+def string_to_bool(string: str) -> bool:
+    """Converts 'string' to a bool value.
+    Args:
+        string: the value to convert. This should be some form of "true" or "false"
+        (e.g. "True", "TrUE", "False", "FaLsE", etc.)
+
+    Returns:
+        the boolean value
+    """
+    return string.strip().lower() == 'true'
 
 
 def get_query_param(url_str: str, param: str) -> str:

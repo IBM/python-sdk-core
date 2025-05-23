@@ -46,6 +46,7 @@ from .token_managers.cp4d_token_manager import CP4DTokenManager
 from .token_managers.container_token_manager import ContainerTokenManager
 from .token_managers.vpc_instance_token_manager import VPCInstanceTokenManager
 from .token_managers.mcsp_token_manager import MCSPTokenManager
+from .token_managers.mcspv2_token_manager import MCSPV2TokenManager
 from .api_exception import ApiException
 from .utils import datetime_to_string, string_to_datetime, read_external_sources
 from .utils import datetime_to_string_list, string_to_datetime_list

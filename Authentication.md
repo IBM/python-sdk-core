@@ -7,7 +7,8 @@ The python-sdk-core project supports the following types of authentication:
 - Container Authentication
 - VPC Instance Authentication
 - Cloud Pak for Data Authentication
-- Multi-Cloud Saas Platform (MCSP) Authentication
+- Multi-Cloud Saas Platform (MCSP) V1 Authentication
+- Multi-Cloud Saas Platform (MCSP) V2 Authentication
 - No Authentication (for testing)
 
 The SDK user configures the appropriate type of authentication for use with service instances.
@@ -546,11 +547,11 @@ service = ExampleServiceV1.new_instance(service_name='example_service')
 ```
 
 
-## Multi-Cloud Saas Platform (MCSP) Authentication
+## Multi-Cloud Saas Platform (MCSP) V1 Authentication
 The `MCSPAuthenticator` can be used in scenarios where an application needs to
 interact with an IBM Cloud service that has been deployed to a non-IBM Cloud environment (e.g. AWS).
-It accepts a user-supplied apikey and performs the necessary interactions with the
-Multi-Cloud Saas Platform token service to obtain a suitable MCSP access token (a bearer token)
+It accepts a user-supplied apikey and invokes the Multi-Cloud Saas Platform token service's
+`POST /siusermgr/api/1.0/apikeys/token` operation to obtain a suitable MCSP access token (a bearer token)
 for the specified apikey.
 The authenticator will also obtain a new bearer token when the current token expires.
 The bearer token is then added to each outbound request in the `Authorization` header in the
@@ -598,6 +599,104 @@ External configuration:
 export EXAMPLE_SERVICE_AUTH_TYPE=mcsp
 export EXAMPLE_SERVICE_APIKEY=myapikey
 export EXAMPLE_SERVICE_AUTH_URL=https://example.mcsp.token-exchange.com
+```
+Application code:
+```python
+from <sdk-package-name>.example_service_v1 import *
+
+# Construct the service instance.
+service = ExampleServiceV1.new_instance(service_name='example_service')
+
+# 'service' can now be used to invoke operations.
+```
+
+
+## Multi-Cloud Saas Platform (MCSP) V2 Authentication
+The `MCSPV2Authenticator` can be used in scenarios where an application needs to
+interact with an IBM Cloud service that has been deployed to a non-IBM Cloud environment (e.g. AWS).
+It accepts a user-supplied apikey and invokes the Multi-Cloud Saas Platform token service's
+`POST /api/2.0/{scopeCollectionType}/{scopeId}/apikeys/token` operation to obtain a suitable MCSP access token (a bearer token)
+for the specified apikey.
+The authenticator will also obtain a new bearer token when the current token expires.
+The bearer token is then added to each outbound request in the `Authorization` header in the
+form:
+```
+   Authorization: Bearer <bearer-token>
+```
+
+### Properties
+
+- apikey: (required) The apikey to be used to obtain an MCSP access token.
+
+- url: (required) The URL representing the MCSP token service endpoint's base URL string. Do not include the
+operation path (e.g. `/api/2.0/{scopeCollectionType}/{scopeId}/apikeys/token`) as part of this property's value.
+
+- scope_collection_type: (required) The scope collection type of item(s).
+The valid values are: `accounts`, `subscriptions`, `services`.
+
+- scope_id: (required) The scope identifier of item(s).
+
+- include_builtin_actions: (optional) A flag to include builtin actions in the `actions` claim in the MCSP token (default: false).
+
+- include_custom_actions: (optional) A flag to include custom actions in the `actions` claim in the MCSP token (default: false).
+
+- include_roles: (optional) A flag to include the `roles` claim in the MCSP token (default: true).
+
+- prefix_roles: (optional) A flag to add a prefix with the scope level where 
+the role is defined in the `roles` claim (default: false).
+
+- caller_ext_claim: (optional) A map containing keys and values to be injected into the returned access token
+as the `callerExt` claim. The keys used in this map must be enabled in the apikey by setting the
+`callerExtClaimNames` property when the apikey is created.
+This property is typically only used in scenarios involving an apikey with identityType `SERVICEID`.
+
+- disable_ssl_verification: (optional) A flag that indicates whether verification of the server's SSL 
+certificate should be disabled or not. The default value is `false`.
+
+- headers: (optional) A set of key/value pairs that will be sent as HTTP headers in requests
+made to the MCSP token service.
+
+### Usage Notes
+- When constructing an MCSPV2Authenticator instance, the apikey, url, scope_collection_type, and scope_id properties are required.
+
+- If you specify the caller_ext_claim map, the keys used in the map must have been previously enabled in the apikey
+by setting the `callerExtClaimNames` property when you created the apikey.
+The entries contained in this map will appear in the `callerExt` field (claim) of the returned access token.
+
+- The authenticator will invoke the token server's `POST /api/2.0/{scopeCollectionType}/{scopeId}/apikeys/token` operation to
+exchange the apikey for an MCSP access token (the bearer token).
+
+### Programming example
+```python
+from ibm_cloud_sdk_core.authenticators import MCSPV2Authenticator
+from <sdk-package-name>.example_service_v1 import *
+
+# Create the authenticator.
+authenticator = MCSPV2Authenticator(
+   apikey='myapikey',
+   url='https://example.mcspv2.token-exchange.com',
+   scope_collection_type='accounts',
+   scope_id='20250519-2128-3755-60b3-103e01c509e8',
+   include_builtin_actions=True,
+   caller_ext_claim={'productID': 'prod-123'},
+   )
+
+# Construct the service instance.
+service = ExampleServiceV1(authenticator=authenticator)
+
+# 'service' can now be used to invoke operations.
+```
+
+### Configuration example
+External configuration:
+```
+export EXAMPLE_SERVICE_AUTH_TYPE=mcspv2
+export EXAMPLE_SERVICE_APIKEY=myapikey
+export EXAMPLE_SERVICE_AUTH_URL=https://example.mcspv2.token-exchange.com
+export EXAMPLE_SERVICE_SCOPE_COLLECTION_TYPE=accounts
+export EXAMPLE_SERVICE_SCOPE_ID=20250519-2128-3755-60b3-103e01c509e8
+export EXAMPLE_SERVICE_INCLUDE_BUILTIN_ACTIONS=true
+export EXAMPLE_SERVICE_CALLER_EXT_CLAIM={"productID":"prod-123"}
 ```
 Application code:
 ```python
