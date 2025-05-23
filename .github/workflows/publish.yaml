@@ -3,7 +3,7 @@
 # - building and publishing javadocs to the git repository.
 # It is triggered when a new release is created.
 
-name: Publish
+name: publish
 on:
   release:
     types: [created]
@@ -12,7 +12,7 @@ on:
 
 jobs:
   publish:
-    name: Publish Release
+    name: publish-pypi
     runs-on: ubuntu-latest
 
     steps:

@@ -28,9 +28,14 @@ classes:
   Authenticator: Abstract Base Class. Implement this interface to provide custom authentication schemes to services.
   BasicAuthenticator: Authenticator for passing supplied basic authentication information to service endpoint.
   BearerTokenAuthenticator: Authenticator for passing supplied bearer token to service endpoint.
+  ContainerAuthenticator: Authenticator for use in a container environment.
   CloudPakForDataAuthenticator: Authenticator for passing CP4D authentication information to service endpoint.
   IAMAuthenticator: Authenticator for passing IAM authentication information to service endpoint.
+  IAMAssumeAuthenticator: Authenticator for the "assume" grant type.
+  VPCInstanceAuthenticator: Authenticator for use within a VPC instance.
   NoAuthAuthenticator: Performs no authentication. Useful for testing purposes.
+  MCSPAuthenticator: Authenticator that supports the MCSP v1 token exchange.
+  MCSPV2Authenticator: Authenticator that supports the MCSP v2 token exchange.
 """
 
 from .authenticator import Authenticator
@@ -43,3 +48,4 @@ from .iam_assume_authenticator import IAMAssumeAuthenticator
 from .vpc_instance_authenticator import VPCInstanceAuthenticator
 from .no_auth_authenticator import NoAuthAuthenticator
 from .mcsp_authenticator import MCSPAuthenticator
+from .mcspv2_authenticator import MCSPV2Authenticator
