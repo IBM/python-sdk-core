@@ -1,3 +1,10 @@
+# [3.24.0](https://github.com/IBM/python-sdk-core/compare/v3.23.0...v3.24.0) (2025-05-30)
+
+
+### Features
+
+* **auth:** add support for MCSP V2 authentication ([d467d02](https://github.com/IBM/python-sdk-core/commit/d467d02d5a8d49b7dd212319003e727d55494b63))
+
 # [3.23.0](https://github.com/IBM/python-sdk-core/compare/v3.22.1...v3.23.0) (2025-03-07)
 
 
