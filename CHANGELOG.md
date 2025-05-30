@@ -1,3 +1,10 @@
+## [3.24.1](https://github.com/IBM/python-sdk-core/compare/v3.24.0...v3.24.1) (2025-05-30)
+
+
+### Bug Fixes
+
+* **build:** suppress detect-secrets false positive ([4e9bc4c](https://github.com/IBM/python-sdk-core/commit/4e9bc4c6dbb651a8d25ad28b6233d28569275819))
+
 # [3.24.0](https://github.com/IBM/python-sdk-core/compare/v3.23.0...v3.24.0) (2025-05-30)
 
 
