@@ -1,3 +1,10 @@
+## [3.24.2](https://github.com/IBM/python-sdk-core/compare/v3.24.1...v3.24.2) (2025-06-12)
+
+
+### Bug Fixes
+
+* **build:** bump requests to avoid CVE-2024-47081 ([7b5f21b](https://github.com/IBM/python-sdk-core/commit/7b5f21b3d9e3a82e5d1292f290a7d4fee00b27a7))
+
 ## [3.24.1](https://github.com/IBM/python-sdk-core/compare/v3.24.0...v3.24.1) (2025-05-30)
 
 
