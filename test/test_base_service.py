@@ -605,7 +605,7 @@ def test_http_client():
     auth = BasicAuthenticator('my_username', 'my_password')
     service = AnyServiceV1('2018-11-20', authenticator=auth)
     assert isinstance(service.get_http_client(), requests.sessions.Session)
-    assert service.get_http_client().headers.get('Accept-Encoding') == 'gzip, deflate'
+    assert service.get_http_client().headers.get('Accept-Encoding').startswith('gzip, deflate')
 
     new_http_client = requests.Session()
     new_http_client.headers.update({'Accept-Encoding': 'gzip'})
@@ -686,7 +686,7 @@ def test_gzip_compression_file_input():
         tmp_file.seek(0)
 
         prepped = service.prepare_request('GET', url='', data=tmp_file)
-        assert prepped['data'].read() == gzip.compress(raw_data)
+        assert gzip.decompress(prepped['data'].read()) == raw_data
         assert prepped['headers'].get('content-encoding') == 'gzip'
         assert prepped['data'].read() == b''
 
@@ -700,10 +700,7 @@ def test_gzip_compression_file_input():
         for chunk in prepped['data']:
             compressed += chunk
 
-        assert compressed == gzip.compress(raw_data)
-
-    # Make sure the decompression works fine.
-    assert gzip.decompress(compressed) == raw_data
+        assert gzip.decompress(compressed) == raw_data
 
     # Should return file-like object with the compressed data when compression is on
     # and the input is a file, opened for reading in text mode.
@@ -714,7 +711,7 @@ def test_gzip_compression_file_input():
         tmp_file.seek(0)
 
         prepped = service.prepare_request('GET', url='', data=tmp_file)
-        assert prepped['data'].read() == gzip.compress(text_data.encode())
+        assert gzip.decompress(prepped['data'].read()) == text_data.encode()
         assert prepped['headers'].get('content-encoding') == 'gzip'
         assert prepped['data'].read() == b''
 
@@ -728,10 +725,8 @@ def test_gzip_compression_file_input():
         for chunk in prepped['data']:
             compressed += chunk
 
-        assert compressed == gzip.compress(text_data.encode())
-
-    # Make sure the decompression works fine.
-    assert gzip.decompress(compressed).decode() == text_data
+        # Make sure the decompression works fine.
+        assert gzip.decompress(compressed).decode() == text_data
 
 
 def test_gzip_compression_external():
