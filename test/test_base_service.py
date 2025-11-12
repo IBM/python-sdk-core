@@ -730,6 +730,7 @@ def test_gzip_compression_file_input():
     # Make sure the decompression works fine.
     assert gzip.decompress(compressed).decode() == text_data
 
+
 def test_gzip_compression_external():
     # Should set gzip compression from external config
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-gzip.env')
