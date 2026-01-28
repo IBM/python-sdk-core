@@ -1,3 +1,10 @@
+## [3.24.3](https://github.com/IBM/python-sdk-core/compare/v3.24.2...v3.24.3) (2026-01-28)
+
+
+### Bug Fixes
+
+* **build:** include test/utils/*.py and test resources in sdist ([#229](https://github.com/IBM/python-sdk-core/issues/229)) ([802255b](https://github.com/IBM/python-sdk-core/commit/802255b8f873b56a811bce764db7b202cdf2ddb8))
+
 ## [3.24.2](https://github.com/IBM/python-sdk-core/compare/v3.24.1...v3.24.2) (2025-06-12)
 
 
