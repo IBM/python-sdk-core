@@ -1,6 +1,6 @@
 [project]
 name = "ibm-cloud-sdk-core"
-version = "3.24.3"
+version = "3.24.4"
 authors = [
     { name="IBM", email="devxsdk@us.ibm.com" }
 ]
