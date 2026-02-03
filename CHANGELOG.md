@@ -1,3 +1,10 @@
+## [3.24.4](https://github.com/IBM/python-sdk-core/compare/v3.24.3...v3.24.4) (2026-02-03)
+
+
+### Bug Fixes
+
+* bump PyJWT to avoid CVEs ([#230](https://github.com/IBM/python-sdk-core/issues/230)) ([455606b](https://github.com/IBM/python-sdk-core/commit/455606b2f5022a11cfad83cbb545b9046b47336e))
+
 ## [3.24.3](https://github.com/IBM/python-sdk-core/compare/v3.24.2...v3.24.3) (2026-01-28)
 
 
