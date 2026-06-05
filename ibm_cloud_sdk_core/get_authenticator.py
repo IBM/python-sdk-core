@@ -127,6 +127,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             iam_profile_crn=config.get('IAM_PROFILE_CRN'),
             iam_profile_id=config.get('IAM_PROFILE_ID'),
             url=config.get('AUTH_URL'),
+            service_version=config.get('SERVICE_VERSION'),
         )
     elif auth_type == Authenticator.AUTHTYPE_MCSP.lower():
         authenticator = MCSPAuthenticator(

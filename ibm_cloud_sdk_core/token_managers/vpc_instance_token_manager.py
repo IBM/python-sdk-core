@@ -52,22 +52,32 @@ class VPCInstanceTokenManager(JWTTokenManager):
         url (str, optional): The VPC Instance Metadata Service's base endpoint URL.
     """
 
-    METADATA_SERVICE_VERSION = '2022-03-01'
+    DEFAULT_SERVICE_VERSION = '2022-03-01'
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
     TOKEN_NAME = 'access_token'
     IAM_EXPIRATION_WINDOW = 10
+    DEFAULT_TOKEN_LIFETIME = 300
 
     def __init__(
-        self, iam_profile_crn: Optional[str] = None, iam_profile_id: Optional[str] = None, url: Optional[str] = None
+        self, iam_profile_crn: Optional[str] = None, iam_profile_id: Optional[str] = None, url: Optional[str] = None,
+        token_lifetime: Optional[int] = None, service_version: Optional[str] = None,
     ) -> None:
         if not url:
             url = self.DEFAULT_IMS_ENDPOINT
+
+        if not token_lifetime:
+            token_lifetime = self.DEFAULT_TOKEN_LIFETIME
+
+        if not service_version:
+            service_version = self.DEFAULT_SERVICE_VERSION
 
         super().__init__(url, token_name=self.TOKEN_NAME)
         self._set_user_agent(_build_user_agent('vpc-instance-authenticator'))
 
         self.iam_profile_crn = iam_profile_crn
         self.iam_profile_id = iam_profile_id
+        self.token_lifetime = token_lifetime
+        self.service_version = service_version
 
     def request_token(self) -> dict:
         """RequestToken will use the VPC Instance Metadata Service to
@@ -81,7 +91,10 @@ class VPCInstanceTokenManager(JWTTokenManager):
         # Retrieve the Instance Identity Token first.
         instance_identity_token = self.retrieve_instance_identity_token()
 
-        url = self.url + '/instance_identity/v1/iam_token'
+        if self.service_version == "2025-08-26":
+            url = self.url + '/identity/v1/iam_tokens'
+        else:
+            url = self.url + '/instance_identity/v1/iam_token'
 
         request_payload = None
         if self.iam_profile_crn:
@@ -101,7 +114,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             method='POST',
             url=url,
             headers=headers,
-            params={'version': self.METADATA_SERVICE_VERSION},
+            params={'version': self.service_version},
             data=json.dumps(request_payload) if request_payload else None,
         )
         logger.debug('Returned from VPC \'create_iam_token\' operation.')
@@ -126,6 +139,22 @@ class VPCInstanceTokenManager(JWTTokenManager):
         """
         self.iam_profile_id = iam_profile_id
 
+    def set_token_lifetime(self, token_lifetime: int) -> None:
+        """Sets the lifetime of token.
+
+        Args:
+            token_lifetime (int): the integer value of the token lifetime.
+        """
+        self.token_lifetime = token_lifetime
+
+    def set_service_version(self, service_version: str) -> None:
+        """Sets the service version.
+
+        Args:
+            service_version (str): The version of the VPC Instance Metadata Service API.
+        """
+        self.service_version = service_version
+
     def retrieve_instance_identity_token(self) -> str:
         """Retrieves the local compute resource's instance identity token using
            the "create_access_token" operation of the local VPC Instance Metadata Service API.
@@ -134,7 +163,10 @@ class VPCInstanceTokenManager(JWTTokenManager):
             The retrieved instance identity token string.
         """
 
-        url = self.url + '/instance_identity/v1/token'
+        if self.service_version == "2025-08-26":
+            url = self.url + '/identity/v1/token'
+        else:
+            url = self.url + '/instance_identity/v1/token'
 
         headers = {
             'Content-type': 'application/json',
@@ -143,14 +175,14 @@ class VPCInstanceTokenManager(JWTTokenManager):
             'User-Agent': self._get_user_agent(),
         }
 
-        request_body = {'expires_in': 300}
+        request_body = {'expires_in': self.token_lifetime}
 
         logger.debug('Invoking VPC \'create_access_token\' operation: %s', url)
         response = self._request(
             method='PUT',
             url=url,
             headers=headers,
-            params={'version': self.METADATA_SERVICE_VERSION},
+            params={'version': self.service_version},
             data=json.dumps(request_body),
         )
         logger.debug('Returned from VPC \'create_access_token\' operation.')

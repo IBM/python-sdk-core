@@ -66,3 +66,46 @@ def test_authenticate():
 
     # Verify that the "authenticate()" method added the Authorization header
     assert request['headers']['Authorization'] == 'Bearer mock_token'
+
+
+def test_constructor_with_token_lifetime():
+    authenticator = VPCInstanceAuthenticator(
+        iam_profile_id=TEST_IAM_PROFILE_ID,
+        url='someurl.com',
+        token_lifetime=600
+    )
+    assert authenticator is not None
+    assert authenticator.token_manager.token_lifetime == 600
+
+
+def test_constructor_with_service_version():
+    authenticator = VPCInstanceAuthenticator(
+        iam_profile_id=TEST_IAM_PROFILE_ID,
+        url='someurl.com',
+        service_version='2025-08-26'
+    )
+    assert authenticator is not None
+    assert authenticator.token_manager.service_version == '2025-08-26'
+
+
+def test_constructor_with_defaults():
+    authenticator = VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID)
+    assert authenticator is not None
+    assert authenticator.token_manager.token_lifetime == 300  # DEFAULT_TOKEN_LIFETIME
+    assert authenticator.token_manager.service_version == '2022-03-01'  # DEFAULT_SERVICE_VERSION
+
+
+def test_set_token_lifetime():
+    authenticator = VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID)
+    assert authenticator.token_manager.token_lifetime == 300
+
+    authenticator.set_token_lifetime(900)
+    assert authenticator.token_manager.token_lifetime == 900
+
+
+def test_set_service_version():
+    authenticator = VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID)
+    assert authenticator.token_manager.service_version == '2022-03-01'
+
+    authenticator.set_service_version('2025-08-26')
+    assert authenticator.token_manager.service_version == '2025-08-26'

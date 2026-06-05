@@ -159,6 +159,34 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.url == 'http://169.254.169.254'
     del os.environ['IBM_CREDENTIALS_FILE']
 
+
+def test_vpc_authenticator_from_environment_with_service_version():
+    os.environ['VPC_TEST_AUTH_TYPE'] = 'vpc'
+    os.environ['VPC_TEST_IAM_PROFILE_CRN'] = 'crn:iam-profile:456'
+    os.environ['VPC_TEST_SERVICE_VERSION'] = '2025-08-26'
+
+    authenticator = get_authenticator_from_environment('vpc_test')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
+    assert authenticator.token_manager.iam_profile_crn == 'crn:iam-profile:456'
+    assert authenticator.token_manager.service_version == '2025-08-26'
+
+    del os.environ['VPC_TEST_AUTH_TYPE']
+    del os.environ['VPC_TEST_IAM_PROFILE_CRN']
+    del os.environ['VPC_TEST_SERVICE_VERSION']
+
+
+def test_vpc_authenticator_from_environment_defaults():
+    os.environ['VPC_DEFAULT_AUTH_TYPE'] = 'vpc'
+
+    authenticator = get_authenticator_from_environment('vpc_default')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
+    assert authenticator.token_manager.service_version == '2022-03-01'
+    assert authenticator.token_manager.token_lifetime == 300
+
+    del os.environ['VPC_DEFAULT_AUTH_TYPE']
+
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-mcsp.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service1')

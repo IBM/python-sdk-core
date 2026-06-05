@@ -93,6 +93,51 @@ def test_retrieve_instance_identity_token():
 
 
 @responses.activate
+def test_retrieve_instance_identity_token_with_new_service_version():
+    token_manager = VPCInstanceTokenManager(
+        iam_profile_crn=TEST_IAM_PROFILE_CRN,
+        url='http://someurl.com',
+        service_version='2025-08-26',
+    )
+
+    response = {
+        'access_token': TEST_TOKEN,
+    }
+
+    # New service version uses /identity/v1/token instead of /instance_identity/v1/token
+    responses.add(responses.PUT, 'http://someurl.com/identity/v1/token', body=json.dumps(response), status=200)
+
+    ii_token = token_manager.retrieve_instance_identity_token()
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
+    assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
+    assert responses.calls[0].request.params['version'] == '2025-08-26'
+    assert responses.calls[0].request.body == '{"expires_in": 300}'
+    assert ii_token == TEST_TOKEN
+
+
+@responses.activate
+def test_retrieve_instance_identity_token_with_custom_token_lifetime():
+    token_manager = VPCInstanceTokenManager(
+        iam_profile_crn=TEST_IAM_PROFILE_CRN,
+        url='http://someurl.com',
+        token_lifetime=600,
+    )
+
+    response = {
+        'access_token': TEST_TOKEN,
+    }
+
+    responses.add(responses.PUT, 'http://someurl.com/instance_identity/v1/token', body=json.dumps(response), status=200)
+
+    ii_token = token_manager.retrieve_instance_identity_token()
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.body == '{"expires_in": 600}'
+    assert ii_token == TEST_TOKEN
+
+
+@responses.activate
 def test_retrieve_instance_identity_token_failed():
     token_manager = VPCInstanceTokenManager(
         iam_profile_crn=TEST_IAM_PROFILE_CRN,
@@ -139,6 +184,37 @@ def test_request_token_with_crn():
     assert responses.calls[0].request.headers['User-Agent'].startswith('ibm-python-sdk-core/vpc-instance-authenticator')
     assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
     assert responses.calls[0].request.params['version'] == '2022-03-01'
+
+
+@responses.activate
+def test_request_token_with_new_service_version():
+    token_manager = VPCInstanceTokenManager(
+        iam_profile_crn=TEST_IAM_PROFILE_CRN,
+        service_version='2025-08-26',
+    )
+
+    # Mock the retrieve instance identity token method.
+    def mock_retrieve_instance_identity_token():
+        return TEST_TOKEN
+
+    token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
+
+    response = {
+        'access_token': TEST_IAM_TOKEN,
+    }
+
+    # New service version uses /identity/v1/iam_tokens instead of /instance_identity/v1/iam_token
+    responses.add(
+        responses.POST, 'http://169.254.169.254/identity/v1/iam_tokens', body=json.dumps(response), status=200
+    )
+
+    response = token_manager.request_token()
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
+    assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
+    assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
+    assert responses.calls[0].request.params['version'] == '2025-08-26'
 
 
 @responses.activate
