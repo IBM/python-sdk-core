@@ -69,20 +69,14 @@ def test_authenticate():
 
 
 def test_constructor_with_token_lifetime():
-    authenticator = VPCInstanceAuthenticator(
-        iam_profile_id=TEST_IAM_PROFILE_ID,
-        url='someurl.com',
-        token_lifetime=600
-    )
+    authenticator = VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID, url='someurl.com', token_lifetime=600)
     assert authenticator is not None
     assert authenticator.token_manager.token_lifetime == 600
 
 
 def test_constructor_with_service_version():
     authenticator = VPCInstanceAuthenticator(
-        iam_profile_id=TEST_IAM_PROFILE_ID,
-        url='someurl.com',
-        service_version='2025-08-26'
+        iam_profile_id=TEST_IAM_PROFILE_ID, url='someurl.com', service_version='2025-08-26'
     )
     assert authenticator is not None
     assert authenticator.token_manager.service_version == '2025-08-26'

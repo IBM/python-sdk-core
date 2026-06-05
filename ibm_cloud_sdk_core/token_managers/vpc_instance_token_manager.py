@@ -59,8 +59,13 @@ class VPCInstanceTokenManager(JWTTokenManager):
     DEFAULT_TOKEN_LIFETIME = 300
 
     def __init__(
-        self, iam_profile_crn: Optional[str] = None, iam_profile_id: Optional[str] = None, url: Optional[str] = None,
-        token_lifetime: Optional[int] = None, service_version: Optional[str] = None,
+        self,
+        iam_profile_crn: Optional[str] = None,
+        iam_profile_id: Optional[str] = None,
+        url: Optional[str] = None,
+        *,
+        token_lifetime: Optional[int] = None,
+        service_version: Optional[str] = None,
     ) -> None:
         if not url:
             url = self.DEFAULT_IMS_ENDPOINT
