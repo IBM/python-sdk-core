@@ -180,6 +180,7 @@ def test_request_token_with_crn():
     assert len(responses.calls) == 1
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
     assert responses.calls[0].request.headers['User-Agent'].startswith('ibm-python-sdk-core/vpc-instance-authenticator')
     assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
@@ -212,6 +213,7 @@ def test_request_token_with_new_service_version():
     assert len(responses.calls) == 1
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
     assert responses.calls[0].request.body == '{"trusted_profile": {"crn": "crn:iam-profile:123"}}'
     assert responses.calls[0].request.params['version'] == '2025-08-26'
@@ -241,6 +243,7 @@ def test_request_token_with_id():
     assert len(responses.calls) == 1
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
     assert responses.calls[0].request.body == '{"trusted_profile": {"id": "iam-id-123"}}'
     assert responses.calls[0].request.params['version'] == '2022-03-01'
@@ -268,6 +271,7 @@ def test_request_token():
     assert len(responses.calls) == 1
     assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
     assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
     assert responses.calls[0].request.body is None
     assert responses.calls[0].request.params['version'] == '2022-03-01'
@@ -377,3 +381,35 @@ def test_get_token_success():
     access_token = token_manager.get_token()
     assert access_token == TEST_ACCESS_TOKEN_2
     assert token_manager.access_token == TEST_ACCESS_TOKEN_2
+
+
+@responses.activate
+def test_retrieve_iam_token_with_supported_service_version():
+    """Test retrieving IAM token with new supported service version."""
+    token_manager = VPCInstanceTokenManager(
+        iam_profile_id=TEST_IAM_PROFILE_ID,
+        url='http://someurl.com',
+        service_version='2025-08-26',
+    )
+
+    def mock_retrieve_instance_identity_token():
+        return TEST_TOKEN
+
+    token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
+
+    response = {
+        'access_token': TEST_IAM_TOKEN,
+    }
+
+    # New service version uses /identity/v1/iam_tokens
+    responses.add(responses.POST, 'http://someurl.com/identity/v1/iam_tokens', body=json.dumps(response), status=200)
+
+    token_response = token_manager.request_token()
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
+    assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
+    assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
+    assert responses.calls[0].request.headers['User-Agent'].startswith('ibm-python-sdk-core/vpc-instance-authenticator')
+    assert responses.calls[0].request.body == '{"trusted_profile": {"id": "iam-id-123"}}'
+    assert token_response['access_token'] == TEST_IAM_TOKEN

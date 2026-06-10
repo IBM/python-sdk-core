@@ -187,6 +187,23 @@ def test_vpc_authenticator_from_environment_defaults():
 
     del os.environ['VPC_DEFAULT_AUTH_TYPE']
 
+
+def test_vpc_authenticator_from_environment_unsupported_version():
+    """Test that unsupported service version raises ValueError."""
+    os.environ['VPC_INVALID_AUTH_TYPE'] = 'vpc'
+    os.environ['VPC_INVALID_IAM_PROFILE_ID'] = 'iam-id-123'
+    os.environ['VPC_INVALID_SERVICE_VERSION'] = '2023-12-31'
+
+    with pytest.raises(ValueError) as err:
+        get_authenticator_from_environment('vpc_invalid')
+
+    assert 'Invalid service version' in str(err.value)
+    assert '2022-03-01, 2025-08-26' in str(err.value)
+
+    del os.environ['VPC_INVALID_AUTH_TYPE']
+    del os.environ['VPC_INVALID_IAM_PROFILE_ID']
+    del os.environ['VPC_INVALID_SERVICE_VERSION']
+
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-mcsp.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
     authenticator = get_authenticator_from_environment('service1')
