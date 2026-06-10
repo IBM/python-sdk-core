@@ -55,6 +55,7 @@ class VPCInstanceAuthenticator(Authenticator):
     """
 
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
+    VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS = ('2022-03-01', '2025-08-26')
 
     def __init__(
         self,
@@ -93,6 +94,12 @@ class VPCInstanceAuthenticator(Authenticator):
 
         if self.token_manager.iam_profile_crn and self.token_manager.iam_profile_id:
             raise ValueError('At most one of "iam_profile_id" or "iam_profile_crn" may be specified.')
+
+        if self.token_manager.service_version not in self.VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS:
+            raise ValueError(
+                f"Invalid service version '{self.token_manager.service_version}'. "
+                f"Supported versions are: {', '.join(self.VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS)}"
+            )
 
     def authenticate(self, req: Request) -> None:
         """Adds IAM authentication information to the request.
@@ -155,3 +162,4 @@ class VPCInstanceAuthenticator(Authenticator):
             service_version (str): the version of the service.
         """
         self.token_manager.set_service_version(service_version)
+        self.validate()

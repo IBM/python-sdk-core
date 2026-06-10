@@ -57,6 +57,11 @@ class VPCInstanceTokenManager(JWTTokenManager):
     TOKEN_NAME = 'access_token'
     IAM_EXPIRATION_WINDOW = 10
     DEFAULT_TOKEN_LIFETIME = 300
+    VPC_AUTH_METADATA_FLAVOR = 'ibm'
+    VPC_AUTH_OPERATION_PATCH_CREATE_ACCESS_TOKEN = '/instance_identity/v1/token'
+    VPC_AUTH_OPERATION_PATCH_CREATE_ACCESS_TOKEN_V2 = '/identity/v1/token'
+    VPC_AUTH_OPERATION_PATCH_CREATE_IAM_TOKEN = '/instance_identity/v1/iam_token'
+    VPC_AUTH_OPERATION_PATCH_CREATE_IAM_TOKEN_V2 = "/identity/v1/iam_tokens"
 
     def __init__(
         self,
@@ -97,9 +102,9 @@ class VPCInstanceTokenManager(JWTTokenManager):
         instance_identity_token = self.retrieve_instance_identity_token()
 
         if self.service_version == "2025-08-26":
-            url = self.url + '/identity/v1/iam_tokens'
+            url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_IAM_TOKEN_V2
         else:
-            url = self.url + '/instance_identity/v1/iam_token'
+            url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_IAM_TOKEN
 
         request_payload = None
         if self.iam_profile_crn:
@@ -110,6 +115,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            'Metadata-Flavor': self.VPC_AUTH_METADATA_FLAVOR,
             'Authorization': 'Bearer ' + instance_identity_token,
             'User-Agent': self._get_user_agent(),
         }
@@ -169,14 +175,14 @@ class VPCInstanceTokenManager(JWTTokenManager):
         """
 
         if self.service_version == "2025-08-26":
-            url = self.url + '/identity/v1/token'
+            url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_ACCESS_TOKEN_V2
         else:
-            url = self.url + '/instance_identity/v1/token'
+            url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_ACCESS_TOKEN
 
         headers = {
             'Content-type': 'application/json',
             'Accept': 'application/json',
-            'Metadata-Flavor': 'ibm',
+            'Metadata-Flavor': self.VPC_AUTH_METADATA_FLAVOR,
             'User-Agent': self._get_user_agent(),
         }
 
