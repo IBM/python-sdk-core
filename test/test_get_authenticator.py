@@ -163,7 +163,7 @@ def test_get_authenticator_from_credential_file():
 def test_vpc_authenticator_from_environment_with_service_version():
     os.environ['VPC_TEST_AUTH_TYPE'] = 'vpc'
     os.environ['VPC_TEST_IAM_PROFILE_CRN'] = 'crn:iam-profile:456'
-    os.environ['VPC_TEST_SERVICE_VERSION'] = '2025-08-26'
+    os.environ['VPC_TEST_VPC_IMS_VERSION'] = '2025-08-26'
 
     authenticator = get_authenticator_from_environment('vpc_test')
     assert authenticator is not None
@@ -173,7 +173,7 @@ def test_vpc_authenticator_from_environment_with_service_version():
 
     del os.environ['VPC_TEST_AUTH_TYPE']
     del os.environ['VPC_TEST_IAM_PROFILE_CRN']
-    del os.environ['VPC_TEST_SERVICE_VERSION']
+    del os.environ['VPC_TEST_VPC_IMS_VERSION']
 
 
 def test_vpc_authenticator_from_environment_defaults():
@@ -192,7 +192,7 @@ def test_vpc_authenticator_from_environment_unsupported_version():
     """Test that unsupported service version raises ValueError."""
     os.environ['VPC_INVALID_AUTH_TYPE'] = 'vpc'
     os.environ['VPC_INVALID_IAM_PROFILE_ID'] = 'iam-id-123'
-    os.environ['VPC_INVALID_SERVICE_VERSION'] = '2023-12-31'
+    os.environ['VPC_INVALID_VPC_IMS_VERSION'] = '2023-12-31'
 
     with pytest.raises(ValueError) as err:
         get_authenticator_from_environment('vpc_invalid')
@@ -202,7 +202,7 @@ def test_vpc_authenticator_from_environment_unsupported_version():
 
     del os.environ['VPC_INVALID_AUTH_TYPE']
     del os.environ['VPC_INVALID_IAM_PROFILE_ID']
-    del os.environ['VPC_INVALID_SERVICE_VERSION']
+    del os.environ['VPC_INVALID_VPC_IMS_VERSION']
 
     file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-mcsp.env')
     os.environ['IBM_CREDENTIALS_FILE'] = file_path
