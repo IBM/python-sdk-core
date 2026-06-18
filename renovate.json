@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "packageRules": [
+    {
+      "internalChecksFilter": "strict",
+      "matchManagers": ["pep621"],
+      "matchDatasources": ["pypi"],
+      "minimumReleaseAge": "3 days",
+      "description": "Wait 3 days before updating Python dependencies"
+    }
+  ]
+}

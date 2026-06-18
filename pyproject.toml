@@ -64,3 +64,6 @@ packages = ["ibm_cloud_sdk_core", "ibm_cloud_sdk_core.authenticators", "ibm_clou
 [tool.black]
 line-length = 120
 skip-string-normalization = true
+
+[tool.pip.install]
+uploaded-prior-to = "P3D"
