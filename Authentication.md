@@ -473,11 +473,12 @@ authenticator = VPCInstanceAuthenticator(iam_profile_crn='crn:iam-profile-123')
 service = ExampleServiceV1(authenticator=authenticator)
 
 # 'service' can now be used to invoke operations.
+```
 
-# To use the new service version with custom token lifetime.
+To use the new service version with custom token lifetime:
+```python
 authenticator = VPCInstanceAuthenticator(
     iam_profile_id='iam-profile-id-123',
-    url='https://api.metadata.cloud.ibm.com',
     service_version='2025-08-26',
     token_lifetime=900  # 15 minutes
 )
@@ -488,12 +489,15 @@ External configuration:
 ```
 export EXAMPLE_SERVICE_AUTH_TYPE=vpc
 export EXAMPLE_SERVICE_IAM_PROFILE_CRN=crn:iam-profile-123
+```
 
 To use the new service version:
-export EXAMPLE_SERVICE_AUTH_TYPE=vpc
-export EXAMPLE_SERVICE_IAM_PROFILE_ID=iam-profile-id-123
-export EXAMPLE_SERVICE_SERVICE_VERSION=2025-08-26
 ```
+export EXAMPLE_SERVICE_AUTH_TYPE=vpc
+export EXAMPLE_SERVICE_IAM_PROFILE_CRN=crn:iam-profile-123
+export EXAMPLE_SERVICE_SERVICE_VPC_IMS_VERSION=2025-08-26
+```
+
 Application code:
 ```python
 from <sdk-package-name>.example_service_v1 import *
