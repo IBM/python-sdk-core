@@ -52,7 +52,8 @@ class VPCInstanceTokenManager(JWTTokenManager):
         url (str, optional): The VPC Instance Metadata Service's base endpoint URL.
     """
 
-    DEFAULT_SERVICE_VERSION = '2022-03-01'
+    METADATA_SERVICE_VERSION = '2022-03-01'
+    METADATA_SERVICE_VERSION_V2 = '2025-08-26'
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
     TOKEN_NAME = 'access_token'
     IAM_EXPIRATION_WINDOW = 10
@@ -79,7 +80,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             token_lifetime = self.DEFAULT_TOKEN_LIFETIME
 
         if not service_version:
-            service_version = self.DEFAULT_SERVICE_VERSION
+            service_version = self.METADATA_SERVICE_VERSION
 
         super().__init__(url, token_name=self.TOKEN_NAME)
         self._set_user_agent(_build_user_agent('vpc-instance-authenticator'))
@@ -101,7 +102,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
         # Retrieve the Instance Identity Token first.
         instance_identity_token = self.retrieve_instance_identity_token()
 
-        if self.service_version == "2025-08-26":
+        if self.service_version == self.METADATA_SERVICE_VERSION_V2:
             url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_IAM_TOKEN_V2
         else:
             url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_IAM_TOKEN
@@ -174,7 +175,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
             The retrieved instance identity token string.
         """
 
-        if self.service_version == "2025-08-26":
+        if self.service_version == self.METADATA_SERVICE_VERSION_V2:
             url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_ACCESS_TOKEN_V2
         else:
             url = self.url + self.VPC_AUTH_OPERATION_PATCH_CREATE_ACCESS_TOKEN

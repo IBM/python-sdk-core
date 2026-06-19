@@ -73,7 +73,7 @@ class VPCInstanceAuthenticator(Authenticator):
             token_lifetime = VPCInstanceTokenManager.DEFAULT_TOKEN_LIFETIME
 
         if not service_version:
-            service_version = VPCInstanceTokenManager.DEFAULT_SERVICE_VERSION
+            service_version = VPCInstanceTokenManager.METADATA_SERVICE_VERSION
 
         self.token_manager = VPCInstanceTokenManager(
             url=url,
