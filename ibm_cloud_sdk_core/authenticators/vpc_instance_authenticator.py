@@ -55,15 +55,32 @@ class VPCInstanceAuthenticator(Authenticator):
     """
 
     DEFAULT_IMS_ENDPOINT = 'http://169.254.169.254'
+    VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS = ('2022-03-01', '2025-08-26')
 
     def __init__(
-        self, iam_profile_crn: Optional[str] = None, iam_profile_id: Optional[str] = None, url: Optional[str] = None
+        self,
+        iam_profile_crn: Optional[str] = None,
+        iam_profile_id: Optional[str] = None,
+        url: Optional[str] = None,
+        *,
+        token_lifetime: Optional[int] = None,
+        service_version: Optional[str] = None,
     ) -> None:
         if not url:
             url = self.DEFAULT_IMS_ENDPOINT
 
+        if not token_lifetime:
+            token_lifetime = VPCInstanceTokenManager.DEFAULT_TOKEN_LIFETIME
+
+        if not service_version:
+            service_version = VPCInstanceTokenManager.METADATA_SERVICE_VERSION
+
         self.token_manager = VPCInstanceTokenManager(
-            url=url, iam_profile_crn=iam_profile_crn, iam_profile_id=iam_profile_id
+            url=url,
+            iam_profile_crn=iam_profile_crn,
+            iam_profile_id=iam_profile_id,
+            token_lifetime=token_lifetime,
+            service_version=service_version,
         )
 
         self.validate()
@@ -77,6 +94,12 @@ class VPCInstanceAuthenticator(Authenticator):
 
         if self.token_manager.iam_profile_crn and self.token_manager.iam_profile_id:
             raise ValueError('At most one of "iam_profile_id" or "iam_profile_crn" may be specified.')
+
+        if self.token_manager.service_version not in self.VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS:
+            raise ValueError(
+                f"Invalid service version '{self.token_manager.service_version}'. "
+                f"Supported versions are: {', '.join(self.VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS)}"
+            )
 
     def authenticate(self, req: Request) -> None:
         """Adds IAM authentication information to the request.
@@ -122,4 +145,21 @@ class VPCInstanceAuthenticator(Authenticator):
                         for the compute resource will be used.
         """
         self.token_manager.set_iam_profile_id(iam_profile_id)
+        self.validate()
+
+    def set_token_lifetime(self, token_lifetime: int) -> None:
+        """Sets the token lifetime.
+
+        Args:
+            token_lifetime (int): the integer value of the token lifetime.
+        """
+        self.token_manager.set_token_lifetime(token_lifetime)
+
+    def set_service_version(self, service_version: str) -> None:
+        """Sets the service version.
+
+        Args:
+            service_version (str): the version of the service.
+        """
+        self.token_manager.set_service_version(service_version)
         self.validate()
