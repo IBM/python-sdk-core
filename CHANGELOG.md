@@ -1,3 +1,10 @@
+# [3.25.0](https://github.com/IBM/python-sdk-core/compare/v3.24.4...v3.25.0) (2026-06-19)
+
+
+### Features
+
+* **auth:** add support for new service version in VPC Instance Auth ([#233](https://github.com/IBM/python-sdk-core/issues/233)) ([32a7dad](https://github.com/IBM/python-sdk-core/commit/32a7dad430aeb35eb62ef4a9a168a2d65bac3f33))
+
 ## [3.24.4](https://github.com/IBM/python-sdk-core/compare/v3.24.3...v3.24.4) (2026-02-03)
 
 
