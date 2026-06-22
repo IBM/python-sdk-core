@@ -1,13 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "prConcurrentLimit": 4,
+  "reviewers": ["Norbert-Biczo", "Lidia-Tarcza", "Andras-Felleg"],
   "packageRules": [
     {
-      "internalChecksFilter": "strict",
       "matchManagers": ["pep621"],
       "matchDatasources": ["pypi"],
       "minimumReleaseAge": "3 days",
       "description": "Wait 3 days before updating Python dependencies"
+    },
+    {
+      "matchManagers": ["npm"],
+      "extends": ["security:minimumReleaseAgeNpm"]
     }
   ]
 }
