@@ -67,3 +67,6 @@ skip-string-normalization = true
 
 [tool.pip.install]
 uploaded-prior-to = "P3D"
+
+[tool.uv]
+exclude-newer = "3 days"

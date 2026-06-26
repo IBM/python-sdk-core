@@ -12,7 +12,8 @@
     },
     {
       "matchManagers": ["npm"],
-      "extends": ["security:minimumReleaseAgeNpm"]
+      "extends": ["security:minimumReleaseAgeNpm"],
+      "description": "Wait 3 days before updating semantic release dependencies"
     }
   ]
 }
