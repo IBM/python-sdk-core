@@ -440,7 +440,9 @@ The IAM access token is added to each outbound request in the `Authorization` he
 
 - iam_profile_id: (optional) the id of the linked trusted IAM profile to be used when obtaining the IAM access token.
 
-- url: (optional) The VPC Instance Metadata Service's base URL.  
+- iam_profile_name: (optional) the name of the linked trusted IAM profile to be used as the identity of the compute resource.
+
+- url: (optional) The VPC Instance Metadata Service's base URL.
 The default value of this property is `http://169.254.169.254`. However, if the VPC Instance Metadata Service is configured
 with the HTTP Secure Protocol setting (`https`), then you should configure this property to be `https://api.metadata.cloud.ibm.com`.
 
@@ -452,12 +454,12 @@ The default value is `2022-03-01`. When set to `2025-08-26`, the authenticator w
 The default value is `300` seconds. This property can only be configured programmatically (not via environment variables).
 
 Usage Notes:
-1. At most one of `iam_profile_crn` or `iam_profile_id` may be specified. The specified value must map
+1. At most one of `iam_profile_crn`, `iam_profile_id` or `iam_profile_name` may be specified. The specified value must map
 to a trusted IAM profile that has been linked to the compute resource (virtual server instance).
 
-2. If both `iam_profile_crn` and `iam_profile_id` are specified, then an error occurs.
+2. If more than on from `iam_profile_crn`, `iam_profile_id` and `iam_profile_name` are specified, then an error occurs.
 
-3. If neither `iam_profile_crn` nor `iam_profile_id` are specified, then the default trusted profile linked to the compute resource will be used to perform the IAM token exchange.
+3. If neither `iam_profile_crn`, `iam_profile_id` nor `iam_profile_name` are specified, then the default trusted profile linked to the compute resource will be used to perform the IAM token exchange.
 If no default trusted profile is defined for the compute resource, then an error occurs.
 
 
