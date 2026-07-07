@@ -104,7 +104,8 @@ class VPCInstanceAuthenticator(Authenticator):
             counter += 1
 
         if counter > 1:
-            raise ValueError('At most one of "iam_profile_id", "iam_profile_crn" or "iam_profile_name" may be specified.')
+            raise ValueError(
+                'At most one of "iam_profile_id", "iam_profile_crn" or "iam_profile_name" may be specified.')
 
         if self.token_manager.service_version not in self.VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS:
             raise ValueError(
