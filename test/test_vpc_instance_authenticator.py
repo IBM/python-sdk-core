@@ -10,6 +10,9 @@ setup_test_logger(logging.ERROR)
 
 TEST_IAM_PROFILE_CRN = 'crn:iam-profile:123'
 TEST_IAM_PROFILE_ID = 'iam-id-123'
+TEST_IAM_PROFILE_NAME = 'iam-profile-name-1'
+
+EXPECTED_ERROR = 'At most one of "iam_profile_id", "iam_profile_crn" or "iam_profile_name" may be specified.'
 
 
 def test_constructor():
@@ -18,6 +21,17 @@ def test_constructor():
     assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
     assert authenticator.token_manager.iam_profile_crn is None
     assert authenticator.token_manager.iam_profile_id == TEST_IAM_PROFILE_ID
+    assert authenticator.token_manager.iam_profile_name is None
+    assert authenticator.token_manager.url == 'someurl.com'
+
+
+def test_constructor_with_iam_profile_name():
+    authenticator = VPCInstanceAuthenticator(iam_profile_name=TEST_IAM_PROFILE_NAME, url='someurl.com')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_VPC
+    assert authenticator.token_manager.iam_profile_crn is None
+    assert authenticator.token_manager.iam_profile_id is None
+    assert authenticator.token_manager.iam_profile_name == TEST_IAM_PROFILE_NAME
     assert authenticator.token_manager.url == 'someurl.com'
 
 
@@ -29,11 +43,10 @@ def test_setters():
     assert authenticator.token_manager.iam_profile_id == TEST_IAM_PROFILE_ID
     assert authenticator.token_manager.url == 'someurl.com'
 
-    # Set the IAM profile CRN to trigger a validation which will fail,
-    # because at most one of iam_profile_crn or iam_profile_id may be specified.
+    # Setting CRN while ID is still set must raise a validation error.
     with pytest.raises(ValueError) as err:
         authenticator.set_iam_profile_crn(TEST_IAM_PROFILE_CRN)
-    assert str(err.value) == 'At most one of "iam_profile_id" or "iam_profile_crn" may be specified.'
+    assert str(err.value) == EXPECTED_ERROR
 
     authenticator.set_iam_profile_id(None)
     assert authenticator.token_manager.iam_profile_id is None
@@ -42,13 +55,63 @@ def test_setters():
     assert authenticator.token_manager.iam_profile_crn == TEST_IAM_PROFILE_CRN
 
 
+def test_setter_iam_profile_name():
+    authenticator = VPCInstanceAuthenticator()
+    assert authenticator.token_manager.iam_profile_name is None
+
+    authenticator.set_iam_profile_name(TEST_IAM_PROFILE_NAME)
+    assert authenticator.token_manager.iam_profile_name == TEST_IAM_PROFILE_NAME
+
+    # Setting name while CRN is still set must raise a validation error.
+    authenticator2 = VPCInstanceAuthenticator(iam_profile_crn=TEST_IAM_PROFILE_CRN)
+    with pytest.raises(ValueError) as err:
+        authenticator2.set_iam_profile_name(TEST_IAM_PROFILE_NAME)
+    assert str(err.value) == EXPECTED_ERROR
+
+    # Setting name while ID is still set must raise a validation error.
+    authenticator3 = VPCInstanceAuthenticator(iam_profile_id=TEST_IAM_PROFILE_ID)
+    with pytest.raises(ValueError) as err:
+        authenticator3.set_iam_profile_name(TEST_IAM_PROFILE_NAME)
+    assert str(err.value) == EXPECTED_ERROR
+
+    # Clearing name is always allowed.
+    authenticator.set_iam_profile_name(None)
+    assert authenticator.token_manager.iam_profile_name is None
+
+
 def test_constructor_validate_failed():
+    # CRN + ID
     with pytest.raises(ValueError) as err:
         VPCInstanceAuthenticator(
             iam_profile_crn=TEST_IAM_PROFILE_CRN,
             iam_profile_id=TEST_IAM_PROFILE_ID,
         )
-    assert str(err.value) == 'At most one of "iam_profile_id" or "iam_profile_crn" may be specified.'
+    assert str(err.value) == EXPECTED_ERROR
+
+    # CRN + NAME
+    with pytest.raises(ValueError) as err:
+        VPCInstanceAuthenticator(
+            iam_profile_crn=TEST_IAM_PROFILE_CRN,
+            iam_profile_name=TEST_IAM_PROFILE_NAME,
+        )
+    assert str(err.value) == EXPECTED_ERROR
+
+    # ID + NAME
+    with pytest.raises(ValueError) as err:
+        VPCInstanceAuthenticator(
+            iam_profile_id=TEST_IAM_PROFILE_ID,
+            iam_profile_name=TEST_IAM_PROFILE_NAME,
+        )
+    assert str(err.value) == EXPECTED_ERROR
+
+    # CRN + ID + NAME
+    with pytest.raises(ValueError) as err:
+        VPCInstanceAuthenticator(
+            iam_profile_crn=TEST_IAM_PROFILE_CRN,
+            iam_profile_id=TEST_IAM_PROFILE_ID,
+            iam_profile_name=TEST_IAM_PROFILE_NAME,
+        )
+    assert str(err.value) == EXPECTED_ERROR
 
 
 def test_constructor_with_unsupported_service_version():

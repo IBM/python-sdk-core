@@ -35,6 +35,7 @@ TEST_TOKEN = 'abc123'
 TEST_IAM_TOKEN = 'iam-abc123'
 TEST_IAM_PROFILE_CRN = 'crn:iam-profile:123'
 TEST_IAM_PROFILE_ID = 'iam-id-123'
+TEST_IAM_PROFILE_NAME = 'iam-profile-name-1'
 EXPIRATION_WINDOW = 10
 
 
@@ -49,6 +50,18 @@ def test_constructor():
 
     assert token_manager.iam_profile_crn is TEST_IAM_PROFILE_CRN
     assert token_manager.iam_profile_id is None
+    assert token_manager.iam_profile_name is None
+    assert token_manager.access_token is None
+
+
+def test_constructor_with_iam_profile_name():
+    token_manager = VPCInstanceTokenManager(
+        iam_profile_name=TEST_IAM_PROFILE_NAME,
+    )
+
+    assert token_manager.iam_profile_crn is None
+    assert token_manager.iam_profile_id is None
+    assert token_manager.iam_profile_name == TEST_IAM_PROFILE_NAME
     assert token_manager.access_token is None
 
 
@@ -59,6 +72,7 @@ def test_setters():
 
     assert token_manager.iam_profile_crn is TEST_IAM_PROFILE_CRN
     assert token_manager.iam_profile_id is None
+    assert token_manager.iam_profile_name is None
     assert token_manager.access_token is None
 
     token_manager.set_iam_profile_crn(None)
@@ -66,6 +80,13 @@ def test_setters():
 
     token_manager.set_iam_profile_id(TEST_IAM_PROFILE_ID)
     assert token_manager.iam_profile_id == TEST_IAM_PROFILE_ID
+
+    token_manager.set_iam_profile_id(None)
+    token_manager.set_iam_profile_name(TEST_IAM_PROFILE_NAME)
+    assert token_manager.iam_profile_name == TEST_IAM_PROFILE_NAME
+
+    token_manager.set_iam_profile_name(None)
+    assert token_manager.iam_profile_name is None
 
 
 @responses.activate
@@ -246,6 +267,36 @@ def test_request_token_with_id():
     assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
     assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
     assert responses.calls[0].request.body == '{"trusted_profile": {"id": "iam-id-123"}}'
+    assert responses.calls[0].request.params['version'] == '2022-03-01'
+
+
+@responses.activate
+def test_request_token_with_name():
+    token_manager = VPCInstanceTokenManager(
+        iam_profile_name=TEST_IAM_PROFILE_NAME,
+    )
+
+    # Mock the retrieve instance identity token method.
+    def mock_retrieve_instance_identity_token():
+        return TEST_TOKEN
+
+    token_manager.retrieve_instance_identity_token = mock_retrieve_instance_identity_token
+
+    response = {
+        'access_token': TEST_IAM_TOKEN,
+    }
+
+    responses.add(
+        responses.POST, 'http://169.254.169.254/instance_identity/v1/iam_token', body=json.dumps(response), status=200
+    )
+
+    response = token_manager.request_token()
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.headers['Content-Type'] == 'application/json'
+    assert responses.calls[0].request.headers['Accept'] == 'application/json'
+    assert responses.calls[0].request.headers['Metadata-Flavor'] == 'ibm'
+    assert responses.calls[0].request.headers['Authorization'] == 'Bearer ' + TEST_TOKEN
+    assert responses.calls[0].request.body == '{"trusted_profile": {"name": "iam-profile-name-1"}}'
     assert responses.calls[0].request.params['version'] == '2022-03-01'
 
 
