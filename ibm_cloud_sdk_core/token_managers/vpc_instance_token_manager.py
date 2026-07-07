@@ -37,11 +37,15 @@ class VPCInstanceTokenManager(JWTTokenManager):
     Keyword Arguments:
         iam_profile_crn (str, optional):
             The CRN of the linked trusted IAM profile to be used as the identity of the compute resource.
-            At most one of iam_profile_crn or iam_profile_id may be specified. If neither one is specified,
+            At most one of iam_profile_crn or iam_profile_id or iam_profile_name may be specified. If neither one is specified,
             then the default IAM profile defined for the compute resource will be used. Defaults to None.
         iam_profile_id (str, optional):
             The ID of the linked trusted IAM profile to be used when obtaining the IAM access token.
-            At most one of iam_profile_crn or iam_profile_id may be specified. If neither one is specified,
+            At most one of iam_profile_crn or iam_profile_id or iam_profile_name may be specified. If neither one is specified,
+            then the default IAM profile defined for the compute resource will be used. Defaults to None.
+        iam_profile_name (str, optional):
+            The name of the linked trusted IAM profile to be used as the identity of the compute resource.
+            At most one of iam_profile_crn, iam_profile_id, or iam_profile_name may be specified. If neither one is specified,
             then the default IAM profile defined for the compute resource will be used. Defaults to None.
         url (str, optional):
             The VPC Instance Metadata Service's base endpoint URL. Defaults to 'http://169.254.169.254'.
@@ -49,6 +53,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
     Attributes:
         iam_profile_crn (str, optional): The CRN of the linked trusted IAM profile.
         iam_profile_id (str, optional): The ID of the linked trusted IAM profile.
+        iam_profile_id (str, optional): The name of the linked trusted IAM profile.
         url (str, optional): The VPC Instance Metadata Service's base endpoint URL.
     """
 
@@ -68,6 +73,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
         self,
         iam_profile_crn: Optional[str] = None,
         iam_profile_id: Optional[str] = None,
+        iam_profile_name: Optional[str] = None,
         url: Optional[str] = None,
         *,
         token_lifetime: Optional[int] = None,
@@ -87,6 +93,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
 
         self.iam_profile_crn = iam_profile_crn
         self.iam_profile_id = iam_profile_id
+        self.iam_profile_name = iam_profile_name
         self.token_lifetime = token_lifetime
         self.service_version = service_version
 
@@ -112,6 +119,8 @@ class VPCInstanceTokenManager(JWTTokenManager):
             request_payload = {'trusted_profile': {'crn': self.iam_profile_crn}}
         if self.iam_profile_id:
             request_payload = {'trusted_profile': {'id': self.iam_profile_id}}
+        if self.iam_profile_name:
+            request_payload = {'trusted_profile': {'name': self.iam_profile_name}}
 
         headers = {
             'Content-Type': 'application/json',
@@ -150,6 +159,15 @@ class VPCInstanceTokenManager(JWTTokenManager):
                             the IAM access token
         """
         self.iam_profile_id = iam_profile_id
+
+    def set_iam_profile_name(self, iam_profile_name: str) -> None:
+        """Sets the name of the IAM profile.
+
+        Args:
+            iam_profile_name (str): name of the linked trusted IAM profile to be used when obtaining
+                            the IAM access token
+        """
+        self.iam_profile_name = iam_profile_name
 
     def set_token_lifetime(self, token_lifetime: int) -> None:
         """Sets the lifetime of token.

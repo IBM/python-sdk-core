@@ -61,6 +61,7 @@ class VPCInstanceAuthenticator(Authenticator):
         self,
         iam_profile_crn: Optional[str] = None,
         iam_profile_id: Optional[str] = None,
+        iam_profile_name: Optional[str] = None,
         url: Optional[str] = None,
         *,
         token_lifetime: Optional[int] = None,
@@ -79,6 +80,7 @@ class VPCInstanceAuthenticator(Authenticator):
             url=url,
             iam_profile_crn=iam_profile_crn,
             iam_profile_id=iam_profile_id,
+            iam_profile_name=iam_profile_name,
             token_lifetime=token_lifetime,
             service_version=service_version,
         )
@@ -92,8 +94,17 @@ class VPCInstanceAuthenticator(Authenticator):
     def validate(self) -> None:
         super().validate()
 
-        if self.token_manager.iam_profile_crn and self.token_manager.iam_profile_id:
-            raise ValueError('At most one of "iam_profile_id" or "iam_profile_crn" may be specified.')
+        counter = 0
+
+        if self.token_manager.iam_profile_crn:
+            counter += 1
+        if self.token_manager.iam_profile_id:
+            counter += 1
+        if self.token_manager.iam_profile_name:
+            counter += 1
+
+        if counter > 1:
+            raise ValueError('At most one of "iam_profile_id", "iam_profile_crn" or "iam_profile_name" may be specified.')
 
         if self.token_manager.service_version not in self.VPC_AUTH_METADATA_SERVICE_SUPPORTED_VERSIONS:
             raise ValueError(
@@ -125,7 +136,7 @@ class VPCInstanceAuthenticator(Authenticator):
                              the identity of the compute resource.
 
         Raises:
-            ValueError: At most one of iam_profile_crn or iam_profile_id may be specified.
+            ValueError: At most one of iam_profile_crn, iam_profile_id or iam_profile_name may be specified.
                         If neither one is specified, then the default IAM profile defined
                         for the compute resource will be used.
         """
@@ -140,11 +151,26 @@ class VPCInstanceAuthenticator(Authenticator):
                             the IAM access token
 
         Raises:
-            ValueError: At most one of iam_profile_crn or iam_profile_id may be specified.
+            ValueError: At most one of iam_profile_crn, iam_profile_id or iam_profile_name may be specified.
                         If neither one is specified, then the default IAM profile defined
                         for the compute resource will be used.
         """
         self.token_manager.set_iam_profile_id(iam_profile_id)
+        self.validate()
+
+    def set_iam_profile_name(self, iam_profile_name: str) -> None:
+        """Sets the ID of the IAM profile.
+
+        Args:
+            iam_profile_name (str): name of the linked trusted IAM profile to be used when obtaining
+                            the IAM access token
+
+        Raises:
+            ValueError: At most one of iam_profile_crn, iam_profile_id or iam_profile_name may be specified.
+                        If neither one is specified, then the default IAM profile defined
+                        for the compute resource will be used.
+        """
+        self.token_manager.set_iam_profile_name(iam_profile_name)
         self.validate()
 
     def set_token_lifetime(self, token_lifetime: int) -> None:

@@ -126,6 +126,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
         authenticator = VPCInstanceAuthenticator(
             iam_profile_crn=config.get('IAM_PROFILE_CRN'),
             iam_profile_id=config.get('IAM_PROFILE_ID'),
+            iam_profile_name=config.get('IAM_PROFILE_NAME'),
             url=config.get('AUTH_URL'),
             service_version=config.get('VPC_IMS_VERSION'),
         )
