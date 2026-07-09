@@ -634,13 +634,13 @@ def test_gzip_compression():
     service.set_enable_gzip_compression(True)
     assert service.get_enable_gzip_compression()
     prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
-    assert gzip.decompress(prepped['data']) == b'{"foo": "bar"}'
+    assert prepped['data'] == gzip.compress(b'{"foo": "bar"}')
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
     # Should return compressed data when gzip is on for non-json data
     assert service.get_enable_gzip_compression()
     prepped = service.prepare_request('GET', url='', data=b'rawdata')
-    assert gzip.decompress(prepped['data']) == b'rawdata'
+    assert prepped['data'] == gzip.compress(b'rawdata')
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
     # Should return compressed data when gzip is on for gzip file data
