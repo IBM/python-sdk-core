@@ -739,7 +739,7 @@ def test_gzip_compression_external():
     assert service.service_url == 'https://mockurl'
     assert service.get_enable_gzip_compression() is True
     prepped = service.prepare_request('GET', url='', data=json.dumps({"foo": "bar"}))
-    assert prepped['data'] == gzip.compress(b'{"foo": "bar"}', mtime=0)
+    assert prepped['data'] == gzip.compress(b'{"foo": "bar"}')
     assert prepped['headers'].get('content-encoding') == 'gzip'
 
 

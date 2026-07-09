@@ -450,7 +450,7 @@ class BaseService:
             # In any other cases, we use the in memory compression directly from
             # the `gzip` package for backward compatibility.
             raw_data = request['data']
-            request['data'] = GzipStream(raw_data) if isinstance(raw_data, io.IOBase) else gzip.compress(raw_data, mtime=0)
+            request['data'] = GzipStream(raw_data) if isinstance(raw_data, io.IOBase) else gzip.compress(raw_data)
 
         # Next, we need to process the 'files' argument to try to fill in
         # any missing filenames where possible.
