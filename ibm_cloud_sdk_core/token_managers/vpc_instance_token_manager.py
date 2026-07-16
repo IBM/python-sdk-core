@@ -56,7 +56,7 @@ class VPCInstanceTokenManager(JWTTokenManager):
     Attributes:
         iam_profile_crn (str, optional): The CRN of the linked trusted IAM profile.
         iam_profile_id (str, optional): The ID of the linked trusted IAM profile.
-        iam_profile_id (str, optional): The name of the linked trusted IAM profile.
+        iam_profile_name (str, optional): The name of the linked trusted IAM profile.
         url (str, optional): The VPC Instance Metadata Service's base endpoint URL.
     """
 

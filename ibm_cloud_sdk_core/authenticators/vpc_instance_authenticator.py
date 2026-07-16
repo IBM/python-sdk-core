@@ -161,7 +161,7 @@ class VPCInstanceAuthenticator(Authenticator):
         self.validate()
 
     def set_iam_profile_name(self, iam_profile_name: str) -> None:
-        """Sets the ID of the IAM profile.
+        """Sets the name of the IAM profile.
 
         Args:
             iam_profile_name (str): name of the linked trusted IAM profile to be used when obtaining
