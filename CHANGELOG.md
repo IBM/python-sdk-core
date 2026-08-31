@@ -1,3 +1,10 @@
+## [3.26.1](https://github.com/IBM/python-sdk-core/compare/v3.26.0...v3.26.1) (2026-08-31)
+
+
+### Bug Fixes
+
+* **deps:** update all dependencies ([#242](https://github.com/IBM/python-sdk-core/issues/242)) ([6c113d8](https://github.com/IBM/python-sdk-core/commit/6c113d8b0a53428fe11559f0274df3c18e8b1b8c))
+
 # [3.26.0](https://github.com/IBM/python-sdk-core/compare/v3.25.0...v3.26.0) (2026-07-16)
 
 
