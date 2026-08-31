@@ -310,18 +310,14 @@ def test_get_token_success():
         "expires_in": 3600,
         "expiration": 1600003600,
         "refresh_token": "jy4gl91BQ"
-    }""" % (
-        TEST_ACCESS_TOKEN_1
-    )
+    }""" % (TEST_ACCESS_TOKEN_1)
     response2 = """{
         "access_token": "%s",
         "token_type": "Bearer",
         "expires_in": 3600,
         "expiration": 1600007200,
         "refresh_token": "jy4gl91BQ"
-    }""" % (
-        TEST_ACCESS_TOKEN_2
-    )
+    }""" % (TEST_ACCESS_TOKEN_2)
 
     token_manager = IAMTokenManager("iam_apikey")
 
@@ -365,9 +361,7 @@ def test_get_refresh_token():
         "expires_in": 3600,
         "expiration": 1524167011,
         "refresh_token": "jy4gl91BQ"
-    }""" % (
-        access_token_str
-    )
+    }""" % (access_token_str)
     responses.add(responses.POST, url=iam_url, body=response, status=200)
 
     token_manager = IAMTokenManager("iam_apikey")

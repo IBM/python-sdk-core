@@ -259,7 +259,7 @@ def get_mock_token_response(issued_at: int, time_to_live: int) -> str:
 
 @responses.activate
 def test_get_token():
-    (response, access_token) = get_mock_token_response(int(time.time()), 7200)
+    response, access_token = get_mock_token_response(int(time.time()), 7200)
     responses.add(responses.POST, MOCK_URL + MOCK_PATH, body=response, status=200)
 
     auth_headers = {'Host': 'mcsp.cloud.ibm.com:443'}
@@ -282,7 +282,7 @@ def test_get_token():
 
 @responses.activate
 def test_get_token_cached():
-    (response, access_token) = get_mock_token_response(int(time.time()), 7200)
+    response, access_token = get_mock_token_response(int(time.time()), 7200)
     responses.add(responses.POST, MOCK_URL + MOCK_PATH, body=response, status=200)
 
     authenticator = MCSPV2Authenticator(
@@ -309,11 +309,11 @@ def test_get_token_background_refresh():
     t2 = t1 + 7200
 
     # Setup the first token response.
-    (response1, access_token1) = get_mock_token_response(int(t1), 7200)
+    response1, access_token1 = get_mock_token_response(int(t1), 7200)
     responses.add(responses.POST, MOCK_URL + MOCK_PATH, body=response1, status=200)
 
     # Setup the second token response.
-    (response2, access_token2) = get_mock_token_response(int(t2), 7200)
+    response2, access_token2 = get_mock_token_response(int(t2), 7200)
     responses.add(responses.POST, MOCK_URL + MOCK_PATH, body=response2, status=200)
 
     authenticator = MCSPV2Authenticator(
@@ -355,7 +355,7 @@ def test_get_token_background_refresh():
 
 @responses.activate
 def test_request_token():
-    (response, access_token) = get_mock_token_response(time.time(), 30)
+    response, access_token = get_mock_token_response(time.time(), 30)
     responses.add(responses.POST, MOCK_URL + MOCK_PATH, body=response, status=200)
 
     token_manager = MCSPV2TokenManager(

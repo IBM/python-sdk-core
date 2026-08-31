@@ -11,7 +11,6 @@ from ibm_cloud_sdk_core.authenticators import NoAuthAuthenticator
 from .utils.logger_utils import setup_test_logger
 from .utils.http_utils import local_server
 
-
 setup_test_logger(logging.ERROR)
 
 
