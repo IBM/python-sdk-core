@@ -17,7 +17,6 @@
 import logging
 import re
 
-
 # This is the name of the primary logger used by the library.
 LOGGER_NAME = 'ibm-cloud-sdk-core'
 # Keywords that are redacted.

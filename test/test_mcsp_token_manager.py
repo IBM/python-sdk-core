@@ -57,7 +57,7 @@ def get_mock_token_response(issued_at, time_to_live) -> str:
 
 @responses.activate
 def test_request_token():
-    (response, access_token) = get_mock_token_response(time.time(), 30)
+    response, access_token = get_mock_token_response(time.time(), 30)
     responses.add(responses.POST, MOCK_URL + OPERATION_PATH, body=response, status=200)
 
     token_manager = MCSPTokenManager(apikey="my-api-key", url=MOCK_URL, disable_ssl_verification=True)
