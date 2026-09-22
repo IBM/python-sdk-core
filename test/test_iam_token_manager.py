@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# DISCLAIMER: The JWT token strings used in this file are for testing purposes only.
+# They are not valid tokens and cannot be used to authenticate with any real service.
+
 # pylint: disable=missing-docstring
 import logging
 import os
