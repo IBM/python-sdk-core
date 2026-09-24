@@ -38,6 +38,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         password: The password used to obtain a bearer token [required if apikey not specified].
         url: The URL representing the Cloud Pak for Data token service endpoint [required].
         apikey: The API key used to obtain a bearer token [required if password not specified].
+        account_id: The account ID used to obtain a bearer token [optional].
         disable_ssl_verification:  A flag that indicates whether verification of the server's SSL
             certificate should be disabled or not. Defaults to False.
         headers: Default headers to be sent with every CP4D token request. Defaults to None.
@@ -61,6 +62,7 @@ class CloudPakForDataAuthenticator(Authenticator):
         url: str = None,
         *,
         apikey: str = None,
+        account_id: str = None,
         disable_ssl_verification: bool = False,
         headers: Optional[Dict[str, str]] = None,
         proxies: Optional[Dict[str, str]] = None,
@@ -74,6 +76,7 @@ class CloudPakForDataAuthenticator(Authenticator):
             username=username,
             password=password,
             apikey=apikey,
+            account_id=account_id,
             url=url,
             disable_ssl_verification=disable_ssl_verification,
             headers=headers,

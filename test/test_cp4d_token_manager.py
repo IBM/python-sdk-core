@@ -72,3 +72,72 @@ def test_request_token():
     assert len(responses.calls) == 3
     assert responses.calls[2].request.url == url + '/v1/authorize'
     assert token == access_token
+
+
+@responses.activate
+def test_request_token_with_account_id():
+    url = "https://test"
+    now = time.time()
+    access_token_layout = {
+        "username": "dummy",
+        "role": "Admin",
+        "permissions": ["administrator", "manage_catalog"],
+        "sub": "admin",
+        "iss": "sss",
+        "aud": "sss",
+        "uid": "sss",
+        "iat": now,
+        "exp": now + 3600,
+    }
+
+    access_token = jwt.encode(
+        access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'}
+    )
+    response = {
+        "token": access_token,
+    }
+    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
+
+    token_manager = CP4DTokenManager("username", "password", url, account_id="test-account-id")
+    token = token_manager.get_token()
+
+    assert len(responses.calls) == 1
+    assert responses.calls[0].request.url == url + '/v1/authorize'
+    assert token == access_token
+
+    # Verify account_id was sent in the request body.
+    request_body = json.loads(responses.calls[0].request.body)
+    assert request_body.get('account_id') == 'test-account-id'
+
+
+@responses.activate
+def test_request_token_without_account_id():
+    url = "https://test"
+    now = time.time()
+    access_token_layout = {
+        "username": "dummy",
+        "role": "Admin",
+        "permissions": ["administrator", "manage_catalog"],
+        "sub": "admin",
+        "iss": "sss",
+        "aud": "sss",
+        "uid": "sss",
+        "iat": now,
+        "exp": now + 3600,
+    }
+
+    access_token = jwt.encode(
+        access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'}
+    )
+    response = {
+        "token": access_token,
+    }
+    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
+
+    token_manager = CP4DTokenManager("username", "password", url)
+    token_manager.get_token()
+
+    assert len(responses.calls) == 1
+    # Verify account_id is absent (None) when not specified.
+    request_body = json.loads(responses.calls[0].request.body)
+    assert request_body.get('account_id') is None
