@@ -135,7 +135,7 @@ def test_request_token_without_account_id():
     responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
 
     token_manager = CP4DTokenManager("username", "password", url)
-    token = token_manager.get_token()
+    token_manager.get_token()
 
     assert len(responses.calls) == 1
     # Verify account_id is absent (None) when not specified.
