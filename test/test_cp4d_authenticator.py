@@ -19,6 +19,7 @@ def test_cp4d_authenticator():
     assert authenticator.token_manager.url == 'http://my_url/v1/authorize'
     assert authenticator.token_manager.username == 'my_username'
     assert authenticator.token_manager.password == 'my_password'
+    assert authenticator.token_manager.account_id is None
     assert authenticator.token_manager.disable_ssl_verification is False
     assert authenticator.token_manager.headers == {'Content-Type': 'application/json'}
     assert authenticator.token_manager.proxies is None
@@ -115,6 +116,57 @@ def test_cp4d_authenticator_validate_failed():
         str(err.value) == 'The url shouldn\'t start or end with curly brackets or quotes. '
         'Please remove any surrounding {, }, or \" characters.'
     )
+
+
+def test_cp4d_authenticator_with_account_id():
+    authenticator = CloudPakForDataAuthenticator(
+        'my_username', 'my_password', 'http://my_url', account_id='my_account_id'
+    )
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CP4D
+    assert authenticator.token_manager.username == 'my_username'
+    assert authenticator.token_manager.password == 'my_password'
+    assert authenticator.token_manager.account_id == 'my_account_id'
+
+
+@responses.activate
+def test_get_token_with_account_id():
+    url = "https://test"
+    access_token_layout = {
+        "username": "dummy",
+        "role": "Admin",
+        "permissions": ["administrator", "manage_catalog"],
+        "sub": "admin",
+        "iss": "sss",
+        "aud": "sss",
+        "uid": "sss",
+        "iat": 1559324664,
+        "exp": 1559324664,
+    }
+
+    access_token = jwt.encode(
+        access_token_layout, 'secret', algorithm='HS256', headers={'kid': '230498151c214b788dd97f22b85410a5'}
+    )
+    response = {
+        "token": access_token,
+        "token_type": "Bearer",
+        "expires_in": 3600,
+        "expiration": 1524167011,
+        "refresh_token": "jy4gl91BQ",
+    }
+    responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
+
+    authenticator = CloudPakForDataAuthenticator(
+        'my_username', 'my_password', url, account_id='my_account_id'
+    )
+
+    request = {'headers': {}}
+    authenticator.authenticate(request)
+    assert request['headers']['Authorization'] is not None
+
+    # Verify account_id was sent in the token request body.
+    request_body = json.loads(responses.calls[0].request.body)
+    assert request_body.get('account_id') == 'my_account_id'
 
 
 @responses.activate

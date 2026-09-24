@@ -98,6 +98,7 @@ def __construct_authenticator(config: dict) -> Authenticator:
             password=config.get('PASSWORD'),
             url=config.get('AUTH_URL'),
             apikey=config.get('APIKEY'),
+            account_id=config.get('CP4D_ACCOUNT_ID'),
             disable_ssl_verification=string_to_bool(config.get('AUTH_DISABLE_SSL', 'false')),
         )
     elif auth_type == Authenticator.AUTHTYPE_IAM.lower() and config.get('APIKEY'):
