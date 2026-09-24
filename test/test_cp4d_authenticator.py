@@ -156,9 +156,7 @@ def test_get_token_with_account_id():
     }
     responses.add(responses.POST, url + '/v1/authorize', body=json.dumps(response), status=200)
 
-    authenticator = CloudPakForDataAuthenticator(
-        'my_username', 'my_password', url, account_id='my_account_id'
-    )
+    authenticator = CloudPakForDataAuthenticator('my_username', 'my_password', url, account_id='my_account_id')
 
     request = {'headers': {}}
     authenticator.authenticate(request)
