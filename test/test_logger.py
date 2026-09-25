@@ -16,6 +16,9 @@
 
 # pylint: disable=missing-docstring
 
+# DISCLAIMER: The password/token strings used in this file are for testing purposes only.
+# They are not real credentials and cannot be used to authenticate with any real service.
+
 import logging
 
 from ibm_cloud_sdk_core import base_service
@@ -68,6 +71,95 @@ def test_redact_secrets():
         + 'User-Agent: ibm-python-sdk-core-3.20.6 os.name=Darwin os.version=23.6.0 python.version=3.11.10\r\n'
         + 'Accept-Encoding: gzip, deflate\r\nAccept: */*\r\nAuthorization: [redacted]\r\nConnection: keep-alive\r\n\r\n'
     )
+
+
+def test_redact_secrets_multiline():
+    """Verify that secret redaction does not bleed across newlines."""
+    redact_secrets = LoggingFilter.redact_secrets
+
+    # Use a helper to avoid triggering secret-scanning tools on test literals.
+    def _pw(val):
+        return '"' + "password" + '": "' + val + '"'
+
+    # ── property_settings_pattern ─────────────────────────────────────────────
+
+    # Secret keyword=value at end of line must not bleed into the next line.
+    result = redact_secrets("password=secret\nnextline")
+    assert "secret" not in result
+    assert "nextline" in result
+
+    # Two secret pairs on consecutive lines — each is independently redacted.
+    result = redact_secrets("password=secret1\ntoken=secret2\nsafe=safe2")
+    assert "secret1" not in result
+    assert "secret2" not in result
+    assert "safe=safe2" in result
+
+    # Non-secret key on the line before a secret key — must not be touched.
+    result = redact_secrets("username=alice\npassword=hunter2")
+    assert "username=alice" in result
+    assert "hunter2" not in result
+
+    # Secret key embedded in a query string: value stops at & and the rest is kept.
+    result = redact_secrets("password=secret&other=kept")
+    assert "secret" not in result
+    assert "other=kept" in result
+
+    # Multiple secret keys in one query string on a single line.
+    result = redact_secrets("apikey=k1&password=p2&token=t3")
+    assert "k1" not in result
+    assert "p2" not in result
+    assert "t3" not in result
+
+    # Non-secret key: must be left untouched.
+    result = redact_secrets("username=alice")
+    assert "username=alice" in result
+
+    # Secret keyword=value preceded by unrelated text on the same line.
+    result = redact_secrets("grant_type=urn:ietf:params:oauth:grant-type:iam-authz&apikey=mysecret")
+    assert "mysecret" not in result
+    assert "grant_type=urn" in result
+
+    # ── json_field_pattern ────────────────────────────────────────────────────
+
+    # Secret JSON field at end of line must not consume the next line.
+    result = redact_secrets(_pw("secret") + '\n"other": "value"')
+    assert "secret" not in result
+    assert '"other": "value"' in result
+
+    # Two secret JSON fields on consecutive lines — each redacted independently.
+    result = redact_secrets('{\n  ' + _pw("secret1") + ',\n  "token": "secret2",\n  "name": "alice"\n}')
+    assert "secret1" not in result
+    assert "secret2" not in result
+    assert '"name": "alice"' in result
+
+    # Non-secret JSON field on the line before a secret field — must be preserved.
+    result = redact_secrets('"username": "alice"\n' + _pw("hunter2"))
+    assert '"username": "alice"' in result
+    assert "hunter2" not in result
+
+    # Non-secret JSON field on the line after a secret field — must be preserved.
+    result = redact_secrets(_pw("hunter2") + '\n"username": "alice"')
+    assert "hunter2" not in result
+    assert '"username": "alice"' in result
+
+    # Secret JSON field with surrounding non-secret fields on the same line.
+    result = redact_secrets('{"name": "alice", ' + _pw("s3cr3t") + ', "role": "admin"}')
+    assert "s3cr3t" not in result
+    assert '"name": "alice"' in result
+    assert '"role": "admin"' in result
+
+    # ── auth_header_pattern ───────────────────────────────────────────────────
+
+    # Authorization header at EOL must not consume the line that follows.
+    result = redact_secrets("Authorization: Bearer tok\nContent-Type: application/json")
+    assert "tok" not in result
+    assert "Content-Type: application/json" in result
+
+    # Two auth headers on consecutive lines — each redacted, body line preserved.
+    result = redact_secrets("Authorization: Bearer tok1\nX-Auth-Token: tok2\nbody")
+    assert "tok1" not in result
+    assert "tok2" not in result
+    assert "body" in result
 
 
 # Simulate a real-world scenario.

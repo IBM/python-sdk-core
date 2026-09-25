@@ -49,8 +49,8 @@ class LoggingFilter:
 
     redacted_tokens = "|".join(REDACTED_KEYWORDS)
     auth_header_pattern = re.compile(r"(?m)(Authorization|X-Auth\S*): ((.*?)(\r\n.*)|(.*))")
-    property_settings_pattern = re.compile(r"(?i)(" + redacted_tokens + r")=[^&]*(&|$)")
-    json_field_pattern = re.compile(r'(?i)"([^"]*(' + redacted_tokens + r')[^"_]*)":\s*"[^\,]*"')
+    property_settings_pattern = re.compile(r"(?im)(" + redacted_tokens + r")=[^&\n]*(&|$)")
+    json_field_pattern = re.compile(r'(?i)"([^"]*(' + redacted_tokens + r')[^"_]*)":\s*"[^"\n]*"')
 
     @classmethod
     def redact_secrets(cls, text: str) -> str:
