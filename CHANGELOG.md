@@ -1,3 +1,10 @@
+## [3.26.2](https://github.com/IBM/python-sdk-core/compare/v3.26.1...v3.26.2) (2026-09-28)
+
+
+### Bug Fixes
+
+* prevent secret redaction from bleeding past EOL ([#246](https://github.com/IBM/python-sdk-core/issues/246)) ([6da3b21](https://github.com/IBM/python-sdk-core/commit/6da3b2147c00937253f3c63de5207ce8a1697049))
+
 ## [3.26.1](https://github.com/IBM/python-sdk-core/compare/v3.26.0...v3.26.1) (2026-08-31)
 
 
