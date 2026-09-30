@@ -105,6 +105,22 @@ def test_abstract_class_instantiation():
         JWTTokenManager(None)
 
 
+def test_array_aud_claim():
+    """A token with aud as a JSON array (RFC 7519 §4.1.3) must not raise an error."""
+    current_time = int(time.time())
+    token_layout = {
+        "sub": "admin",
+        "iss": "sss",
+        "aud": ["account-iam.platform.saas.ibm.com"],
+        "iat": current_time,
+        "exp": current_time + 3600,
+    }
+    access_token = jwt.encode(token_layout, 'secret', algorithm='HS256')
+    token_manager = JWTTokenManagerMockImpl(None)
+    token_manager._save_token_info({"access_token": access_token})
+    assert token_manager.expire_time == current_time + 3600
+
+
 def test_disable_ssl_verification():
     token_manager = JWTTokenManagerMockImpl('https://iam.cloud.ibm.com/identity/token')
     token_manager.set_disable_ssl_verification(True)
