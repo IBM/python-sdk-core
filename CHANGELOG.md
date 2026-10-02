@@ -1,3 +1,10 @@
+# [3.27.0](https://github.com/IBM/python-sdk-core/compare/v3.26.2...v3.27.0) (2026-10-02)
+
+
+### Features
+
+* support `aud` with array type in JWT (RFC 7519 §4.1.3) ([#250](https://github.com/IBM/python-sdk-core/issues/250)) ([5b20be3](https://github.com/IBM/python-sdk-core/commit/5b20be33505be89dc13ff32d725eb84a7da11cfa))
+
 ## [3.26.2](https://github.com/IBM/python-sdk-core/compare/v3.26.1...v3.26.2) (2026-09-28)
 
 
