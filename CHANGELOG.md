@@ -1,3 +1,10 @@
+## [3.27.1](https://github.com/IBM/python-sdk-core/compare/v3.27.0...v3.27.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* encode empty JSON request bodies ([#252](https://github.com/IBM/python-sdk-core/issues/252)) ([38d1af7](https://github.com/IBM/python-sdk-core/commit/38d1af72334cd96f4abc3aea49757192219759b6))
+
 # [3.27.0](https://github.com/IBM/python-sdk-core/compare/v3.26.2...v3.27.0) (2026-10-02)
 
 

@@ -933,6 +933,61 @@ def test_json():
     assert req.get('data') == b'{"hello": "world", "f\\u00f3\\u00f3": "b\\u00e5r"}'
 
 
+@pytest.mark.parametrize('data', [{}, {'optional': None}], ids=['empty', 'null-only'])
+@pytest.mark.parametrize('enable_gzip', [False, True], ids=['plain', 'gzip'])
+@pytest.mark.parametrize('headers', [None, {'Content-Type': 'application/json; charset=utf-8'}])
+@responses.activate
+def test_empty_json_request_body(data, enable_gzip, headers):
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    service.set_enable_gzip_compression(enable_gzip)
+    responses.add(responses.POST, service.service_url, json={}, status=200)
+
+    request = service.prepare_request('POST', url='', headers=headers, data=data)
+    service.send(request)
+
+    sent_request = responses.calls[0].request
+    body = gzip.decompress(sent_request.body) if enable_gzip else sent_request.body
+    assert body == b'{}'
+    expected_content_type = headers['Content-Type'] if headers else 'application/json'
+    assert sent_request.headers['Content-Type'] == expected_content_type
+    assert sent_request.headers.get('Content-Encoding') == ('gzip' if enable_gzip else None)
+
+
+@pytest.mark.parametrize('enable_gzip', [False, True], ids=['plain', 'gzip'])
+@responses.activate
+def test_request_without_json_body(enable_gzip):
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    service.set_enable_gzip_compression(enable_gzip)
+    responses.add(responses.POST, service.service_url, json={}, status=200)
+
+    request = service.prepare_request('POST', url='', data=None)
+    service.send(request)
+
+    sent_request = responses.calls[0].request
+    assert sent_request.body is None
+    assert 'Content-Type' not in sent_request.headers
+    assert 'Content-Encoding' not in sent_request.headers
+
+
+@pytest.mark.parametrize(
+    'files',
+    [{'file': ('file.txt', b'data', 'text/plain')}, [('file', ('file.txt', b'data', 'text/plain'))]],
+    ids=['dict', 'list'],
+)
+@responses.activate
+def test_empty_form_data_with_files(files):
+    service = AnyServiceV1('2018-11-20', authenticator=NoAuthAuthenticator())
+    responses.add(responses.POST, service.service_url, json={}, status=200)
+
+    request = service.prepare_request('POST', url='', data={}, files=files)
+    service.send(request)
+
+    sent_request = responses.calls[0].request
+    assert sent_request.headers['Content-Type'].startswith('multipart/form-data; boundary=')
+    assert b'Content-Disposition: form-data; name="file"; filename="file.txt"' in sent_request.body
+    assert b'Content-Type: text/plain\r\n\r\ndata\r\n' in sent_request.body
+
+
 def test_service_url_handling():
     service = AnyServiceV1('2018-11-20', service_url='https://host///////', authenticator=NoAuthAuthenticator())
     assert service.service_url == 'https://host'
