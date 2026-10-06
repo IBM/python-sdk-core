@@ -1,3 +1,10 @@
+## [3.27.2](https://github.com/IBM/python-sdk-core/compare/v3.27.1...v3.27.2) (2026-10-06)
+
+
+### Bug Fixes
+
+* return buffered gzip data from bounded reads ([#251](https://github.com/IBM/python-sdk-core/issues/251)) ([8b65cf7](https://github.com/IBM/python-sdk-core/commit/8b65cf72d290d912b3f026e98ce36dac2521b3fb))
+
 ## [3.27.1](https://github.com/IBM/python-sdk-core/compare/v3.27.0...v3.27.1) (2026-10-05)
 
 
