@@ -87,11 +87,10 @@ class GzipStream(io.RawIOBase):
                 # Return all data from the buffer.
                 compressed = self.buffer
                 self.buffer = b''
-        else:
-            # If we already have enough data in our buffer
-            # return the desired chunk of bytes
+        if size >= 0:
+            # Return buffered data whether it was already available or was
+            # produced above. An empty read must only indicate end-of-stream.
             compressed = self.buffer[:size]
-            # then remove them from the buffer.
             self.buffer = self.buffer[size:]
 
         return compressed

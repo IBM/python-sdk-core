@@ -1,3 +1,31 @@
+## [3.27.2](https://github.com/IBM/python-sdk-core/compare/v3.27.1...v3.27.2) (2026-10-06)
+
+
+### Bug Fixes
+
+* return buffered gzip data from bounded reads ([#251](https://github.com/IBM/python-sdk-core/issues/251)) ([8b65cf7](https://github.com/IBM/python-sdk-core/commit/8b65cf72d290d912b3f026e98ce36dac2521b3fb))
+
+## [3.27.1](https://github.com/IBM/python-sdk-core/compare/v3.27.0...v3.27.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* encode empty JSON request bodies ([#252](https://github.com/IBM/python-sdk-core/issues/252)) ([38d1af7](https://github.com/IBM/python-sdk-core/commit/38d1af72334cd96f4abc3aea49757192219759b6))
+
+# [3.27.0](https://github.com/IBM/python-sdk-core/compare/v3.26.2...v3.27.0) (2026-10-02)
+
+
+### Features
+
+* support `aud` with array type in JWT (RFC 7519 §4.1.3) ([#250](https://github.com/IBM/python-sdk-core/issues/250)) ([5b20be3](https://github.com/IBM/python-sdk-core/commit/5b20be33505be89dc13ff32d725eb84a7da11cfa))
+
+## [3.26.2](https://github.com/IBM/python-sdk-core/compare/v3.26.1...v3.26.2) (2026-09-28)
+
+
+### Bug Fixes
+
+* prevent secret redaction from bleeding past EOL ([#246](https://github.com/IBM/python-sdk-core/issues/246)) ([6da3b21](https://github.com/IBM/python-sdk-core/commit/6da3b2147c00937253f3c63de5207ce8a1697049))
+
 ## [3.26.1](https://github.com/IBM/python-sdk-core/compare/v3.26.0...v3.26.1) (2026-08-31)
 
 

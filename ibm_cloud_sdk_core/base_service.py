@@ -431,7 +431,7 @@ class BaseService:
 
         if isinstance(data, str):
             data = data.encode('utf-8')
-        elif isinstance(data, dict) and data:
+        elif isinstance(data, dict) and (data or not files):
             data = remove_null_values(data)
             if headers.get('content-type') is None:
                 headers.update({'content-type': 'application/json'})
