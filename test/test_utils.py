@@ -16,8 +16,10 @@
 # limitations under the License.
 
 import datetime
+import gzip
 import logging
 import os
+import random
 from typing import Optional
 
 import pytest
@@ -335,3 +337,29 @@ def test_gzip_stream_open_string():
 def test_gzip_stream_open_bytes():
     stream = GzipStream(source=b'foobar')
     assert stream is not None
+
+
+@pytest.mark.parametrize('chunk_size', [1, 10, 11, 8192, 65536])
+@pytest.mark.parametrize(
+    'source',
+    [b'', b'foobar', 'text\nwith unicode: \u00e9', random.Random(0).randbytes(131072)],
+    ids=['empty', 'bytes', 'text', 'large'],
+)
+def test_gzip_stream_bounded_reads(source, chunk_size):
+    stream = GzipStream(source=source)
+    chunks = []
+    while chunk := stream.read(chunk_size):
+        assert len(chunk) <= chunk_size
+        chunks.append(chunk)
+
+    compressed = b''.join(chunks)
+    assert compressed
+    expected = source.encode() if isinstance(source, str) else source
+    assert gzip.decompress(compressed) == expected
+    assert stream.read(chunk_size) == b''
+
+
+def test_gzip_stream_zero_read_preserves_data():
+    stream = GzipStream(source=b'foobar')
+    assert stream.read(0) == b''
+    assert gzip.decompress(stream.read()) == b'foobar'
