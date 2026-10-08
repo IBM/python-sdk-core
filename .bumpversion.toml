@@ -1,5 +1,5 @@
 [tool.bumpversion]
-current_version = "3.27.2"
+current_version = "3.28.0"
 commit = true
 
 [[tool.bumpversion.files]]
