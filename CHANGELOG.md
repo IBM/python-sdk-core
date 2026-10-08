@@ -1,3 +1,10 @@
+# [3.28.0](https://github.com/IBM/python-sdk-core/compare/v3.27.2...v3.28.0) (2026-10-08)
+
+
+### Features
+
+* **auth:** add support for account ID in CP4D authenticator([#244](https://github.com/IBM/python-sdk-core/issues/244)) ([0ceccaa](https://github.com/IBM/python-sdk-core/commit/0ceccaa4a604707624fb195cafb3ebba537d7be3))
+
 ## [3.27.2](https://github.com/IBM/python-sdk-core/compare/v3.27.1...v3.27.2) (2026-10-06)
 
 
