@@ -35,6 +35,7 @@ class CP4DTokenManager(JWTTokenManager):
         password: The password for authentication [required if apikey not specified].
         url: The endpoint for JWT token requests [required].
         apikey: The apikey for authentication [required if password not specified].
+        account_id: The account ID used to obtain a bearer token [optional].
         disable_ssl_verification: Disable ssl verification. Defaults to False.
         headers: Headers to be sent with every service token request. Defaults to None.
         proxies: Proxies to use for making request. Defaults to None.
@@ -46,6 +47,7 @@ class CP4DTokenManager(JWTTokenManager):
         username (str): The username for authentication.
         password (str): The password for authentication.
         url (str): The endpoint for JWT token requests.
+        account_id (str): The account ID used to obtain a bearer token.
         headers (dict): Headers to be sent with every service token request.
         proxies (dict): Proxies to use for making token requests.
         proxies.http (str): The proxy endpoint to use for HTTP requests.
@@ -63,6 +65,7 @@ class CP4DTokenManager(JWTTokenManager):
         url: str = None,
         *,
         apikey: str = None,
+        account_id: str = None,
         disable_ssl_verification: bool = False,
         headers: Optional[Dict[str, str]] = None,
         proxies: Optional[Dict[str, str]] = None,
@@ -74,6 +77,7 @@ class CP4DTokenManager(JWTTokenManager):
         if url and not self.VALIDATE_AUTH_PATH in url:
             url = url + '/v1/authorize'
         self.apikey = apikey
+        self.account_id = account_id
         self.headers = headers
         if self.headers is None:
             self.headers = {}
@@ -97,7 +101,14 @@ class CP4DTokenManager(JWTTokenManager):
             method='POST',
             headers=request_headers,
             url=self.url,
-            data=json.dumps({"username": self.username, "password": self.password, "api_key": self.apikey}),
+            data=json.dumps(
+                {
+                    "username": self.username,
+                    "password": self.password,
+                    "api_key": self.apikey,
+                    "account_id": self.account_id,
+                }
+            ),
             proxies=self.proxies,
             verify=self.verify,
         )

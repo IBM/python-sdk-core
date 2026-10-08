@@ -530,6 +530,8 @@ form:
 
 - apikey: (required if password is not specified) the apikey used to obtain a bearer token.
 
+- account_id: (optional) an account ID value to be included in token requests.
+
 - url: (required) The URL representing the Cloud Pak for Data token service endpoint's base URL string.
 This value should not include the `/v1/authorize` path portion.
 
@@ -545,7 +547,7 @@ from ibm_cloud_sdk_core.authenticators import CloudPakForDataAuthenticator
 from <sdk-package-name>.example_service_v1 import *
 
 # Create the authenticator using username/apikey.
-authenticator = CloudPakForDataAuthenticator(username='myuser', apikey='myapikey', url='https://mycp4dhost.com')
+authenticator = CloudPakForDataAuthenticator(username='myuser', apikey='myapikey', url='https://mycp4dhost.com', account_id='myaccountid')
 
 # Construct the service instance.
 service = ExampleServiceV1(authenticator=authenticator)
@@ -561,6 +563,7 @@ export EXAMPLE_SERVICE_AUTH_TYPE=cp4d
 export EXAMPLE_SERVICE_USERNAME=myuser
 export EXAMPLE_SERVICE_PASSWORD=myapikey
 export EXAMPLE_SERVICE_URL=https://mycp4dhost.com
+export EXAMPLE_SERVICE_CP4D_ACCOUNT_ID=myaccountid
 ```
 Application code:
 ```python

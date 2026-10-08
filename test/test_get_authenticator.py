@@ -99,6 +99,20 @@ def test_get_authenticator_from_credential_file():
     assert authenticator.token_manager.password == 'my_password'
     assert authenticator.token_manager.url == 'https://my_url/v1/authorize'
     assert authenticator.token_manager.apikey is None
+    assert authenticator.token_manager.account_id is None
+    assert authenticator.token_manager.disable_ssl_verification is False
+    del os.environ['IBM_CREDENTIALS_FILE']
+
+    file_path = os.path.join(os.path.dirname(__file__), '../resources/ibm-credentials-cp4d-account-id.env')
+    os.environ['IBM_CREDENTIALS_FILE'] = file_path
+    authenticator = get_authenticator_from_environment('watson')
+    assert authenticator is not None
+    assert authenticator.authentication_type() == Authenticator.AUTHTYPE_CP4D
+    assert authenticator.token_manager.username == 'my_username'
+    assert authenticator.token_manager.password == 'my_password'
+    assert authenticator.token_manager.url == 'https://my_url/v1/authorize'
+    assert authenticator.token_manager.apikey is None
+    assert authenticator.token_manager.account_id == 'my_account_id'
     assert authenticator.token_manager.disable_ssl_verification is False
     del os.environ['IBM_CREDENTIALS_FILE']
 
