@@ -28,7 +28,7 @@ keywords=["ibm", "cloud", "ibm cloud services"]
 dependencies = [
     "requests>=2.32.4,<3.0.0",
     "urllib3>=2.4.0,<3.0.0",
-    "python_dateutil>=2.9.0,<3.0.0",
+    "python_dateutil>=3.0.0,<3.1.0",
     "PyJWT>=2.11.0,<3.0.0",
 ]
 
@@ -44,7 +44,7 @@ License = "https://github.com/IBM/python-sdk-core/blob/main/LICENSE"
 dev = [
     "coverage>=7.9.0,<8.0.0",
     "pylint>=4.1.2,<4.2.0",
-    "pytest>=9.1.1,<9.2.0",
+    "pytest>=9.2.0,<9.3.0",
     "pytest-cov>=7.1.0,<7.2.0",
     "responses>=0.25.7,<1.0.0",
     "black>=26.10.0,<26.11.0",
