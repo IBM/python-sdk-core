@@ -148,7 +148,7 @@ def test_redact_secrets_multiline():
     assert '"name": "alice"' in result
     assert '"role": "admin"' in result
 
-    # ── auth_header_pattern ───────────────────────────────────────────────────
+    # ── header_pattern ────────────────────────────────────────────────────────
 
     # Authorization header at EOL must not consume the line that follows.
     result = redact_secrets("Authorization: Bearer tok\nContent-Type: application/json")
@@ -160,6 +160,88 @@ def test_redact_secrets_multiline():
     assert "tok1" not in result
     assert "tok2" not in result
     assert "body" in result
+
+
+def test_redact_secrets_credential_headers():
+    """Verify that every credential-bearing header is redacted, regardless of case."""
+    redact_secrets = LoggingFilter.redact_secrets
+
+    headers = [
+        "Authorization",
+        "Proxy-Authorization",
+        "Cookie",
+        "Set-Cookie",
+        "Secret",
+        "X-Auth-Token",
+        "X-Authorization",
+        "X-Auth-Foo-Bar",
+    ]
+    for header in headers:
+        for name in (header, header.lower(), header.upper()):
+            result = redact_secrets(f"{name}: s3cr3tvalue")
+            assert "s3cr3tvalue" not in result
+            assert result == f"{name}: [redacted]"
+
+    # Cookie-style values with multiple attributes.
+    assert "abc123" not in redact_secrets("Set-Cookie: sid=abc123; Path=/; HttpOnly")
+    result = redact_secrets("Cookie: a=firstval; b=secondval")
+    assert "firstval" not in result
+    assert "secondval" not in result
+
+    # A full CRLF-delimited HTTP dump: only credential headers are redacted, CRLF preserved.
+    dump = (
+        "POST /v1/token HTTP/1.1\r\n"
+        "Host: example.com\r\n"
+        "authorization: Bearer tok1\r\n"
+        "Proxy-Authorization: Basic tok2\r\n"
+        "COOKIE: sid=tok3\r\n"
+        "Content-Type: application/json\r\n"
+        "X-Auth-Token: tok4\r\n"
+        "\r\n"
+        "body\r\n"
+    )
+    result = redact_secrets(dump)
+    for tok in ("tok1", "tok2", "tok3", "tok4"):
+        assert tok not in result
+    assert "Host: example.com\r\n" in result
+    assert "Content-Type: application/json\r\n" in result
+    assert "authorization: [redacted]\r\n" in result
+    assert "\r\n\r\nbody\r\n" in result
+
+    # Response containing Set-Cookie.
+    result = redact_secrets("200 OK\nSet-Cookie: session=tok5\nContent-Length: 2\n\n{}")
+    assert "tok5" not in result
+    assert "Content-Length: 2" in result
+
+    # Non-credential headers, and names that merely resemble credential names, are untouched.
+    for header in (
+        "Content-Type: text/plain",
+        "Accept: */*",
+        "X-Request-Id: abc",
+        "Cookies: yes",
+        "Xx-Auth: keep",
+    ):
+        assert redact_secrets(header) == header
+
+
+def test_redact_secrets_http_client_debug_output():
+    """Verify redaction of the messages emitted by http.client when debuglevel is enabled."""
+    redact_secrets = LoggingFilter.redact_secrets
+
+    # The 'send:' message is the repr() of the raw bytes, so line terminators are escaped.
+    sent = (
+        "send: b'GET / HTTP/1.1\\r\\nHost: localhost\\r\\nCookie: sid=tok1\\r\\n"
+        "Proxy-Authorization: Basic tok2\\r\\nsecret: tok3\\r\\nAccept: */*\\r\\n\\r\\n'"
+    )
+    result = redact_secrets(sent)
+    for tok in ("tok1", "tok2", "tok3"):
+        assert tok not in result
+    assert "Host: localhost" in result
+    assert "Accept: */*" in result
+
+    # Received headers are logged one per message, prefixed by "header: ".
+    assert redact_secrets("header: Set-Cookie: sid=tok4; HttpOnly") == "header: Set-Cookie: [redacted]"
+    assert redact_secrets("header: Content-Length: 2") == "header: Content-Length: 2"
 
 
 # Simulate a real-world scenario.

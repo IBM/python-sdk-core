@@ -42,15 +42,50 @@ REDACTED_KEYWORDS = [
     "thumbprint",
     "token_uri",
 ]
+# Names (lower-case) of HTTP headers whose values must never be logged.
+# In addition to these, any header whose name starts with REDACTED_HEADER_PREFIX is also redacted.
+# NOTE: keep this list consistent with the other SDK cores (Go, Java, Node).
+REDACTED_HEADER_NAMES = frozenset(
+    [
+        "authorization",
+        "proxy-authorization",
+        "cookie",
+        "set-cookie",
+        "secret",
+    ]
+)
+REDACTED_HEADER_PREFIX = "x-auth"
+
+
+def _is_redacted_header(name: str) -> bool:
+    """Returns True iff the header 'name' (compared case-insensitively) is one whose value must be redacted."""
+    lower_name = name.lower()
+    return lower_name in REDACTED_HEADER_NAMES or lower_name.startswith(REDACTED_HEADER_PREFIX)
 
 
 class LoggingFilter:
     """Functions used to filter messages before they are logged."""
 
     redacted_tokens = "|".join(REDACTED_KEYWORDS)
-    auth_header_pattern = re.compile(r"(?m)(Authorization|X-Auth\S*): ((.*?)(\r\n.*)|(.*))")
+    # Matches a single "Name: value" header, found either at the start of a line, directly after
+    # an escaped newline (the 'http.client' debug output contains the literal characters "\r\n"),
+    # or after the "header: " prefix that 'http.client' adds to each received header.
+    # The value extends up to the next (real or escaped) line terminator.
+    header_pattern = re.compile(
+        r"(?im)(?:^|(?<=\\n))"
+        r"(?P<prefix>header: )?"
+        r"(?P<name>[!#$%&'*+.^_`|~0-9A-Za-z-]+):[ \t]*"
+        r"(?:(?!\\r\\n|\\n)[^\r\n])*"
+    )
     property_settings_pattern = re.compile(r"(?im)(" + redacted_tokens + r")=[^&\n]*(&|$)")
     json_field_pattern = re.compile(r'(?i)"([^"]*(' + redacted_tokens + r')[^"_]*)":\s*"[^"\n]*"')
+
+    @classmethod
+    def _redact_header(cls, match: re.Match) -> str:
+        """Replaces the value of a matched header if it is a credential-bearing header."""
+        if _is_redacted_header(match.group("name")):
+            return (match.group("prefix") or "") + match.group("name") + ": [redacted]"
+        return match.group(0)
 
     @classmethod
     def redact_secrets(cls, text: str) -> str:
@@ -63,7 +98,7 @@ class LoggingFilter:
         """
 
         placeholder = "[redacted]"
-        redacted = cls.auth_header_pattern.sub(r"\1: " + placeholder + r"\4", text)
+        redacted = cls.header_pattern.sub(cls._redact_header, text)
         redacted = cls.property_settings_pattern.sub(r"\1=" + placeholder + r"\2", redacted)
         redacted = cls.json_field_pattern.sub(r'"\1":"' + placeholder + r'"', redacted)
         return redacted
