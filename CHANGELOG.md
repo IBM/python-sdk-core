@@ -1,3 +1,10 @@
+## [3.28.2](https://github.com/IBM/python-sdk-core/compare/v3.28.1...v3.28.2) (2026-11-06)
+
+
+### Bug Fixes
+
+* **logging:** redact credential headers in debug output ([#257](https://github.com/IBM/python-sdk-core/issues/257)) ([d7558fa](https://github.com/IBM/python-sdk-core/commit/d7558fae4a2dacff3817d71e2c889bf115a80389))
+
 ## [3.28.1](https://github.com/IBM/python-sdk-core/compare/v3.28.0...v3.28.1) (2026-10-29)
 
 
